@@ -32,19 +32,11 @@ class MediaManager {
             let option = PHFetchOptions()
             option.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
             option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
-            smartAlbums.enumerateObjects { (collection, _, _) in
-                if collection.isKind(of: PHAssetCollection.self) {
-                    guard collection.estimatedAssetCount > 0 else {
-                        return
-                    }
-                    let fetchResult = PHAsset.fetchAssets(in: collection, options: option)
-                    fetchResult.enumerateObjects { (asset, _, _) in
-                        let m = MediaImageModel()
-                        m.asset = asset
-                        self.imageArray.append(m)
-                    }
-                }
+            let fetchResult = PHAsset.fetchAssets(with: .image, options: option)
+            fetchResult.enumerateObjects { (asset, _, _) in
+                let m = MediaImageModel()
+                m.asset = asset
+                self.imageArray.append(m)
             }
             DispatchQueue.main.async {
                 self.delegate?.didFetchAllPhotos(photos: self.imageArray)
@@ -58,38 +50,34 @@ class MediaManager {
             let option = PHFetchOptions()
             option.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
             option.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .any, options: nil)
-            smartAlbums.enumerateObjects { (collection, _, _) in
-                if collection.isKind(of: PHAssetCollection.self) {
-                    guard collection.estimatedAssetCount > 0 else {
+            let fetchResult = PHAsset.fetchAssets(with: .video, options: option)
+            fetchResult.enumerateObjects { (asset, _, _) in
+                let m = MediaVideoModel()
+                m.asset = asset
+                let option = PHVideoRequestOptions()
+                option.version = .current
+                option.deliveryMode = .automatic
+                option.isNetworkAccessAllowed = true
+                let sema = DispatchSemaphore(value: 0)
+                PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: option) { (avasset, mix, info) in
+                    guard info != nil && avasset != nil && avasset!.isKind(of: AVURLAsset.self) else {
+                        sema.signal()
                         return
                     }
-                    let fetchResult = PHAsset.fetchAssets(in: collection, options: option)
-                    fetchResult.enumerateObjects { (asset, _, _) in
-                        let m = MediaVideoModel()
-                        m.asset = asset
-                        let option = PHVideoRequestOptions()
-                        option.version = .current
-                        option.deliveryMode = .automatic
-                        let sema = DispatchSemaphore(value: 0)
-                        PHImageManager.default().requestAVAsset(forVideo: asset, options: option) { (avasset, mix, info) in
-                            guard info != nil && avasset != nil && avasset!.isKind(of: AVURLAsset.self) else {
-                                sema.signal()
-                                return
-                            }
-                            m.videoTime = avasset!.duration
-                            m.url = (avasset as! AVURLAsset).url
-                            let second = Int(ceil(Double(m.videoTime.value / Int64(m.videoTime.timescale))))
-                            m.formatTime = "\(second / 60)" + String(format: "%.2d", second % 60)
-                            if second % 3600 > 0 {
-                                m.formatTime = "\(second % 3600)" + m.formatTime
-                            }
-                            sema.signal()
-                        }
-                        sema.wait()
-                        self.videoArray.append(m)
+                    m.videoTime = avasset!.duration
+                    m.url = (avasset as! AVURLAsset).url
+                    let second = Int(ceil(Double(m.videoTime.value / Int64(m.videoTime.timescale))))
+                    if second >= 3600 {
+                        m.formatTime = "\(second % 3600)" + ":" + String(format: "%.2d", second / 60) + ":" + String(format: "%.2d", second % 60)
+                    } else if second >= 60 {
+                        m.formatTime = "\(second / 60)" + ":" + String(format: "%.2d", second % 60)
+                    } else {
+                        m.formatTime = "00" + ":" + String(format: "%.2d", second % 60)
                     }
+                    sema.signal()
                 }
+                sema.wait()
+                self.videoArray.append(m)
             }
             DispatchQueue.main.sync {
                 self.delegate?.didFetchAllVideos(videos: self.videoArray)

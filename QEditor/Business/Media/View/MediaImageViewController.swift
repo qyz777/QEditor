@@ -65,15 +65,19 @@ extension MediaImageViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CELL_IDENTIFIER, for: indexPath) as! MediaCell
         let model = presenter.mediaImageView(self, modelAt: indexPath.item)
-        if model.image != nil {
+        if model.imageModel?.image != nil {
             cell.updateCell(with: model)
         } else {
-            presenter.loadImage(in: model.asset!) { (image) in
-                model.image = image
+            presenter.loadImage(in: model.imageModel!.asset!) { (image) in
+                model.imageModel!.image = image
                 cell.updateCell(with: model)
             }
         }
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        presenter.mediaImageView(self, didSelectAt: indexPath.item)
     }
     
 }

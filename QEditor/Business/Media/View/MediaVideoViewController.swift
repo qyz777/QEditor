@@ -65,15 +65,19 @@ extension MediaVideoViewController: UICollectionViewDelegate, UICollectionViewDa
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CELL_IDENTIFIER, for: indexPath) as! MediaCell
         let model = presenter.mediaVideoView(self, modelAt: indexPath.item)
-        if model.thumbnail != nil {
+        if model.videoModel?.thumbnail != nil {
             cell.updateCell(with: model)
         } else {
-            presenter.loadImage(in: model.asset!) { (image) in
-                model.thumbnail = image
+            presenter.loadImage(in: model.videoModel!.asset!) { (image) in
+                model.videoModel!.thumbnail = image
                 cell.updateCell(with: model)
             }
         }
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        presenter.mediaVideoView(self, didSelectAt: indexPath.item)
     }
     
 }

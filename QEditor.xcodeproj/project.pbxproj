@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		9BC77A73B00FD3AFC27A4856 /* Pods_QEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0FDA30D11EE65245A87B79 /* Pods_QEditor.framework */; };
 		A0870A572351C84E006DC38D /* Namespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A562351C84E006DC38D /* Namespace.swift */; };
+		A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A592352ECD7006DC38D /* MediaCellModel.swift */; };
+		A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */; };
 		A09CF7AF2349DFE500139461 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7AE2349DFE500139461 /* AppDelegate.swift */; };
 		A09CF7B32349DFE500139461 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7B22349DFE500139461 /* ViewController.swift */; };
 		A09CF7B62349DFE500139461 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A09CF7B42349DFE500139461 /* Main.storyboard */; };
@@ -33,6 +35,8 @@
 		800CE7CD99EC1462EFFF0184 /* Pods-QEditor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QEditor.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QEditor/Pods-QEditor.debug.xcconfig"; sourceTree = "<group>"; };
 		94C3146E5EAD2F1A784A5AE8 /* Pods-QEditor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QEditor.release.xcconfig"; path = "Pods/Target Support Files/Pods-QEditor/Pods-QEditor.release.xcconfig"; sourceTree = "<group>"; };
 		A0870A562351C84E006DC38D /* Namespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Namespace.swift; sourceTree = "<group>"; };
+		A0870A592352ECD7006DC38D /* MediaCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCellModel.swift; sourceTree = "<group>"; };
+		A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
 		A09CF7AB2349DFE500139461 /* QEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A09CF7AE2349DFE500139461 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A09CF7B22349DFE500139461 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -87,8 +91,17 @@
 		A0870A552351C802006DC38D /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		A0870A582352ECC8006DC38D /* CellModel */ = {
+			isa = PBXGroup;
+			children = (
+				A0870A592352ECD7006DC38D /* MediaCellModel.swift */,
+			);
+			path = CellModel;
 			sourceTree = "<group>";
 		};
 		A09CF7A22349DFE500139461 = {
@@ -166,6 +179,7 @@
 		A09CF7CF2349E2FA00139461 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				A0870A582352ECC8006DC38D /* CellModel */,
 				A09CF7E1234B0DDB00139461 /* Cell */,
 				A09CF7D22349E31800139461 /* MediaViewController.swift */,
 				A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */,
@@ -335,11 +349,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */,
 				A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */,
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
 				A09CF7D32349E31800139461 /* MediaViewController.swift in Sources */,
+				A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */,
 				A09CF7B32349DFE500139461 /* ViewController.swift in Sources */,
 				A09CF7DA2349E38400139461 /* MediaManager.swift in Sources */,
 				A09CF7C62349E15800139461 /* NavigationController.swift in Sources */,

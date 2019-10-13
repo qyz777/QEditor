@@ -17,9 +17,11 @@ class MediaPresenter {
     
     public weak var imageView: (AnyObject & MediaImageViewInput & MediaPresenterOutput)?
     
-    private var videoArray: [MediaVideoModel] = []
+    private var videoCellModelArray: [MediaCellModel] = []
     
-    private var imageArray: [MediaImageModel] = []
+    private var imageCellModelArray: [MediaCellModel] = []
+    
+    private var selectCellModelArray: [MediaCellModel] = []
     
     private let manager = MediaManager()
     
@@ -61,7 +63,7 @@ extension MediaPresenter: MediaPresenterInput {
                 self.loadVideoModels()
                 self.loadImageModels()
             case .denied, .restricted:
-                self.view?.presenter(self, didAlbumDeniedWithInfo: "未开启相册权限")
+                self.view?.presenter(self, didAlbumDeniedWith: "未开启相册权限")
             default:
                 break
             }
@@ -70,26 +72,77 @@ extension MediaPresenter: MediaPresenterInput {
     
 }
 
+extension MediaPresenter: MediaViewOutput {
+    
+    func mediaViewShouldCompletion(_ mediaView: MediaViewInput) -> ([MediaVideoModel] ,[MediaImageModel]) {
+        var videos: [MediaVideoModel] = []
+        var photos: [MediaImageModel] = []
+        for m in selectCellModelArray {
+            if m.imageModel != nil {
+                photos.append(m.imageModel!)
+            } else if m.videoModel != nil {
+                videos.append(m.videoModel!)
+            }
+        }
+        return (videos, photos)
+    }
+    
+}
+
 extension MediaPresenter: MediaVideoViewOutput {
     
     func mediaVideoViewNumberOfItems(_ videoView: MediaVideoViewInput) -> Int {
-        return videoArray.count
+        return videoCellModelArray.count
     }
     
-    func mediaVideoView(_ videoView: MediaVideoViewInput, modelAt index: Int) -> MediaVideoModel {
-        return videoArray[index]
+    func mediaVideoView(_ videoView: MediaVideoViewInput, modelAt index: Int) -> MediaCellModel {
+        return videoCellModelArray[index]
+    }
+    
+    func mediaVideoView(_ videoView: MediaVideoViewInput, didSelectAt index: Int) {
+        videoCellModelArray[index].isSelect = !videoCellModelArray[index].isSelect
+        if videoCellModelArray[index].isSelect {
+            selectCellModelArray.append(videoCellModelArray[index])
+        } else {
+            for i in 0..<selectCellModelArray.count {
+                let m = selectCellModelArray[i]
+                if m == videoCellModelArray[index] {
+                    selectCellModelArray.remove(at: i)
+                    break
+                }
+            }
+        }
+        self.videoView?.presenterDidLoadData(self)
+        self.view?.presenter(self, didSelectWith: selectCellModelArray.count)
     }
     
 }
 
 extension MediaPresenter: MediaImageViewOutput {
     
-    func mediaImageViewNumberOfItems(_ videoView: MediaImageViewInput) -> Int {
-        return imageArray.count
+    func mediaImageViewNumberOfItems(_ imageView: MediaImageViewInput) -> Int {
+        return imageCellModelArray.count
     }
        
-    func mediaImageView(_ videoView: MediaImageViewInput, modelAt index: Int) -> MediaImageModel {
-        return imageArray[index]
+    func mediaImageView(_ imageView: MediaImageViewInput, modelAt index: Int) -> MediaCellModel {
+        return imageCellModelArray[index]
+    }
+    
+    func mediaImageView(_ imageView: MediaImageViewInput, didSelectAt index: Int) {
+        imageCellModelArray[index].isSelect = !imageCellModelArray[index].isSelect
+        if imageCellModelArray[index].isSelect {
+            selectCellModelArray.append(imageCellModelArray[index])
+        } else {
+            for i in 0..<selectCellModelArray.count {
+                let m = selectCellModelArray[i]
+                if m == imageCellModelArray[index] {
+                    selectCellModelArray.remove(at: i)
+                    break
+                }
+            }
+        }
+        self.imageView?.presenterDidLoadData(self)
+        self.view?.presenter(self, didSelectWith: selectCellModelArray.count)
     }
     
 }
@@ -97,12 +150,24 @@ extension MediaPresenter: MediaImageViewOutput {
 extension MediaPresenter: MediaManagerDelegate {
     
     func didFetchAllPhotos(photos: [MediaImageModel]) {
-        imageArray = photos
+        imageCellModelArray.removeAll()
+        for photo in photos {
+            let m = MediaCellModel()
+            m.imageModel = photo
+            m.isSelect = false
+            imageCellModelArray.append(m)
+        }
         imageView?.presenterDidLoadData(self)
     }
     
     func didFetchAllVideos(videos: [MediaVideoModel]) {
-        videoArray = videos
+        videoCellModelArray.removeAll()
+        for video in videos {
+            let m = MediaCellModel()
+            m.videoModel = video
+            m.isSelect = false
+            videoCellModelArray.append(m)
+        }
         videoView?.presenterDidLoadData(self)
     }
     
