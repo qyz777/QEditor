@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 protocol EditViewInput {
     
@@ -48,10 +49,26 @@ protocol EditViewPresenterOutput: class {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput)
     
+    func presenter(_ presenter: EditViewPresenterInput, playerDidChange status: AVPlayerItem.Status)
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double)
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64)
+    
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel)
+    
 }
 
 extension EditViewPresenterOutput {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {}
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerDidChange status: AVPlayerItem.Status) {}
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {}
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64) {}
+    
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {}
     
 }

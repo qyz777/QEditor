@@ -12,7 +12,7 @@ import AVFoundation
 
 class EditPlayerViewController: UIViewController {
     
-    public var presenter: (EditViewPresenterInput & EditPlayerViewOutput)!
+    public var presenter: (EditViewPresenterInput & EditPlayerViewOutput & PlayerViewDelegate)!
     
     private var duration: Int64 = 0
     
@@ -64,7 +64,7 @@ class EditPlayerViewController: UIViewController {
     
     lazy var playerView: PlayerView = {
         let view = PlayerView()
-        view.delegate = self
+        view.delegate = presenter
         return view
     }()
     
@@ -89,18 +89,14 @@ class EditPlayerViewController: UIViewController {
 
 }
 
-extension EditPlayerViewController: PlayerViewDelegate {
+extension EditPlayerViewController: EditViewPresenterOutput {
     
-    public func player(_ player: PlayerView, didChange status: AVPlayerItem.Status) {
-        
-    }
-    
-    public func player(_ player: PlayerView, playAt time: Int64) {
+    func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
         let timeFormat = String.qe.formatTime(Int(time))
         timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
     }
     
-    public func player(_ player: PlayerView, didLoadVideoWith duration: Int64) {
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64) {
         self.duration = duration
         timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
     }

@@ -10,10 +10,6 @@ import UIKit
 
 class EditToolImageCell: UICollectionViewCell {
     
-    public func update(with model: EditToolImageCellModel) {
-        imageView.image = model.image
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(imageView)

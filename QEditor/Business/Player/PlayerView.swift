@@ -21,7 +21,7 @@ public protocol PlayerViewDelegate: class {
     
     func player(_ player: PlayerView, didChange status: AVPlayerItem.Status)
     
-    func player(_ player: PlayerView, playAt time: Int64)
+    func player(_ player: PlayerView, playAt time: Double)
     
     func player(_ player: PlayerView, didLoadVideoWith duration: Int64)
     
@@ -117,11 +117,10 @@ public extension PlayerView {
         currentItem = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: currentItem)
         if timeObserver == nil {
-            let interval = CMTime(value: 1, timescale: asset.duration.timescale)
-            timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main) { [weak self] (time) in
+            let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+            timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] (time) in
                 if let strongSelf = self {
-                    let seconds = Int64(time.seconds)
-                    strongSelf.delegate?.player(strongSelf, playAt: seconds)
+                    strongSelf.delegate?.player(strongSelf, playAt: time.seconds)
                 }
             }
         }

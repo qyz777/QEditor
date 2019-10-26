@@ -11,6 +11,7 @@
 		A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021232F2364019E0073A125 /* EditToolImageThumbView.swift */; };
 		A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212331236404090073A125 /* EditViewPresenter+Tool.swift */; };
 		A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123332364168E0073A125 /* UIImage+Utility.swift */; };
+		A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123352364204D0073A125 /* EditViewPresenter+Player.swift */; };
 		A0870A572351C84E006DC38D /* Namespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A562351C84E006DC38D /* Namespace.swift */; };
 		A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A592352ECD7006DC38D /* MediaCellModel.swift */; };
 		A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */; };
@@ -51,6 +52,7 @@
 		A021232F2364019E0073A125 /* EditToolImageThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageThumbView.swift; sourceTree = "<group>"; };
 		A0212331236404090073A125 /* EditViewPresenter+Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Tool.swift"; sourceTree = "<group>"; };
 		A02123332364168E0073A125 /* UIImage+Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Utility.swift"; sourceTree = "<group>"; };
+		A02123352364204D0073A125 /* EditViewPresenter+Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Player.swift"; sourceTree = "<group>"; };
 		A0870A562351C84E006DC38D /* Namespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Namespace.swift; sourceTree = "<group>"; };
 		A0870A592352ECD7006DC38D /* MediaCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCellModel.swift; sourceTree = "<group>"; };
 		A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 			children = (
 				A0E03C02235AA3730012F226 /* EditViewPresenter.swift */,
 				A0212331236404090073A125 /* EditViewPresenter+Tool.swift */,
+				A02123352364204D0073A125 /* EditViewPresenter+Player.swift */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -483,6 +486,7 @@
 				A0DADA0D235AE28C00BD83D7 /* EditToolImageCellModel.swift in Sources */,
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A0870A6B23532612006DC38D /* String+Video.swift in Sources */,
+				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
 				A09CF7D32349E31800139461 /* MediaViewController.swift in Sources */,
