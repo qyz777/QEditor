@@ -3,5 +3,6 @@ target 'QEditor' do
   use_frameworks!
 
   pod "SnapKit"
+  pod "KVOController"
 
 end

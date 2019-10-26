@@ -18,7 +18,7 @@ class MediaViewController: UIViewController {
     
     private var presenter: (AnyObject & MediaPresenterInput & MediaViewOutput)!
     
-    public class func buildView() -> UIViewController {
+    public class func buildView() -> MediaViewController {
         let presenter = MediaPresenter()
         let vc = MediaViewController()
         vc.presenter = presenter
@@ -95,7 +95,9 @@ class MediaViewController: UIViewController {
     @objc
     func didClickAddButton() {
         let tuple = presenter.mediaViewShouldCompletion(self)
-        completion?(tuple.0, tuple.1)
+        dismiss(animated: true) {
+            self.completion?(tuple.0, tuple.1)
+        }
     }
     
     lazy var containerView: UIScrollView = {
