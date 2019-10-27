@@ -173,11 +173,9 @@ extension EditToolViewController: UIScrollViewDelegate {
         let offsetX = scrollView.contentOffset.x
         let totalWidth = scrollView.contentSize.width
         
-        if scrollView.panGestureRecognizer.state == .changed {
-            if offsetX >= 0 && (totalWidth - SCREEN_WIDTH) > 0 {
-                let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
-                presenter.toolView(self, onDragWith: percent)
-            }
+        if totalWidth - SCREEN_WIDTH > 0 {
+            let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
+            presenter.toolView(self, onDragWith: percent)
         }
         
         if offsetX < SCREEN_WIDTH / 2 {
@@ -210,6 +208,15 @@ extension EditToolViewController: UIScrollViewDelegate {
             let newOffsetX = offsetX - SCREEN_WIDTH / 2
             thumbView.contentOffset = .init(x: newOffsetX, y: 0)
             timeScaleView.contentOffset = .init(x: newOffsetX, y: 0)
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let offsetX = scrollView.contentOffset.x
+        let totalWidth = scrollView.contentSize.width
+        if totalWidth - SCREEN_WIDTH > 0 {
+            let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
+            presenter.toolView(self, onDragWith: percent)
         }
     }
     

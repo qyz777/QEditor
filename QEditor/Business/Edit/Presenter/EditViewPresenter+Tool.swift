@@ -24,7 +24,7 @@ extension EditViewPresenter: EditToolViewOutput {
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
         let m = thumbModel[index]
-        return "\(Int(m.time.seconds))" + " s"
+        return String.qe.formatTime(Int(m.time.seconds))
     }
     
 }
