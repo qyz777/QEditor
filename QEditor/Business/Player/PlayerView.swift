@@ -27,11 +27,19 @@ public protocol PlayerViewDelegate: class {
     
     func player(_ player: PlayerView, loadVideoFailWith error: String)
     
+    func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus)
+    
+    func playerDidPlayToEndTime(_ player: PlayerView)
+    
 }
 
 extension PlayerViewDelegate {
     
     func player(_ player: PlayerView, loadVideoFailWith error: String) {}
+    
+    func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {}
+    
+    func playerDidPlayToEndTime(_ player: PlayerView) {}
     
 }
 
@@ -53,6 +61,11 @@ public class PlayerView: UIView {
         super.init(coder: coder)
     }
     
+    deinit {
+        stop()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     override public func layoutSubviews() {
         super.layoutSubviews()
         playerLayer.frame = bounds
@@ -63,6 +76,13 @@ public class PlayerView: UIView {
             return currentItem!.error!.localizedDescription
         }
         return ""
+    }
+    
+    @objc
+    func playerItemDidPlayToEndTime() {
+        status = .pause
+        delegate?.player(self, statusDidChange: status)
+        delegate?.playerDidPlayToEndTime(self)
     }
     
     lazy var player: AVPlayer = {
@@ -88,6 +108,7 @@ public extension PlayerView {
         }
         player.play()
         status = .playing
+        delegate?.player(self, statusDidChange: status)
     }
     
     func stop() {
@@ -97,11 +118,13 @@ public extension PlayerView {
             timeObserver = nil
         }
         status = .stop
+        delegate?.player(self, statusDidChange: status)
     }
     
     func pause() {
         player.pause()
         status = .pause
+        delegate?.player(self, statusDidChange: status)
     }
     
     func seek(to time: Double) {
@@ -138,6 +161,7 @@ public extension PlayerView {
                 }
             }
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTime), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
     }
     
 }

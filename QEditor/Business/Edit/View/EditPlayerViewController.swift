@@ -102,6 +102,10 @@ extension EditPlayerViewController: EditViewPresenterOutput {
         timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
     }
     
+    func presenterPlayerDidEndToTime(_ presenter: EditViewPresenterInput) {
+        playButton.setImage(UIImage(named: "edit_play"), for: .normal)
+    }
+    
 }
 
 extension EditPlayerViewController: EditPlayerViewInput {
@@ -114,6 +118,16 @@ extension EditPlayerViewController: EditPlayerViewInput {
     func seek(to percent: Float) {
         let time = Double(duration) * Double(percent)
         playerView.seek(to: time)
+    }
+    
+    func play() {
+        playerView.play()
+        playButton.setImage(UIImage(named: "edit_pause"), for: .normal)
+    }
+    
+    func pause() {
+        playerView.pause()
+        playButton.setImage(UIImage(named: "edit_play"), for: .normal)
     }
     
 }

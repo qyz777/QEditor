@@ -23,6 +23,10 @@ protocol EditPlayerViewInput {
     
     func seek(to percent: Float)
     
+    func play()
+    
+    func pause()
+    
 }
 
 protocol EditPlayerViewOutput: class {
@@ -52,11 +56,19 @@ protocol EditViewPresenterInput {
     
     func prepare(forVideo model: MediaVideoModel)
     
+    func playerShouldPause()
+    
+    func playerShouldPlay()
+    
 }
 
 protocol EditViewPresenterOutput: class {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput)
+    
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel)
+    
+    //MARK:播放器
     
     func presenter(_ presenter: EditViewPresenterInput, playerDidChange status: AVPlayerItem.Status)
     
@@ -64,7 +76,9 @@ protocol EditViewPresenterOutput: class {
     
     func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64)
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel)
+    func presenter(_ presenter: EditViewPresenterInput, playerStatusDidChange status: PlayerViewStatus)
+    
+    func presenterPlayerDidEndToTime(_ presenter: EditViewPresenterInput)
     
 }
 
@@ -72,12 +86,16 @@ extension EditViewPresenterOutput {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {}
     
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {}
+    
     func presenter(_ presenter: EditViewPresenterInput, playerDidChange status: AVPlayerItem.Status) {}
     
     func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {}
     
     func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64) {}
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {}
+    func presenter(_ presenter: EditViewPresenterInput, playerStatusDidChange status: PlayerViewStatus) {}
+    
+    func presenterPlayerDidEndToTime(_ presenter: EditViewPresenterInput) {}
     
 }

@@ -31,7 +31,6 @@ class EditToolImageThumbView: UICollectionView {
             generator = AVAssetImageGenerator(asset: asset)
             generator!.requestedTimeToleranceAfter = .zero
             generator!.requestedTimeToleranceBefore = .zero
-            generator!.maximumSize = .init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE)
             //防止获取的图片旋转
             generator!.appliesPreferredTrackTransform = true
         }
@@ -60,7 +59,7 @@ class EditToolImageThumbView: UICollectionView {
             autoreleasepool {
                 do {
                     let cgImage = try self.generator!.copyCGImage(at: time, actualTime: nil)
-                    image = UIImage(cgImage: cgImage).qe.convertToSquare()
+                    image = UIImage(cgImage: cgImage).qe.convertToSquare().qe.scaleToSize(.init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE))
                 } catch {
                     print(error.localizedDescription)
                 }

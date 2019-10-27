@@ -41,6 +41,14 @@ extension EditViewPresenter: EditViewPresenterInput {
         toolView.presenterViewShouldReload(self)
     }
     
+    func playerShouldPause() {
+        playerView.pause()
+    }
+    
+    func playerShouldPlay() {
+        playerView.play()
+    }
+    
 }
 
 extension EditViewPresenter: EditViewOutput {

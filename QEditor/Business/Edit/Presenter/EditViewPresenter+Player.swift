@@ -26,6 +26,16 @@ extension EditViewPresenter: PlayerViewDelegate {
         playerView.presenter(self, playerDidLoadVideoWith: duration)
     }
     
+    func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {
+        toolView.presenter(self, playerStatusDidChange: status)
+        playerView.presenter(self, playerStatusDidChange: status)
+    }
+    
+    func playerDidPlayToEndTime(_ player: PlayerView) {
+        toolView.presenterPlayerDidEndToTime(self)
+        playerView.presenterPlayerDidEndToTime(self)
+    }
+    
 }
 
 extension EditViewPresenter: EditPlayerViewOutput {

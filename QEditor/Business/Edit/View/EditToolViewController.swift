@@ -16,6 +16,10 @@ class EditToolViewController: UIViewController {
     public var presenter: (EditViewPresenterInput & EditToolViewOutput)!
     
     private var duration: Int = 0
+    
+    private var playerStatus: PlayerViewStatus = .error
+    
+    private var isPlayingBeforeDragging = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -156,9 +160,16 @@ extension EditToolViewController: EditViewPresenterOutput {
             return
         }
         let percent = CGFloat(time) / CGFloat(duration)
-        let totalWidth = containerView.contentSize.width - SCREEN_WIDTH
+        guard percent <= 1 else {
+            return
+        }
+        let totalWidth = thumbView.contentSize.width
         let offsetX = totalWidth * percent
         containerView.contentOffset = .init(x: offsetX, y: 0)
+    }
+    
+    func presenter(_ presenter: EditViewPresenterInput, playerStatusDidChange status: PlayerViewStatus) {
+        playerStatus = status
     }
     
     func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {
@@ -173,8 +184,8 @@ extension EditToolViewController: UIScrollViewDelegate {
         let offsetX = scrollView.contentOffset.x
         let totalWidth = scrollView.contentSize.width
         
-        if totalWidth - SCREEN_WIDTH > 0 {
-            let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
+        if totalWidth - SCREEN_WIDTH > 0 && playerStatus != .playing {
+            let percent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
             presenter.toolView(self, onDragWith: percent)
         }
         
@@ -218,6 +229,15 @@ extension EditToolViewController: UIScrollViewDelegate {
             let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
             presenter.toolView(self, onDragWith: percent)
         }
+        if isPlayingBeforeDragging {
+            isPlayingBeforeDragging = false
+            presenter.playerShouldPlay()
+        }
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        isPlayingBeforeDragging = playerStatus == .playing
+        presenter.playerShouldPause()
     }
     
 }
