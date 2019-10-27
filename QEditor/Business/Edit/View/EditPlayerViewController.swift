@@ -43,6 +43,7 @@ class EditPlayerViewController: UIViewController {
         
         playButton.snp.makeConstraints { (make) in
             make.center.equalTo(self.toolBar)
+            make.size.equalTo(CGSize(width: 30, height: 30))
         }
         
         timeLabel.snp.makeConstraints { (make) in

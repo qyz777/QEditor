@@ -7,6 +7,9 @@
 //
 
 import UIKit
+#if DEBUG
+import FLEX
+#endif
 
 class NavigationController: UINavigationController {
     
@@ -22,7 +25,15 @@ class NavigationController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        #if DEBUG
+        UIApplication.shared.applicationSupportsShakeToEdit = true
+        #endif
     }
     
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        #if DEBUG
+        FLEXManager.shared()?.showExplorer()
+        #endif
+    }
 
 }

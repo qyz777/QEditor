@@ -4,5 +4,7 @@ target 'QEditor' do
 
   pod "SnapKit"
   pod "KVOController"
+  
+  pod 'FLEX', :configurations => ['Debug']
 
 end
