@@ -37,12 +37,8 @@ class EditToolImageThumbView: UICollectionView {
         }
     }
     
-    init() {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        super.init(frame: .zero, collectionViewLayout: layout)
+    override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        super.init(frame: frame, collectionViewLayout: layout)
         delegate = self
         dataSource = self
         showsVerticalScrollIndicator = false

@@ -22,4 +22,9 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView.seek(to: percent)
     }
     
+    func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
+        let m = thumbModel[index]
+        return "\(Int(m.time.seconds))" + " s"
+    }
+    
 }

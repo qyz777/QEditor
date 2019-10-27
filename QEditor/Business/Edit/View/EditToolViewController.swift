@@ -28,6 +28,7 @@ class EditToolViewController: UIViewController {
         view.addSubview(verticalTimeLineView)
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
+        contentView.addSubview(timeScaleView)
         
         containerView.snp.makeConstraints { (make) in
             make.edges.equalTo(self.view)
@@ -51,6 +52,13 @@ class EditToolViewController: UIViewController {
             make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
             make.width.equalTo(SCREEN_WIDTH)
             make.centerY.equalTo(self.contentView)
+        }
+        
+        timeScaleView.snp.makeConstraints { (make) in
+            make.height.equalTo(25)
+            make.width.equalTo(SCREEN_WIDTH)
+            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            make.top.equalTo(self.contentView).offset(0)
         }
     }
     
@@ -84,7 +92,11 @@ class EditToolViewController: UIViewController {
     }()
     
     lazy var thumbView: EditToolImageThumbView = {
-        let view = EditToolImageThumbView()
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        let view = EditToolImageThumbView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: EDIT_THUMB_CELL_SIZE), collectionViewLayout: layout)
         view.isScrollEnabled = false
         view.itemCountClosure = { [weak self] in
             if let ss = self {
@@ -97,6 +109,27 @@ class EditToolViewController: UIViewController {
                 return ss.presenter.toolView(ss, thumbModelAt: item)
             }
             return EditToolImageCellModel()
+        }
+        return view
+    }()
+    
+    lazy var timeScaleView: EditToolTimeScaleView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        let view = EditToolTimeScaleView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: 25), collectionViewLayout: layout)
+        view.itemCountClosure = { [weak self] in
+            if let ss = self {
+                return ss.presenter.toolImageThumbViewItemsCount(ss)
+            }
+            return 0
+        }
+        view.itemContentClosure = { [weak self] (item: Int) -> String in
+            if let ss = self {
+                return ss.presenter.toolView(ss, contentAt: item)
+            }
+            return ""
         }
         return view
     }()
@@ -152,20 +185,31 @@ extension EditToolViewController: UIScrollViewDelegate {
             thumbView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
             }
-            contentView.layoutIfNeeded()
+            timeScaleView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            }
+            thumbView.contentOffset = .zero
+            timeScaleView.contentOffset = .zero
         } else if offsetX >= totalWidth - SCREEN_WIDTH * 1.5 {
             //在右侧
             thumbView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
             }
-            contentView.layoutIfNeeded()
+            timeScaleView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
+            }
+            thumbView.contentOffset = .init(x: thumbView.contentSize.width - SCREEN_WIDTH, y: 0)
+            timeScaleView.contentOffset = .init(x: timeScaleView.contentSize.width - SCREEN_WIDTH, y: 0)
         } else if offsetX >= SCREEN_WIDTH / 2 {
             thumbView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(offsetX)
             }
-            contentView.layoutIfNeeded()
-            let thumbViewOffsetX = offsetX - SCREEN_WIDTH / 2
-            thumbView.contentOffset = .init(x: thumbViewOffsetX, y: 0)
+            timeScaleView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(offsetX)
+            }
+            let newOffsetX = offsetX - SCREEN_WIDTH / 2
+            thumbView.contentOffset = .init(x: newOffsetX, y: 0)
+            timeScaleView.contentOffset = .init(x: newOffsetX, y: 0)
         }
     }
     

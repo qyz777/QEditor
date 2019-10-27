@@ -44,6 +44,8 @@ protocol EditToolViewOutput: class {
     /// - Parameter percent: 拖动进度
     func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float)
     
+    func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
+    
 }
 
 protocol EditViewPresenterInput {
