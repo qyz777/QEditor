@@ -139,6 +139,14 @@ extension EditToolViewController: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offsetX = scrollView.contentOffset.x
         let totalWidth = scrollView.contentSize.width
+        
+        if scrollView.panGestureRecognizer.state == .changed {
+            if offsetX >= 0 && (totalWidth - SCREEN_WIDTH) > 0 {
+                let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
+                presenter.toolView(self, onDragWith: percent)
+            }
+        }
+        
         if offsetX < SCREEN_WIDTH / 2 {
             //在左侧
             thumbView.snp.updateConstraints { (make) in

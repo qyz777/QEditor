@@ -21,6 +21,8 @@ protocol EditPlayerViewInput {
     
     func setup(model: MediaVideoModel)
     
+    func seek(to percent: Float)
+    
 }
 
 protocol EditPlayerViewOutput: class {
@@ -36,6 +38,11 @@ protocol EditToolViewOutput: class {
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int
     
     func toolView(_ toolView: EditToolViewInput, thumbModelAt index: Int) -> EditToolImageCellModel
+    
+    /// 工具栏开始横向拖动
+    /// - Parameter toolView: 工具栏view
+    /// - Parameter percent: 拖动进度
+    func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float)
     
 }
 

@@ -32,6 +32,8 @@ class EditToolImageThumbView: UICollectionView {
             generator!.requestedTimeToleranceAfter = .zero
             generator!.requestedTimeToleranceBefore = .zero
             generator!.maximumSize = .init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE)
+            //防止获取的图片旋转
+            generator!.appliesPreferredTrackTransform = true
         }
     }
     

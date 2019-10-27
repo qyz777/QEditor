@@ -31,4 +31,66 @@ public extension Namespace where Base: UIImage {
         return reSizeImage
     }
     
+    func fixOrientation() -> UIImage {
+        if base.imageOrientation == .up {
+            return base
+        }
+        
+        var transform = CGAffineTransform.identity
+        switch base.imageOrientation {
+        case .down, .downMirrored:
+            transform = transform.translatedBy(x: base.size.width, y: base.size.height)
+            transform = transform.rotated(by: .pi)
+            break
+        case .left, .leftMirrored:
+            transform = transform.translatedBy(x: base.size.width, y: 0)
+            transform = transform.rotated(by: .pi / 2)
+            break
+        case .right, .rightMirrored:
+            transform = transform.translatedBy(x: 0, y: base.size.height)
+            transform = transform.rotated(by: -.pi / 2)
+            break
+        default:
+            break
+        }
+        
+        switch base.imageOrientation {
+        case .upMirrored, .downMirrored:
+            transform = transform.translatedBy(x: base.size.width, y: 0)
+            transform = transform.scaledBy(x: -1, y: 1)
+            break
+        case .leftMirrored, .rightMirrored:
+            transform = transform.translatedBy(x: base.size.height, y: 0)
+            transform = transform.scaledBy(x: -1, y: 1)
+            break
+        default:
+            break
+        }
+        
+        guard let cgImage = base.cgImage else {
+            return base
+        }
+        
+        let ctx: CGContext = CGContext(data: nil,
+                                       width: Int(base.size.width),
+                                       height: Int(base.size.height),
+                                       bitsPerComponent: cgImage.bitsPerComponent,
+                                       bytesPerRow: 0,
+                                       space: cgImage.colorSpace!,
+                                       bitmapInfo: cgImage.bitmapInfo.rawValue)!
+        ctx.concatenate(transform)
+        switch base.imageOrientation {
+        case .left, .leftMirrored, .right, .rightMirrored:
+            ctx.draw(cgImage, in: CGRect.init(x: 0, y: 0, width: base.size.height, height: base.size.width))
+            break
+        default:
+            ctx.draw(cgImage, in: CGRect.init(x: 0, y: 0, width: base.size.width, height: base.size.height))
+            break
+        }
+        guard let cgimg: CGImage = ctx.makeImage() else {
+            return base
+        }
+        return UIImage.init(cgImage: cgimg)
+    }
+    
 }

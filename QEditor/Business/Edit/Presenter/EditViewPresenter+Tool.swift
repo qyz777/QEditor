@@ -18,4 +18,8 @@ extension EditViewPresenter: EditToolViewOutput {
         return thumbModel[index]
     }
     
+    func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float) {
+        playerView.seek(to: percent)
+    }
+    
 }

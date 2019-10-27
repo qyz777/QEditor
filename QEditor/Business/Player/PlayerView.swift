@@ -104,12 +104,12 @@ public extension PlayerView {
         status = .pause
     }
     
-    func seek(to time: Int64) {
+    func seek(to time: Double) {
         guard currentItem != nil else {
             return
         }
-        let time = CMTime(value: time, timescale: currentItem!.asset.duration.timescale)
-        player.seek(to: time)
+        let time = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
     func setupPlayer(with url: URL) {
