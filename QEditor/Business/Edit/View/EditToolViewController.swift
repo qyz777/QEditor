@@ -24,25 +24,32 @@ class EditToolViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initView()
+        toolBarView.reloadData()
     }
     
     private func initView() {
         view.backgroundColor = .black
         view.addSubview(containerView)
         view.addSubview(verticalTimeLineView)
+        view.addSubview(toolBarView)
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
         contentView.addSubview(timeScaleView)
         
         containerView.snp.makeConstraints { (make) in
-            make.edges.equalTo(self.view)
+            make.top.left.right.equalTo(self.view)
+            make.bottom.equalTo(self.toolBarView.snp.top)
         }
         
         verticalTimeLineView.snp.makeConstraints { (make) in
-            make.center.equalTo(self.view)
+            make.center.equalTo(self.containerView)
             make.width.equalTo(4)
-            make.top.equalTo(self.view).offset(60)
-            make.bottom.equalTo(self.view).offset(-60)
+            make.height.equalTo(SCREEN_WIDTH / 3)
+        }
+        
+        toolBarView.snp.makeConstraints { (make) in
+            make.left.right.bottom.equalTo(self.view)
+            make.height.equalTo(50)
         }
         
         contentView.snp.makeConstraints { (make) in
@@ -135,6 +142,16 @@ class EditToolViewController: UIViewController {
             }
             return ""
         }
+        return view
+    }()
+    
+    lazy var toolBarView: EditToolBar = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 15
+        layout.itemSize = .init(width: 40, height: 50)
+        let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
         return view
     }()
 
