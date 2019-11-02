@@ -46,6 +46,8 @@ class EditToolBarCell: UICollectionViewCell {
 }
 
 class EditToolBar: UICollectionView {
+    
+    public var selectedClosure: ((_ index: Int) -> Void)?
 
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
@@ -76,7 +78,7 @@ extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //todo:在这里展现别的view
+        selectedClosure?(indexPath.item)
     }
     
 }

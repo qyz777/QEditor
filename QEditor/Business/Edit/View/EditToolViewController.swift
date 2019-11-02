@@ -74,13 +74,38 @@ class EditToolViewController: UIViewController {
     }
     
     private func refreshContainerView() {
+        //1.更新容器view的contentSize
         let itemCount = presenter.toolImageThumbViewItemsCount(self)
         containerView.contentSize = .init(width: CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE, height: 0)
         let width = max(containerView.contentSize.width + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
         contentView.snp.updateConstraints { (make) in
             make.width.equalTo(width)
         }
+        view.layoutIfNeeded()
+        //2.初始化第一个最大的框选view
+        let chooseMaxWidth = (width - SCREEN_WIDTH) + 50
+        let view = EditToolChooseBoxView(with: chooseMaxWidth)
+        view.qe.left = SCREEN_WIDTH / 2 - 25
+        view.qe.width = chooseMaxWidth
+        view.qe.centerY = thumbView.qe.centerY
+        view.initLeft = view.qe.left
+        contentView.addSubview(view)
     }
+    
+    //MARK: 工具栏
+    
+    private func showEditBar() {
+        let view = EditToolEditBar()
+        view.selectedDelegate = self
+        view.frame = .init(x: 0, y: 0, width: toolBarView.qe.width, height: toolBarView.qe.height)
+        toolBarView.insertSubview(view, at: 99)
+        view.backClosure = { [weak view] in
+            view?.removeFromSuperview()
+        }
+        view.reloadData()
+    }
+    
+    //MARK: Getter
     
     lazy var containerView: UIScrollView = {
         let view = UIScrollView()
@@ -152,9 +177,29 @@ class EditToolViewController: UIViewController {
         layout.minimumInteritemSpacing = 15
         layout.itemSize = .init(width: 40, height: 50)
         let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
+        view.selectedClosure = { [weak self] (_ index: Int) in
+            guard let ss = self else {
+                return
+            }
+            switch index {
+            case 0:
+                ss.showEditBar()
+            default:
+                break
+            }
+        }
         return view
     }()
 
+}
+
+extension EditToolViewController: EditToolEditBarDelegate {
+    
+    func viewDidSelectedCut(_ view: EditToolEditBar) {
+        //[剪辑][分割]
+        //todo:
+    }
+    
 }
 
 extension EditToolViewController: EditToolViewInput {
