@@ -10,6 +10,9 @@ import UIKit
 
 fileprivate let CHOOSE_BOX_MIN_WIDTH: CGFloat = 60
 
+public let ChooseBoxDidShowNotification = NSNotification.Name("ChooseBoxDidShowNotification")
+public let ChooseBoxDidHiddenNotification = NSNotification.Name("ChooseBoxDidHiddenNotification")
+
 class EditToolChooseBoxView: UIView {
     
     private var maxWidth: CGFloat = 0
@@ -19,6 +22,8 @@ class EditToolChooseBoxView: UIView {
     private var beginLeft: CGFloat = 0
     
     public var initLeft: CGFloat = 0
+    
+    public var isForce = false
 
     init(with maxWidth: CGFloat) {
         super.init(frame: .init(x: 0, y: 0, width: CHOOSE_BOX_MIN_WIDTH, height: EDIT_THUMB_CELL_SIZE))
@@ -30,6 +35,9 @@ class EditToolChooseBoxView: UIView {
         let rightPan = UIPanGestureRecognizer(target: self, action: #selector(handleRightPan(_:)))
         leftPanView.addGestureRecognizer(leftPan)
         rightPanView.addGestureRecognizer(rightPan)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapView))
+        addGestureRecognizer(tap)
     }
     
     private func setupSubviews() {
@@ -38,6 +46,7 @@ class EditToolChooseBoxView: UIView {
         addSubview(rightPanView)
         addSubview(topLineView)
         addSubview(bottomLineView)
+        addSubview(coverView)
         
         leftPanView.snp.makeConstraints { (make) in
             make.left.top.bottom.equalTo(self)
@@ -62,10 +71,52 @@ class EditToolChooseBoxView: UIView {
             make.bottom.equalTo(self)
             make.height.equalTo(1)
         }
+        
+        coverView.snp.makeConstraints { (make) in
+            make.top.equalTo(self.topLineView.snp.bottom)
+            make.bottom.equalTo(self.bottomLineView)
+            make.left.equalTo(self.leftPanView.snp.right)
+            make.right.equalTo(self.rightPanView.snp.left)
+        }
+    }
+    
+    public func show() {
+        UIView.animate(withDuration: 0.25, animations: {
+            self.leftPanView.alpha = 1
+            self.rightPanView.alpha = 1
+            self.topLineView.alpha = 1
+            self.bottomLineView.alpha = 1
+            self.coverView.alpha = 1
+        }) { (f) in
+            self.isForce = true
+        }
+    }
+    
+    public func hidden() {
+        UIView.animate(withDuration: 0.25, animations: {
+            self.leftPanView.alpha = 0
+            self.rightPanView.alpha = 0
+            self.topLineView.alpha = 0
+            self.bottomLineView.alpha = 0
+            self.coverView.alpha = 0
+        }) { (f) in
+            self.isForce = false
+        }
     }
     
     @objc
-    func handleLeftPan(_ gesture: UIPanGestureRecognizer) {
+    private func didTapView() {
+        if isForce {
+            hidden()
+            NotificationCenter.default.post(name: ChooseBoxDidHiddenNotification, object: self)
+        } else {
+            show()
+            NotificationCenter.default.post(name: ChooseBoxDidShowNotification, object: self)
+        }
+    }
+    
+    @objc
+    private func handleLeftPan(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .began:
             beginLeft = qe.left
@@ -89,7 +140,7 @@ class EditToolChooseBoxView: UIView {
     }
     
     @objc
-    func handleRightPan(_ gesture: UIPanGestureRecognizer) {
+    private func handleRightPan(_ gesture: UIPanGestureRecognizer) {
         switch gesture.state {
         case .began:
             beginLeft = qe.left
@@ -116,12 +167,14 @@ class EditToolChooseBoxView: UIView {
     lazy var topLineView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.qe.hex(0xEEEEEE)
+        view.alpha = 0
         return view
     }()
     
     lazy var bottomLineView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.qe.hex(0xEEEEEE)
+        view.alpha = 0
         return view
     }()
     
@@ -130,6 +183,7 @@ class EditToolChooseBoxView: UIView {
         view.backgroundColor = UIColor.qe.hex(0xEEEEEE)
         view.layer.cornerRadius = 4
         view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        view.alpha = 0
         let v = UIView()
         v.backgroundColor = .lightGray
         v.layer.cornerRadius = 1
@@ -147,6 +201,7 @@ class EditToolChooseBoxView: UIView {
         view.backgroundColor = UIColor.qe.hex(0xEEEEEE)
         view.layer.cornerRadius = 4
         view.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        view.alpha = 0
         let v = UIView()
         v.backgroundColor = .lightGray
         v.layer.cornerRadius = 1
@@ -156,6 +211,13 @@ class EditToolChooseBoxView: UIView {
             make.height.equalTo(MEDIA_ITEM_SIZE / 4)
             make.width.equalTo(2)
         }
+        return view
+    }()
+    
+    lazy var coverView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 0, alpha: 0.3)
+        view.alpha = 0
         return view
     }()
 
