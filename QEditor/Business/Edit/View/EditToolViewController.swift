@@ -9,7 +9,12 @@
 import UIKit
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
+
+/// 容器最小滑动宽度
 fileprivate let MIN_SCROLL_WIDTH = SCREEN_WIDTH + SCREEN_WIDTH / 2
+
+/// 容器左边距
+fileprivate let CONTAINER_PADDING_LEFT = SCREEN_WIDTH / 2
 
 
 /// 视图层级枚举
@@ -28,7 +33,7 @@ class EditToolViewController: UIViewController {
     public var presenter: (EditViewPresenterInput & EditToolViewOutput)!
     
     /// 视频时长
-    private var duration: Int = 0
+    private var duration: Double = 0
     
     /// 播放器状态
     private var playerStatus: PlayerViewStatus = .error
@@ -43,6 +48,9 @@ class EditToolViewController: UIViewController {
     
     /// 分割部分信息模型数组
     private var partInfos: [EditToolPartInfo] = []
+    
+    /// 当前锁定的选择框
+    private weak var forceChooseView: EditToolChooseBoxView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,7 +99,7 @@ class EditToolViewController: UIViewController {
         
         thumbView.snp.makeConstraints { (make) in
             make.height.equalTo(EDIT_THUMB_CELL_SIZE)
-            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.width.equalTo(SCREEN_WIDTH)
             make.centerY.equalTo(self.contentView)
         }
@@ -99,36 +107,41 @@ class EditToolViewController: UIViewController {
         timeScaleView.snp.makeConstraints { (make) in
             make.height.equalTo(25)
             make.width.equalTo(SCREEN_WIDTH)
-            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.top.equalTo(self.contentView).offset(0)
         }
     }
     
     private func refreshContainerView() {
-        //1.更新容器view的contentSize
+        //1.清除
+        clearViewsAndInfos()
+        //2.更新容器view的contentSize
+        //todo:先这么处理
+        containerView.contentOffset = .zero
+        thumbView.contentOffset = .zero
         let itemCount = presenter.toolImageThumbViewItemsCount(self)
         containerView.contentSize = .init(width: CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE, height: 0)
         let width = max(containerView.contentSize.width + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
         contentView.snp.updateConstraints { (make) in
             make.width.equalTo(width)
         }
-        view.layoutIfNeeded()
-        //2.设置视频最大宽度
+        //3.设置视频最大宽度
         videoContentWidth = width - SCREEN_WIDTH
-        //3.初始化第一个最大的框选view
+        //4.初始化第一个最大的框选view
         let chooseMaxWidth = videoContentWidth + 50
         let view = EditToolChooseBoxView(with: chooseMaxWidth)
         view.qe.left = SCREEN_WIDTH / 2 - 25
         view.qe.width = chooseMaxWidth
         view.qe.centerY = thumbView.qe.centerY
-        view.initLeft = view.qe.left
+        view.initializeLeft = view.qe.left
         contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
         let info = EditToolPartInfo()
         info.chooseView = view
         info.beginTime = 0
-        info.endTime = Float(duration)
+        info.endTime = duration
         info.duration = duration
         partInfos.append(info)
+        view.info = info
     }
     
     private func resetChooseViews() {
@@ -140,42 +153,54 @@ class EditToolViewController: UIViewController {
         //2.增加新的
         var lastInfo: EditToolSplitInfo?
         splitInfos.forEach { [weak self] (info) in
-            let view = EditToolChooseBoxView(with: info.point.x - SCREEN_WIDTH / 2)
+            let view = EditToolChooseBoxView(with: info.point.x - CONTAINER_PADDING_LEFT)
             if lastInfo == nil {
-                view.qe.left = SCREEN_WIDTH / 2 - 25
-                view.qe.width = (info.point.x - SCREEN_WIDTH / 2) + 50
-                view.qe.centerY = thumbView.qe.centerY
+                view.qe.left = CONTAINER_PADDING_LEFT - 25
+                view.qe.width = (info.point.x - CONTAINER_PADDING_LEFT) + 50
             } else {
                 view.qe.left = lastInfo!.point.x - 25
                 view.qe.width = (info.point.x - lastInfo!.point.x) + 50
-                view.qe.centerY = thumbView.qe.centerY
             }
-            view.initLeft = view.qe.left
-            lastInfo = info
+            view.qe.centerY = thumbView.qe.centerY
+            view.initializeLeft = view.qe.left
             guard let ss = self else {
                 return
             }
-            ss.containerView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+            ss.contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
             let partInfo = EditToolPartInfo()
             partInfo.chooseView = view
             partInfo.beginTime = lastInfo?.videoPoint ?? 0
             partInfo.endTime = info.videoPoint
-            partInfo.duration = Int(partInfo.endTime - partInfo.beginTime)
+            partInfo.duration = partInfo.endTime - partInfo.beginTime
             ss.partInfos.append(partInfo)
+            view.info = partInfo
+            lastInfo = info
         }
         
-        let view = EditToolChooseBoxView(with: lastInfo!.point.x - SCREEN_WIDTH / 2)
+        let view = EditToolChooseBoxView(with: lastInfo!.point.x - CONTAINER_PADDING_LEFT)
         view.qe.left = lastInfo!.point.x - 25
-        view.qe.width = (containerView.contentSize.width - (SCREEN_WIDTH / 2) - lastInfo!.point.x) + 50
+        view.qe.width = (containerView.contentSize.width - CONTAINER_PADDING_LEFT - lastInfo!.point.x) + 50
         view.qe.centerY = thumbView.qe.centerY
-        view.initLeft = view.qe.left
-        containerView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+        view.initializeLeft = view.qe.left
+        contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
         let partInfo = EditToolPartInfo()
         partInfo.chooseView = view
         partInfo.beginTime = lastInfo?.videoPoint ?? 0
-        partInfo.endTime = lastInfo!.videoPoint
-        partInfo.duration = Int(partInfo.endTime - partInfo.beginTime)
+        partInfo.endTime = duration
+        partInfo.duration = partInfo.endTime - partInfo.beginTime
         partInfos.append(partInfo)
+        view.info = partInfo
+    }
+    
+    private func clearViewsAndInfos() {
+        contentView.subviews.forEach { (view) in
+            if view.isKind(of: EditToolChooseBoxView.self) ||
+                view.isKind(of: EditToolSplitView.self) {
+                view.removeFromSuperview()
+            }
+        }
+        partInfos.removeAll()
+        splitInfos.removeAll()
     }
     
     //MARK: 通知
@@ -185,6 +210,7 @@ class EditToolViewController: UIViewController {
             info.view?.isHidden = true
         }
         let obj = notification.object as? EditToolChooseBoxView
+        forceChooseView = obj
         partInfos.forEach { (info) in
             guard info.chooseView != nil else {
                 return
@@ -197,6 +223,7 @@ class EditToolViewController: UIViewController {
     
     @objc
     func shouldShowSplitViews(_ notification: Notification) {
+        forceChooseView = nil
         splitInfos.forEach { (info) in
             info.view?.isHidden = false
         }
@@ -316,7 +343,7 @@ extension EditToolViewController: EditToolEditBarDelegate {
         let offsetX = containerView.contentOffset.x
         let totalWidth = containerView.contentSize.width
         let percent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
-        let videoPoint = Float(duration) * percent
+        let videoPoint = Double(duration) * Double(percent)
         var rightFlag = Int.max
         var leftFlag = Int.min
         for (i, info) in splitInfos.enumerated() {
@@ -346,14 +373,14 @@ extension EditToolViewController: EditToolEditBarDelegate {
                 }
             }
         } else {
-            if videoPoint <= 1 || videoPoint >= Float(duration) - 1 {
+            if videoPoint <= 1 || videoPoint >= Double(duration) - 1 {
                 QELog("不可以分割这么短的内容哟")
                 return
             }
         }
         //2.初始化分割view
         let view = EditToolSplitView()
-        let point = CGPoint(x: containerView.contentOffset.x + SCREEN_WIDTH / 2, y: thumbView.qe.centerY)
+        let point = CGPoint(x: containerView.contentOffset.x + CONTAINER_PADDING_LEFT, y: thumbView.qe.centerY)
         view.center = point
         contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
         //3.初始化分割模型
@@ -364,6 +391,25 @@ extension EditToolViewController: EditToolEditBarDelegate {
         splitInfos.insert(info, at: max(0, leftFlag))
         //4.重新设置框选view
         resetChooseViews()
+    }
+    
+    func viewDidSelectedDelete(_ view: EditToolEditBar) {
+        //[剪辑][删除]
+        //1.校验是否有选定视频
+        guard forceChooseView != nil else {
+            QELog("当前没有选定视频，无法删除!")
+            return
+        }
+        //2.删除选定视频
+        let deleteInfo = forceChooseView!.info
+        guard deleteInfo != nil else {
+            return
+        }
+        partInfos.removeAll { (info) -> Bool in
+            info.beginTime == deleteInfo!.beginTime
+        }
+        //3.抛给presenter删除
+        presenter.toolView(self, deletePartFrom: partInfos)
     }
     
 }
@@ -377,10 +423,11 @@ extension EditToolViewController: EditViewPresenterOutput {
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {
         refreshContainerView()
         thumbView.reloadData()
+        timeScaleView.reloadData()
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64) {
-        self.duration = Int(duration)
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double) {
+        self.duration = duration
     }
     
     func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
@@ -400,7 +447,7 @@ extension EditToolViewController: EditViewPresenterOutput {
         playerStatus = status
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel) {
         thumbView.videoModel = model
     }
     

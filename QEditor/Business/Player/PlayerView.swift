@@ -23,7 +23,7 @@ public protocol PlayerViewDelegate: class {
     
     func player(_ player: PlayerView, playAt time: Double)
     
-    func player(_ player: PlayerView, didLoadVideoWith duration: Int64)
+    func player(_ player: PlayerView, didLoadVideoWith duration: Double)
     
     func player(_ player: PlayerView, loadVideoFailWith error: String)
     
@@ -103,7 +103,7 @@ public extension PlayerView {
         guard currentItem != nil && timeObserver != nil else {
             return
         }
-        guard status == .stop || status == .pause else {
+        guard status != .playing else {
             return
         }
         player.play()
@@ -112,6 +112,9 @@ public extension PlayerView {
     }
     
     func stop() {
+        guard status != .stop else {
+            return
+        }
         player.pause()
         if timeObserver != nil {
             player.removeTimeObserver(timeObserver!)
@@ -122,6 +125,9 @@ public extension PlayerView {
     }
     
     func pause() {
+        guard status != .pause else {
+            return
+        }
         player.pause()
         status = .pause
         delegate?.player(self, statusDidChange: status)
@@ -135,8 +141,12 @@ public extension PlayerView {
         player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
-    func setupPlayer(with url: URL) {
+    func setupPlayer(url: URL) {
         let asset = AVURLAsset(url: url)
+        setupPlayer(asset: asset)
+    }
+    
+    func setupPlayer(asset: AVAsset) {
         currentItem = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: currentItem)
         if timeObserver == nil {
@@ -154,7 +164,7 @@ public extension PlayerView {
                 strongSelf.delegate?.player(strongSelf, didChange: status)
                 if status == .readyToPlay {
                     //转发视频时间出去
-                    let duration = Int64(strongSelf.currentItem!.asset.duration.seconds)
+                    let duration = strongSelf.currentItem!.asset.duration.seconds
                     strongSelf.delegate?.player(strongSelf, didLoadVideoWith: duration)
                 } else if status == .failed || status == .unknown {
                     strongSelf.delegate?.player(strongSelf, loadVideoFailWith: strongSelf.currentItem!.error?.localizedDescription ?? "")

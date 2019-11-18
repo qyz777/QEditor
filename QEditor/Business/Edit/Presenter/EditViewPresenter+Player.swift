@@ -21,7 +21,7 @@ extension EditViewPresenter: PlayerViewDelegate {
         playerView.presenter(self, playerPlayAt: time)
     }
     
-    public func player(_ player: PlayerView, didLoadVideoWith duration: Int64) {
+    public func player(_ player: PlayerView, didLoadVideoWith duration: Double) {
         toolView.presenter(self, playerDidLoadVideoWith: duration)
         playerView.presenter(self, playerDidLoadVideoWith: duration)
     }

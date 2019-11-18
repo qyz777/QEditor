@@ -10,12 +10,12 @@ import Foundation
 
 class EditToolPartInfo {
     
-    weak var chooseView: EditToolChooseBoxView?
+    var chooseView: EditToolChooseBoxView?
     
-    var beginTime: Float = 0
+    var beginTime: Double = 0
     
-    var endTime: Float = 0
+    var endTime: Double = 0
     
-    var duration: Int = 0
+    var duration: Double = 0
     
 }

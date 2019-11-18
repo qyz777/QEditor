@@ -11,11 +11,11 @@ import Foundation
 extension EditViewPresenter: EditToolViewOutput {
     
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int {
-        return thumbModel.count
+        return thumbModels.count
     }
     
     func toolView(_ toolView: EditToolViewInput, thumbModelAt index: Int) -> EditToolImageCellModel {
-        return thumbModel[index]
+        return thumbModels[index]
     }
     
     func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float) {
@@ -23,8 +23,16 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
-        let m = thumbModel[index]
+        let m = thumbModels[index]
         return String.qe.formatTime(Int(m.time.seconds))
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, deletePartFrom videoParts: [EditToolPartInfo]) {
+        let models = videoParts.map { (info) -> EditVideoPartModel in
+            return EditVideoPartModel(beginTime: info.beginTime, endTime: info.endTime)
+        }
+        toolService.generateModels(from: models)
+        refreshView()
     }
     
 }

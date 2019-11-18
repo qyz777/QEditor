@@ -22,4 +22,30 @@ public extension Namespace where Base == String {
         return formatTime
     }
     
+    /// Document目录
+    static func documentPath() -> String {
+        return NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).first ?? NSHomeDirectory() + "/Documents"
+    }
+    
+    /// Library目录
+    static func libraryPath() -> String {
+        return NSSearchPathForDirectoriesInDomains(.libraryDirectory, .allDomainsMask, true).first ?? NSHomeDirectory() + "/Library"
+    }
+    
+    /// 缓存目录
+    static func cachesPath() -> String {
+        return NSSearchPathForDirectoriesInDomains(.cachesDirectory, .allDomainsMask, true).first ?? NSHomeDirectory() + "/Library/Caches"
+    }
+    
+    /// Tmp目录
+    static func tmpPath() -> String {
+        return NSTemporaryDirectory()
+    }
+    
+    /// 时间戳
+    static func timestamp() -> String {
+        let timeInterval: TimeInterval = NSDate().timeIntervalSince1970
+        return "\(Int(timeInterval))"
+    }
+    
 }

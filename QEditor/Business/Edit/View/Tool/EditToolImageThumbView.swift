@@ -22,12 +22,12 @@ class EditToolImageThumbView: UICollectionView {
     
     private let queue = DispatchQueue(label: "EditToolService.LoadImage", qos: .userInteractive, attributes: .concurrent, autoreleaseFrequency: .workItem, target: nil)
     
-    public var videoModel: MediaVideoModel? {
+    public var videoModel: EditVideoModel? {
         willSet {
             guard newValue != nil else {
                 return
             }
-            let asset = AVURLAsset(url: newValue!.url!)
+            let asset = AVURLAsset(url: newValue!.url)
             generator = AVAssetImageGenerator(asset: asset)
             generator!.requestedTimeToleranceAfter = .zero
             generator!.requestedTimeToleranceBefore = .zero

@@ -19,7 +19,7 @@ protocol EditViewOutput: class {
 
 protocol EditPlayerViewInput {
     
-    func setup(model: MediaVideoModel)
+    func setup(model: EditVideoModel)
     
     func seek(to percent: Float)
     
@@ -50,6 +50,8 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
     
+    func toolView(_ toolView: EditToolViewInput, deletePartFrom videoParts: [EditToolPartInfo])
+    
 }
 
 protocol EditViewPresenterInput {
@@ -66,7 +68,7 @@ protocol EditViewPresenterOutput: class {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput)
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel)
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel)
     
     //MARK:播放器
     
@@ -74,7 +76,7 @@ protocol EditViewPresenterOutput: class {
     
     func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double)
     
-    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64)
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double)
     
     func presenter(_ presenter: EditViewPresenterInput, playerStatusDidChange status: PlayerViewStatus)
     
@@ -86,7 +88,7 @@ extension EditViewPresenterOutput {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {}
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: MediaVideoModel) {}
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel) {}
     
     func presenter(_ presenter: EditViewPresenterInput, playerDidChange status: AVPlayerItem.Status) {}
     

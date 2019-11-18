@@ -12,6 +12,8 @@ protocol EditToolEditBarDelegate: class {
     
     func viewDidSelectedCut(_ view: EditToolEditBar)
     
+    func viewDidSelectedDelete(_ view: EditToolEditBar)
+    
 }
 
 class EditToolEditBar: UICollectionView {
@@ -64,13 +66,15 @@ class EditToolEditBar: UICollectionView {
 extension EditToolEditBar: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditToolNormalCell", for: indexPath) as! EditToolNormalCell
         if indexPath.item == 0 {
             cell.label.text = "分割"
+        } else if indexPath.item == 1 {
+            cell.label.text = "删除"
         }
         return cell
     }
@@ -79,6 +83,8 @@ extension EditToolEditBar: UICollectionViewDelegate, UICollectionViewDataSource 
         switch indexPath.item {
         case 0:
             selectedDelegate?.viewDidSelectedCut(self)
+        case 1:
+            selectedDelegate?.viewDidSelectedDelete(self)
         default:
             break
         }

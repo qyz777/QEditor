@@ -14,9 +14,9 @@ class EditPlayerViewController: UIViewController {
     
     public var presenter: (EditViewPresenterInput & EditPlayerViewOutput & PlayerViewDelegate)!
     
-    private var duration: Int64 = 0
+    private var duration: Double = 0
     
-    private var model: MediaVideoModel?
+    private var model: EditVideoModel?
 
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -97,7 +97,7 @@ extension EditPlayerViewController: EditViewPresenterOutput {
         timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Int64) {
+    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double) {
         self.duration = duration
         timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
     }
@@ -110,9 +110,10 @@ extension EditPlayerViewController: EditViewPresenterOutput {
 
 extension EditPlayerViewController: EditPlayerViewInput {
     
-    func setup(model: MediaVideoModel) {
+    func setup(model: EditVideoModel) {
         self.model = model
-        playerView.setupPlayer(with: model.url!)
+        playerView.stop()
+        playerView.setupPlayer(asset: model.composition)
     }
     
     func seek(to percent: Float) {

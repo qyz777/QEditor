@@ -12,8 +12,8 @@ class EditToolSplitInfo {
     
     var point: CGPoint = .zero
     
-    var videoPoint: Float = 0
+    var videoPoint: Double = 0
     
-    weak var view: EditToolSplitView?
+    var view: EditToolSplitView?
     
 }

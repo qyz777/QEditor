@@ -21,9 +21,11 @@ class EditToolChooseBoxView: UIView {
     
     private var beginLeft: CGFloat = 0
     
-    public var initLeft: CGFloat = 0
+    public var initializeLeft: CGFloat = 0
     
     public var isForce = false
+    
+    public weak var info: EditToolPartInfo?
 
     init(with maxWidth: CGFloat) {
         super.init(frame: .init(x: 0, y: 0, width: CHOOSE_BOX_MIN_WIDTH, height: EDIT_THUMB_CELL_SIZE))
@@ -127,7 +129,7 @@ class EditToolChooseBoxView: UIView {
             guard targetWidth >= CHOOSE_BOX_MIN_WIDTH || targetWidth <= maxWidth else {
                 return
             }
-            guard targetLeft >= initLeft else {
+            guard targetLeft >= initializeLeft else {
                 return
             }
             qe.width = targetWidth
@@ -150,7 +152,7 @@ class EditToolChooseBoxView: UIView {
             guard targetWidth >= CHOOSE_BOX_MIN_WIDTH || targetWidth <= maxWidth else {
                 return
             }
-            guard beginLeft + targetWidth <= initLeft + maxWidth else {
+            guard beginLeft + targetWidth <= initializeLeft + maxWidth else {
                 return
             }
             qe.width = targetWidth
