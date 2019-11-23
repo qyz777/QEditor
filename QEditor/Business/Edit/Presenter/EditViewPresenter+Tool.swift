@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 extension EditViewPresenter: EditToolViewOutput {
     
@@ -27,12 +28,9 @@ extension EditViewPresenter: EditToolViewOutput {
         return String.qe.formatTime(Int(m.time.seconds))
     }
     
-    func toolView(_ toolView: EditToolViewInput, deletePartFrom videoParts: [EditToolPartInfo]) {
-        let models = videoParts.map { (info) -> EditVideoPartModel in
-            return EditVideoPartModel(beginTime: info.beginTime, endTime: info.endTime)
-        }
-        //todo:删除
-        toolService.generateModels(from: models)
+    func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo) {
+        let range = CMTimeRange(start: CMTime(seconds: info.beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: info.endTime, preferredTimescale: CMTimeScale(600)))
+        toolService.removeVideoTimeRange(range)
         refreshView()
     }
     

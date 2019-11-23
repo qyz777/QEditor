@@ -36,8 +36,6 @@ class EditVideoEdtior {
     private var videoTrack: AVMutableCompositionTrack!
     private var videoComposition: AVMutableVideoComposition!
     
-    private var videoModels: [EditVideoPartModel] = []
-    
     private let outputDirectoryUrlString = String.qe.documentPath() + "/videos"
     
     private var inputUrl: URL?
@@ -54,8 +52,7 @@ class EditVideoEdtior {
         }
     }
     
-    public func loadModels(_ models: [EditVideoPartModel], url: URL) {
-        videoModels = models
+    public func loadModels(url: URL) {
         inputUrl = url
     }
     
@@ -102,21 +99,21 @@ class EditVideoEdtior {
     }
     
     private func combineAV() {
-        var totalDutation: CMTime = .zero
-        videoModels.forEach { (model) in
-            let asset = AVURLAsset(url: inputUrl!)
-            let range = CMTimeRange(start: CMTime(seconds: model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), end: CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
-            
-            do {
-                try insertAudio(asset, with: range, at: totalDutation)
-                try insertVideo(asset, with: range, at: totalDutation)
-            } catch {
-                QELog(error)
-            }
-            
-            let newDuration = CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-            totalDutation = CMTimeAdd(totalDutation, newDuration)
-        }
+//        var totalDutation: CMTime = .zero
+//        videoModels.forEach { (model) in
+//            let asset = AVURLAsset(url: inputUrl!)
+//            let range = CMTimeRange(start: CMTime(seconds: model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), end: CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+//
+//            do {
+//                try insertAudio(asset, with: range, at: totalDutation)
+//                try insertVideo(asset, with: range, at: totalDutation)
+//            } catch {
+//                QELog(error)
+//            }
+//
+//            let newDuration = CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+//            totalDutation = CMTimeAdd(totalDutation, newDuration)
+//        }
     }
     
     private func insertAudio(_ asset: AVAsset, with timeRange: CMTimeRange, at startTime: CMTime) throws {

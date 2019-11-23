@@ -436,11 +436,8 @@ extension EditToolViewController: EditToolEditBarDelegate {
         guard deleteInfo != nil else {
             return
         }
-        partInfos.removeAll { (info) -> Bool in
-            info.beginTime == deleteInfo!.beginTime
-        }
         //3.抛给presenter删除
-        presenter.toolView(self, deletePartFrom: partInfos)
+        presenter.toolView(self, deletePartFrom: deleteInfo!)
     }
     
 }

@@ -48,7 +48,7 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
     
-    func toolView(_ toolView: EditToolViewInput, deletePartFrom videoParts: [EditToolPartInfo])
+    func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo)
     
 }
 

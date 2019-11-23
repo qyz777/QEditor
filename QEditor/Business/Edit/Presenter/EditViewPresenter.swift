@@ -45,8 +45,8 @@ extension EditViewPresenter: EditViewPresenterInput {
     
     func prepare(forVideo model: MediaVideoModel) {
         //交给Service处理成model
-        toolService.mediaModel = model
-        toolService.generateModels()
+        let asset = AVURLAsset(url: model.url!)
+        toolService.generateVideoModel(from: [asset])
         //刷新视图
         refreshView()
     }
