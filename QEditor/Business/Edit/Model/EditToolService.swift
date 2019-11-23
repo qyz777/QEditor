@@ -35,6 +35,35 @@ class EditToolService {
         return times
     }
     
+    public func addVideos(from mediaModels: [MediaVideoModel]) {
+        guard mediaModels.count > 0 && videoModel != nil else {
+            return
+        }
+        var beginTime = videoPartModels.last!.endTime
+        let composition = videoModel!.composition
+        let videoTrack = composition.tracks(withMediaType: .video).first!
+        let audioTrack = composition.tracks(withMediaType: .audio).first!
+        var insertPoint = composition.duration
+        mediaModels.forEach { (m) in
+            let asset = AVURLAsset(url: m.url!)
+            let endTime = beginTime + asset.duration.seconds
+            let model = EditVideoPartModel(beginTime: beginTime, endTime: endTime)
+            beginTime = endTime
+            
+            let range = CMTimeRange(start: .zero, end: asset.duration)
+            do {
+                try videoTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .video).first!, at: insertPoint)
+                try audioTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .audio).first!, at: insertPoint)
+            } catch {
+                QELog(error)
+            }
+            videoPartModels.append(model)
+            insertPoint = CMTimeAdd(insertPoint, asset.duration)
+        }
+        videoModel?.composition = composition
+        videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
+    }
+    
     /// 生成partModel和videoModel
     /// 调用完此方法后所有视频model都使用videoModel
     public func generateModels() {
@@ -69,33 +98,21 @@ class EditToolService {
         
         var totalDutation: CMTime = .zero
         videoPartModels.forEach { (model) in
-            let range = CMTimeRange(start: CMTime(seconds: model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), end: CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+            let beginTime = model.beginTime
+            let endTime = model.endTime
+            let range = CMTimeRange(start: CMTime(seconds: beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: endTime, preferredTimescale: CMTimeScale(600)))
             
             do {
-                try insertAudioTrack(audioTrack, in: asset, with: range, at: totalDutation)
-                try insertVideoTrack(videoTrack, in: asset, with: range, at: totalDutation)
+                try videoTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .video).first!, at: totalDutation)
+                try audioTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .audio).first!, at: totalDutation)
             } catch {
                 QELog(error)
             }
             
-            let newDuration = CMTime(seconds: model.endTime - model.beginTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+            let newDuration = CMTime(seconds: endTime - beginTime, preferredTimescale: CMTimeScale(600))
             totalDutation = CMTimeAdd(totalDutation, newDuration)
         }
         videoModel = EditVideoModel(composition: mixComposition, formatTime: mediaModel!.formatTime, url: mediaModel!.url!)
-    }
-    
-    private func insertAudioTrack(_ track: AVMutableCompositionTrack, in asset: AVAsset, with timeRange: CMTimeRange, at startTime: CMTime) throws {
-        guard let assetAudioTrack = asset.tracks(withMediaType: .audio).first else {
-            return
-        }
-        try track.insertTimeRange(timeRange, of: assetAudioTrack, at: startTime)
-    }
-    
-    private func insertVideoTrack(_ track: AVMutableCompositionTrack, in asset: AVAsset, with timeRange: CMTimeRange, at startTime: CMTime) throws {
-        guard let assetVideoTrack = asset.tracks(withMediaType: .video).first else {
-            return
-        }
-        try track.insertTimeRange(timeRange, of: assetVideoTrack, at: startTime)
     }
     
 }

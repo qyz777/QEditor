@@ -19,8 +19,6 @@ protocol EditViewOutput: class {
 
 protocol EditPlayerViewInput {
     
-    func setup(model: EditVideoModel)
-    
     func seek(to percent: Float)
     
     func play()
@@ -57,6 +55,8 @@ protocol EditToolViewOutput: class {
 protocol EditViewPresenterInput {
     
     func prepare(forVideo model: MediaVideoModel)
+    
+    func add(videos: [MediaVideoModel], images: [MediaImageModel])
     
     func playerShouldPause()
     

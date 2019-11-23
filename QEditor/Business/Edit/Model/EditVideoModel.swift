@@ -18,6 +18,6 @@ struct EditVideoPartModel {
 /// 描述剪辑整个视频轨道的model
 struct EditVideoModel {
     var composition: AVMutableComposition
-    let formatTime: String
+    var formatTime: String
     let url: URL
 }

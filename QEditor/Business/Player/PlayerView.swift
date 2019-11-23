@@ -68,7 +68,7 @@ public class PlayerView: UIView {
     
     override public func layoutSubviews() {
         super.layoutSubviews()
-        playerLayer.frame = bounds
+        playerLayer?.frame = bounds
     }
     
     public override var debugDescription: String {
@@ -86,14 +86,11 @@ public class PlayerView: UIView {
     }
     
     lazy var player: AVPlayer = {
-        return AVPlayer()
+        let p = AVPlayer()
+        return p
     }()
     
-    lazy var playerLayer: AVPlayerLayer = {
-        let layer = AVPlayerLayer(player: player)
-        self.layer.addSublayer(layer)
-        return layer
-    }()
+    var playerLayer: AVPlayerLayer?
 
 }
 
@@ -121,6 +118,7 @@ public extension PlayerView {
             timeObserver = nil
         }
         status = .stop
+        player.cancelPendingPrerolls()
         delegate?.player(self, statusDidChange: status)
     }
     
@@ -137,7 +135,7 @@ public extension PlayerView {
         guard currentItem != nil else {
             return
         }
-        let time = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        let time = CMTime(seconds: time, preferredTimescale: CMTimeScale(600))
         player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
@@ -149,8 +147,11 @@ public extension PlayerView {
     func setupPlayer(asset: AVAsset) {
         currentItem = AVPlayerItem(asset: asset)
         player.replaceCurrentItem(with: currentItem)
+        playerLayer?.removeFromSuperlayer()
+        playerLayer = AVPlayerLayer(player: player)
+        layer.addSublayer(playerLayer!)
         if timeObserver == nil {
-            let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+            let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(600))
             timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] (time) in
                 if let strongSelf = self {
                     strongSelf.delegate?.player(strongSelf, playAt: time.seconds)

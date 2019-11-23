@@ -11,11 +11,11 @@ import AVFoundation
 
 class EditViewPresenter {
     
-    public weak var view: (UIViewController & EditViewInput)!
+    public weak var view: (UIViewController & EditViewInput)?
     
-    public weak var playerView: (UIViewController & EditPlayerViewInput & EditViewPresenterOutput)!
+    public weak var playerView: (UIViewController & EditPlayerViewInput & EditViewPresenterOutput)?
     
-    public weak var toolView: (UIViewController & EditToolViewInput & EditViewPresenterOutput)!
+    public weak var toolView: (UIViewController & EditToolViewInput & EditViewPresenterOutput)?
     
     let toolService = EditToolService()
     
@@ -26,19 +26,17 @@ class EditViewPresenter {
             QELog("EditVideoModel为空")
             return
         }
-        //1.派发给player
-        playerView.setup(model: toolService.videoModel!)
-        //2.处理工具栏数据源
+        //1.处理工具栏数据源
         thumbModels = toolService.split().map({ (time) -> EditToolImageCellModel in
             let m = EditToolImageCellModel()
             m.time = time
             return m
         })
-        //3.对外发送加载成功的消息
-        playerView.presenter(self, didLoadVideo: toolService.videoModel!)
-        toolView.presenter(self, didLoadVideo: toolService.videoModel!)
-        //4.刷新工具栏
-        toolView.presenterViewShouldReload(self)
+        //2.对外发送加载成功的消息
+        playerView?.presenter(self, didLoadVideo: toolService.videoModel!)
+        toolView?.presenter(self, didLoadVideo: toolService.videoModel!)
+        //3.刷新工具栏
+        toolView?.presenterViewShouldReload(self)
     }
     
 }
@@ -53,12 +51,21 @@ extension EditViewPresenter: EditViewPresenterInput {
         refreshView()
     }
     
+    func add(videos: [MediaVideoModel], images: [MediaImageModel]) {
+        //todo:先只能处理视频了
+        guard videos.count > 0 else {
+            return
+        }
+        toolService.addVideos(from: videos)
+        refreshView()
+    }
+    
     func playerShouldPause() {
-        playerView.pause()
+        playerView?.pause()
     }
     
     func playerShouldPlay() {
-        playerView.play()
+        playerView?.play()
     }
     
 }

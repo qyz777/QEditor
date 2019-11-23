@@ -27,8 +27,7 @@ class EditToolImageThumbView: UICollectionView {
             guard newValue != nil else {
                 return
             }
-            let asset = AVURLAsset(url: newValue!.url)
-            generator = AVAssetImageGenerator(asset: asset)
+            generator = AVAssetImageGenerator(asset: newValue!.composition)
             generator!.requestedTimeToleranceAfter = .zero
             generator!.requestedTimeToleranceBefore = .zero
             //防止获取的图片旋转

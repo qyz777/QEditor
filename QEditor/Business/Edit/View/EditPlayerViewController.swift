@@ -92,6 +92,12 @@ class EditPlayerViewController: UIViewController {
 
 extension EditPlayerViewController: EditViewPresenterOutput {
     
+    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel) {
+        self.model = model
+        playerView.stop()
+        playerView.setupPlayer(asset: model.composition)
+    }
+    
     func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
         let timeFormat = String.qe.formatTime(Int(time))
         timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
@@ -109,12 +115,6 @@ extension EditPlayerViewController: EditViewPresenterOutput {
 }
 
 extension EditPlayerViewController: EditPlayerViewInput {
-    
-    func setup(model: EditVideoModel) {
-        self.model = model
-        playerView.stop()
-        playerView.setupPlayer(asset: model.composition)
-    }
     
     func seek(to percent: Float) {
         let time = Double(duration) * Double(percent)

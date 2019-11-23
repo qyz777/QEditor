@@ -18,6 +18,7 @@
 		A021233F2365401A0073A125 /* UIFont+Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021233E2365401A0073A125 /* UIFont+Utility.swift */; };
 		A02123412365428B0073A125 /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123402365428B0073A125 /* UIView+Layout.swift */; };
 		A0212343236583520073A125 /* EditToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212342236583520073A125 /* EditToolBar.swift */; };
+		A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */; };
 		A0753FDF237650280096939A /* EditToolPartInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FDE237650280096939A /* EditToolPartInfo.swift */; };
 		A0753FE12376536E0096939A /* EditToolSplitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE02376536E0096939A /* EditToolSplitInfo.swift */; };
 		A0753FE3237654370096939A /* EditToolSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE2237654370096939A /* EditToolSplitView.swift */; };
@@ -73,6 +74,7 @@
 		A021233E2365401A0073A125 /* UIFont+Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Utility.swift"; sourceTree = "<group>"; };
 		A02123402365428B0073A125 /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
 		A0212342236583520073A125 /* EditToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolBar.swift; sourceTree = "<group>"; };
+		A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Utillity.swift"; sourceTree = "<group>"; };
 		A0753FDE237650280096939A /* EditToolPartInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolPartInfo.swift; sourceTree = "<group>"; };
 		A0753FE02376536E0096939A /* EditToolSplitInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSplitInfo.swift; sourceTree = "<group>"; };
 		A0753FE2237654370096939A /* EditToolSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSplitView.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 				A02123332364168E0073A125 /* UIImage+Utility.swift */,
 				A021233E2365401A0073A125 /* UIFont+Utility.swift */,
 				A02123402365428B0073A125 /* UIView+Layout.swift */,
+				A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -547,6 +550,7 @@
 				A0DADA0D235AE28C00BD83D7 /* EditToolImageCellModel.swift in Sources */,
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A0870A6B23532612006DC38D /* String+Video.swift in Sources */,
+				A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */,
 				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A0212343236583520073A125 /* EditToolBar.swift in Sources */,

@@ -71,6 +71,7 @@ class EditToolViewController: UIViewController {
         view.addSubview(containerView)
         view.addSubview(verticalTimeLineView)
         view.addSubview(toolBarView)
+        view.addSubview(addButton)
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
         contentView.addSubview(timeScaleView)
@@ -109,6 +110,12 @@ class EditToolViewController: UIViewController {
             make.width.equalTo(SCREEN_WIDTH)
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.top.equalTo(self.contentView).offset(0)
+        }
+        
+        addButton.snp.makeConstraints { (make) in
+            make.right.equalTo(self.view).offset(-SCREEN_PADDING_X)
+            make.centerY.equalTo(self.containerView)
+            make.size.equalTo(CGSize(width: 40, height: 40))
         }
     }
     
@@ -203,6 +210,19 @@ class EditToolViewController: UIViewController {
         splitInfos.removeAll()
     }
     
+    @objc
+    func didClickAddButton() {
+        let vc = MediaViewController.buildView()
+        vc.completion = { [weak self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
+            guard let ss = self else {
+                return
+            }
+            ss.presenter.add(videos: videos, images: photos)
+        }
+        let nav = NavigationController(rootViewController: vc)
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
+    }
+    
     //MARK: 通知
     @objc
     func shouldHiddenSplitViews(_ notification: Notification) {
@@ -295,6 +315,8 @@ class EditToolViewController: UIViewController {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         let view = EditToolTimeScaleView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: 25), collectionViewLayout: layout)
+        view.isScrollEnabled = false
+        view.showsHorizontalScrollIndicator = false
         view.itemCountClosure = { [weak self] in
             if let ss = self {
                 return ss.presenter.toolImageThumbViewItemsCount(ss)
@@ -328,6 +350,15 @@ class EditToolViewController: UIViewController {
                 break
             }
         }
+        return view
+    }()
+    
+    lazy var addButton: UIButton = {
+        let view = UIButton(type: .custom)
+        view.layer.cornerRadius = 4
+        view.setImage(UIImage(named: "tool_bar_plus"), for: .normal)
+        view.backgroundColor = UIColor(white: 0, alpha: 0.4)
+        view.addTarget(self, action: #selector(didClickAddButton), for: .touchUpInside)
         return view
     }()
 

@@ -19,7 +19,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float) {
-        playerView.seek(to: percent)
+        playerView?.seek(to: percent)
     }
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
@@ -31,6 +31,7 @@ extension EditViewPresenter: EditToolViewOutput {
         let models = videoParts.map { (info) -> EditVideoPartModel in
             return EditVideoPartModel(beginTime: info.beginTime, endTime: info.endTime)
         }
+        //todo:删除
         toolService.generateModels(from: models)
         refreshView()
     }
