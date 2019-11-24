@@ -51,6 +51,8 @@ class EditToolViewController: UIViewController {
     
     /// 当前锁定的选择框
     private weak var forceChooseView: EditToolChooseBoxView?
+    
+    private var waveFormView: EditToolAudioWaveFormView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -294,6 +296,7 @@ class EditToolViewController: UIViewController {
         layout.minimumInteritemSpacing = 0
         let view = EditToolImageThumbView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: EDIT_THUMB_CELL_SIZE), collectionViewLayout: layout)
         view.isScrollEnabled = false
+        view.layer.cornerRadius = 4
         view.itemCountClosure = { [weak self] in
             if let ss = self {
                 return ss.presenter.toolImageThumbViewItemsCount(ss)
@@ -443,6 +446,22 @@ extension EditToolViewController: EditToolEditBarDelegate {
 }
 
 extension EditToolViewController: EditToolViewInput {
+    
+    func refreshWaveFormView(with data: Data) {
+        if waveFormView != nil {
+            waveFormView?.removeFromSuperview()
+            waveFormView = nil
+        }
+        waveFormView = EditToolAudioWaveFormView(frame: .init(x: 0, y: 0, width: videoContentWidth, height: 60), data: data)
+        waveFormView?.layer.cornerRadius = 4
+        waveFormView?.layer.masksToBounds = true
+        contentView.addSubview(waveFormView!)
+        waveFormView?.snp.makeConstraints({ (make) in
+            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            make.top.equalTo(self.thumbView.snp.bottom).offset(10)
+            make.size.equalTo(CGSize(width: videoContentWidth, height: 60))
+        })
+    }
     
 }
 

@@ -33,6 +33,8 @@ protocol EditPlayerViewOutput: class {
 
 protocol EditToolViewInput {
     
+    func refreshWaveFormView(with data: Data)
+    
 }
 
 protocol EditToolViewOutput: class {

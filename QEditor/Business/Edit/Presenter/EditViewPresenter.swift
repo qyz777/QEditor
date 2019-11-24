@@ -37,6 +37,13 @@ class EditViewPresenter {
         toolView?.presenter(self, didLoadVideo: toolService.videoModel!)
         //3.刷新工具栏
         toolView?.presenterViewShouldReload(self)
+        //4.刷新波形图
+        toolService.loadAudioSamples { (data) in
+            guard data != nil else {
+                return
+            }
+            self.toolView?.refreshWaveFormView(with: data!)
+        }
     }
     
 }

@@ -29,6 +29,27 @@ class EditToolService {
         return times
     }
     
+    public func loadAudioSamples(closure: @escaping((_ data: Data?) -> Void)) {
+        guard videoModel != nil else {
+            closure(nil)
+            return
+        }
+        let composition = videoModel!.composition
+        let key = "tracks"
+        DispatchQueue.global().async {
+            composition.loadValuesAsynchronously(forKeys: [key]) {
+                let status = composition.statusOfValue(forKey: key, error: nil)
+                var simpleData: Data? = nil
+                if status == .loaded {
+                    simpleData = self.readAudioSamples()
+                }
+                DispatchQueue.main.sync {
+                    closure(simpleData)
+                }
+            }
+        }
+    }
+    
     public func addVideos(from mediaModels: [MediaVideoModel]) {
         guard mediaModels.count > 0 && videoModel != nil else {
             return
@@ -95,6 +116,48 @@ class EditToolService {
     private func resetVideoModel(_ composition: AVMutableComposition) {
         videoModel?.composition = composition
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
+    }
+    
+    private func readAudioSamples() -> Data? {
+        guard videoModel != nil else {
+            return nil
+        }
+        let composition = videoModel!.composition
+        let assetReader: AVAssetReader
+        do {
+            assetReader = try AVAssetReader(asset: composition)
+        } catch {
+            QELog(error)
+            return nil
+        }
+        let track = composition.tracks(withMediaType: .audio).first!
+        let settings: [String : Any] = [AVFormatIDKey: kAudioFormatLinearPCM,
+                                        AVLinearPCMIsBigEndianKey: false,
+                                        AVLinearPCMIsFloatKey: false,
+                                        AVLinearPCMBitDepthKey: 16]
+        let trackOutput = AVAssetReaderTrackOutput(track: track, outputSettings: settings)
+        assetReader.add(trackOutput)
+        assetReader.startReading()
+        
+        var sampleData = Data()
+        while assetReader.status == .reading {
+            let sampleBuffer = trackOutput.copyNextSampleBuffer()
+            if sampleBuffer != nil {
+                let blockBufferRef = CMSampleBufferGetDataBuffer(sampleBuffer!)
+                let length = CMBlockBufferGetDataLength(blockBufferRef!)
+                let sampleBytes = UnsafeMutablePointer<UInt8>.allocate(capacity: length)
+                CMBlockBufferCopyDataBytes(blockBufferRef!, atOffset: 0, dataLength: length, destination: sampleBytes)
+                let ptr = UnsafePointer(sampleBytes)
+                sampleData.append(ptr, count: length)
+                CMSampleBufferInvalidate(sampleBuffer!)
+            }
+        }
+        if assetReader.status == .completed {
+            return sampleData
+        } else {
+            QELog("Failed to read audio samples from asset.")
+            return nil
+        }
     }
     
 }
