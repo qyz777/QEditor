@@ -37,13 +37,6 @@ class EditViewPresenter {
         toolView?.presenter(self, didLoadVideo: toolService.videoModel!)
         //3.刷新工具栏
         toolView?.presenterViewShouldReload(self)
-        //4.刷新波形图
-        toolService.loadAudioSamples { (data) in
-            guard data != nil else {
-                return
-            }
-            self.toolView?.refreshWaveFormView(with: data!)
-        }
     }
     
 }
@@ -56,6 +49,12 @@ extension EditViewPresenter: EditViewPresenterInput {
         toolService.generateVideoModel(from: [asset])
         //刷新视图
         refreshView()
+    }
+    
+    func prepareWaveForm(with size: CGSize) {
+        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count) { (box) in
+            self.toolView?.refreshWaveFormView(with: box)
+        }
     }
     
     func add(videos: [MediaVideoModel], images: [MediaImageModel]) {

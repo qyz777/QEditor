@@ -33,7 +33,7 @@ protocol EditPlayerViewOutput: class {
 
 protocol EditToolViewInput {
     
-    func refreshWaveFormView(with data: Data)
+    func refreshWaveFormView(with sampleBox: [[CGFloat]])
     
 }
 
@@ -57,6 +57,8 @@ protocol EditToolViewOutput: class {
 protocol EditViewPresenterInput {
     
     func prepare(forVideo model: MediaVideoModel)
+    
+    func prepareWaveForm(with size: CGSize)
     
     func add(videos: [MediaVideoModel], images: [MediaImageModel])
     

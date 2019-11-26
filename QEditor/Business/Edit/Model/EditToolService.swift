@@ -29,9 +29,9 @@ class EditToolService {
         return times
     }
     
-    public func loadAudioSamples(closure: @escaping((_ data: Data?) -> Void)) {
+    public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
-            closure(nil)
+            closure([])
             return
         }
         let composition = videoModel!.composition
@@ -43,8 +43,20 @@ class EditToolService {
                 if status == .loaded {
                     simpleData = self.readAudioSamples()
                 }
+                guard simpleData != nil else {
+                    closure([])
+                    return
+                }
+                let samples = self.filteredSamples(from: simpleData!, size: size)
+                var sampleBox: [[CGFloat]] = []
+                //1箱的宽度
+                let boxWidth = Int(size.width / CGFloat(boxCount))
+                for i in 0..<boxCount {
+                    let box = Array(samples[i * boxWidth..<(i + 1) * boxWidth])
+                    sampleBox.append(box)
+                }
                 DispatchQueue.main.sync {
-                    closure(simpleData)
+                    closure(sampleBox)
                 }
             }
         }
@@ -158,6 +170,39 @@ class EditToolService {
             QELog("Failed to read audio samples from asset.")
             return nil
         }
+    }
+    
+    /// 过滤音频样本
+    /// 数据分箱选出平均数
+    /// 这里的粒度要控制好
+    private func filteredSamples(from sampleData: Data, size: CGSize) -> [CGFloat] {
+        var array: [UInt16] = []
+        let sampleCount = sampleData.count / MemoryLayout<UInt16>.size
+        let binSize = sampleCount / Int(size.width)
+        let bytes: [UInt16] = sampleData.withUnsafeBytes( { bytes in
+            let buffer: UnsafePointer<UInt16> = bytes.baseAddress!.assumingMemoryBound(to: UInt16.self)
+            return Array(UnsafeBufferPointer(start: buffer, count: sampleData.count / MemoryLayout<UInt16>.size))
+        })
+        var maxSample: UInt16 = 0
+        var i = 0
+        while i < sampleCount - binSize {
+            var sum: Int = 0
+            //获取一箱的平均数，性能又好效果也好
+            for j in 0..<binSize {
+                sum += Int(bytes[i + j])
+            }
+            let value = sum / binSize
+            array.append(UInt16(value))
+            if value > maxSample {
+                maxSample = UInt16(value)
+            }
+            i += binSize
+        }
+        let scaleFactor = (size.height / 2) / CGFloat(maxSample)
+        let res: [CGFloat] = array.map { (a) -> CGFloat in
+            return CGFloat(a) * scaleFactor
+        }
+        return res
     }
     
 }
