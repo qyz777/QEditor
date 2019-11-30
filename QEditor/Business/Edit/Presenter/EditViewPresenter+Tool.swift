@@ -40,4 +40,8 @@ extension EditViewPresenter: EditToolViewOutput {
         }
     }
     
+    func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType) {
+        view?.showSettings(for: type)
+    }
+    
 }

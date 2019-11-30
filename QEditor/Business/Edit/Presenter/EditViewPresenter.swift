@@ -69,7 +69,3 @@ extension EditViewPresenter: EditViewPresenterInput {
     }
     
 }
-
-extension EditViewPresenter: EditViewOutput {
-    
-}

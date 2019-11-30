@@ -19,6 +19,8 @@
 		A02123412365428B0073A125 /* UIView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123402365428B0073A125 /* UIView+Layout.swift */; };
 		A0212343236583520073A125 /* EditToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212342236583520073A125 /* EditToolBar.swift */; };
 		A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */; };
+		A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */; };
+		A06679C52392699300C5EFC4 /* EditToolCutSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C42392699300C5EFC4 /* EditToolCutSettingsView.swift */; };
 		A0753FDF237650280096939A /* EditToolPartInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FDE237650280096939A /* EditToolPartInfo.swift */; };
 		A0753FE12376536E0096939A /* EditToolSplitInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE02376536E0096939A /* EditToolSplitInfo.swift */; };
 		A0753FE3237654370096939A /* EditToolSplitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE2237654370096939A /* EditToolSplitView.swift */; };
@@ -56,8 +58,6 @@
 		A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03BFC235AA2490012F226 /* EditToolViewController.swift */; };
 		A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */; };
 		A0E03C03235AA3730012F226 /* EditViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C02235AA3730012F226 /* EditViewPresenter.swift */; };
-		A0EE9B41236D3E76001CE0D8 /* EditToolEditBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EE9B40236D3E76001CE0D8 /* EditToolEditBar.swift */; };
-		A0EE9B43236D3F15001CE0D8 /* EditToolNormalCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EE9B42236D3F15001CE0D8 /* EditToolNormalCell.swift */; };
 		A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +76,8 @@
 		A02123402365428B0073A125 /* UIView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Layout.swift"; sourceTree = "<group>"; };
 		A0212342236583520073A125 /* EditToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolBar.swift; sourceTree = "<group>"; };
 		A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Utillity.swift"; sourceTree = "<group>"; };
+		A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+View.swift"; sourceTree = "<group>"; };
+		A06679C42392699300C5EFC4 /* EditToolCutSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolCutSettingsView.swift; sourceTree = "<group>"; };
 		A0753FDE237650280096939A /* EditToolPartInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolPartInfo.swift; sourceTree = "<group>"; };
 		A0753FE02376536E0096939A /* EditToolSplitInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSplitInfo.swift; sourceTree = "<group>"; };
 		A0753FE2237654370096939A /* EditToolSplitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSplitView.swift; sourceTree = "<group>"; };
@@ -115,8 +117,6 @@
 		A0E03BFC235AA2490012F226 /* EditToolViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolViewController.swift; sourceTree = "<group>"; };
 		A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewProtocol.swift; sourceTree = "<group>"; };
 		A0E03C02235AA3730012F226 /* EditViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewPresenter.swift; sourceTree = "<group>"; };
-		A0EE9B40236D3E76001CE0D8 /* EditToolEditBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolEditBar.swift; sourceTree = "<group>"; };
-		A0EE9B42236D3F15001CE0D8 /* EditToolNormalCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolNormalCell.swift; sourceTree = "<group>"; };
 		A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolChooseBoxView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -356,10 +356,10 @@
 				A021232F2364019E0073A125 /* EditToolImageThumbView.swift */,
 				A021233A23652FE40073A125 /* EditToolTimeScaleView.swift */,
 				A0212342236583520073A125 /* EditToolBar.swift */,
-				A0EE9B40236D3E76001CE0D8 /* EditToolEditBar.swift */,
 				A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */,
 				A0753FE2237654370096939A /* EditToolSplitView.swift */,
 				A0875AB0238A244200061394 /* EditToolAudioWaveformView.swift */,
+				A06679C42392699300C5EFC4 /* EditToolCutSettingsView.swift */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -369,7 +369,6 @@
 			children = (
 				A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */,
 				A021233C236531280073A125 /* EditToolTimeScaleCell.swift */,
-				A0EE9B42236D3F15001CE0D8 /* EditToolNormalCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -406,6 +405,7 @@
 				A0E03C02235AA3730012F226 /* EditViewPresenter.swift */,
 				A0212331236404090073A125 /* EditViewPresenter+Tool.swift */,
 				A02123352364204D0073A125 /* EditViewPresenter+Player.swift */,
+				A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -557,18 +557,18 @@
 				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A0212343236583520073A125 /* EditToolBar.swift in Sources */,
+				A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
 				A021233923652E0C0073A125 /* Debug.swift in Sources */,
-				A0EE9B43236D3F15001CE0D8 /* EditToolNormalCell.swift in Sources */,
 				A021233F2365401A0073A125 /* UIFont+Utility.swift in Sources */,
 				A09CF7D32349E31800139461 /* MediaViewController.swift in Sources */,
 				A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */,
 				A09CF7B32349DFE500139461 /* ViewController.swift in Sources */,
 				A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */,
 				A0870A602352FB85006DC38D /* EditViewController.swift in Sources */,
+				A06679C52392699300C5EFC4 /* EditToolCutSettingsView.swift in Sources */,
 				A021233D236531280073A125 /* EditToolTimeScaleCell.swift in Sources */,
 				A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */,
-				A0EE9B41236D3E76001CE0D8 /* EditToolEditBar.swift in Sources */,
 				A0753FE3237654370096939A /* EditToolSplitView.swift in Sources */,
 				A09CF7DA2349E38400139461 /* MediaManager.swift in Sources */,
 				A09CF7C62349E15800139461 /* NavigationController.swift in Sources */,

@@ -11,9 +11,17 @@ import AVFoundation
 
 protocol EditViewInput {
     
+    func showSettings(for type: EditSettingType)
+    
 }
 
 protocol EditViewOutput: class {
+    
+    func viewWillShowSettings(_ view: EditViewInput)
+    
+    func viewWillHiddenSettings(_ view: EditViewInput)
+    
+    func view(_ view: EditViewInput, didSelectedCutType type: CutSettingsType)
     
 }
 
@@ -35,6 +43,14 @@ protocol EditToolViewInput {
     
     func refreshWaveFormView(with sampleBox: [[CGFloat]])
     
+    func toolBarShouldHidden()
+    
+    func toolBarShouldShow()
+    
+    func split()
+    
+    func deletePart()
+    
 }
 
 protocol EditToolViewOutput: class {
@@ -53,6 +69,8 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo)
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
+    
+    func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType)
     
 }
 

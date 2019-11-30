@@ -264,19 +264,6 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    //MARK: 工具栏
-    
-    private func showEditBar() {
-        let view = EditToolEditBar()
-        view.selectedDelegate = self
-        view.frame = .init(x: 0, y: 0, width: toolBarView.qe.width, height: toolBarView.qe.height)
-        toolBarView.insertSubview(view, at: 99)
-        view.backClosure = { [weak view] in
-            view?.removeFromSuperview()
-        }
-        view.reloadData()
-    }
-    
     //MARK: Getter
     
     lazy var containerView: UIScrollView = {
@@ -355,7 +342,7 @@ class EditToolViewController: UIViewController {
         view.selectedClosure = { [unowned self] (_ index: Int) in
             switch index {
             case 0:
-                self.showEditBar()
+                self.presenter.toolView(self, shouldShowSettingsFor: .cut)
             default:
                 break
             }
@@ -374,10 +361,27 @@ class EditToolViewController: UIViewController {
 
 }
 
-//MARK: EditToolEditBarDelegate
-extension EditToolViewController: EditToolEditBarDelegate {
+//MARK: EditToolViewInput
+extension EditToolViewController: EditToolViewInput {
     
-    func viewDidSelectedCut(_ view: EditToolEditBar) {
+    func refreshWaveFormView(with sampleBox: [[CGFloat]]) {
+        waveformView.update(sampleBox)
+        waveformView.reloadData()
+    }
+    
+    func toolBarShouldHidden() {
+        UIView.animate(withDuration: 0.25) {
+            self.toolBarView.alpha = 0
+        }
+    }
+    
+    func toolBarShouldShow() {
+        UIView.animate(withDuration: 0.25) {
+            self.toolBarView.alpha = 1
+        }
+    }
+    
+    func split() {
         //[剪辑][分割]
         //分割规则，不能分割1s以内的视频，距离左边或右边分割点1s内的都不行
         //1.判断是否符合分割规则
@@ -435,7 +439,7 @@ extension EditToolViewController: EditToolEditBarDelegate {
         resetChooseViews()
     }
     
-    func viewDidSelectedDelete(_ view: EditToolEditBar) {
+    func deletePart() {
         //[剪辑][删除]
         //1.校验是否有选定视频
         guard forceChooseView != nil else {
@@ -449,16 +453,6 @@ extension EditToolViewController: EditToolEditBarDelegate {
         }
         //3.抛给presenter删除
         presenter.toolView(self, deletePartFrom: deleteInfo!)
-    }
-    
-}
-
-//MARK: EditToolViewInput
-extension EditToolViewController: EditToolViewInput {
-    
-    func refreshWaveFormView(with sampleBox: [[CGFloat]]) {
-        waveformView.update(sampleBox)
-        waveformView.reloadData()
     }
     
 }
