@@ -9,6 +9,8 @@
 import UIKit
 import AVFoundation
 
+fileprivate let BOX_SAMPLE_Width: CGFloat = 2
+
 class EditToolService {
     
     public var videoModel: EditVideoModel?
@@ -178,7 +180,7 @@ class EditToolService {
     private func filteredSamples(from sampleData: Data, size: CGSize) -> [CGFloat] {
         var array: [UInt16] = []
         let sampleCount = sampleData.count / MemoryLayout<UInt16>.size
-        let binSize = sampleCount / Int(size.width)
+        let binSize = sampleCount / Int(size.width * BOX_SAMPLE_Width)
         let bytes: [UInt16] = sampleData.withUnsafeBytes( { bytes in
             let buffer: UnsafePointer<UInt16> = bytes.baseAddress!.assumingMemoryBound(to: UInt16.self)
             return Array(UnsafeBufferPointer(start: buffer, count: sampleData.count / MemoryLayout<UInt16>.size))
@@ -198,7 +200,7 @@ class EditToolService {
             }
             i += binSize
         }
-        let scaleFactor = (size.height / 2) / CGFloat(maxSample)
+        let scaleFactor = size.height / CGFloat(maxSample)
         let res: [CGFloat] = array.map { (a) -> CGFloat in
             return CGFloat(a) * scaleFactor
         }

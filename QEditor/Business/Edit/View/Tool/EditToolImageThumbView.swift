@@ -22,6 +22,21 @@ class EditToolImageThumbView: UICollectionView {
     
     private let queue = DispatchQueue(label: "EditToolService.LoadImage", qos: .userInteractive, attributes: .concurrent, autoreleaseFrequency: .workItem, target: nil)
     
+    public var isNeedLoadImageAtDisplay = true
+    
+    public func loadImages() {
+        let items = indexPathsForVisibleItems
+        items.forEach {
+            let c = cellForItem(at: $0) as! EditToolImageCell
+            if itemModelClosure != nil {
+                let model = itemModelClosure!($0.item)
+                loadImage(at: model.time) { (image) in
+                    c.imageView.image = image
+                }
+            }
+        }
+    }
+    
     public var videoModel: EditVideoModel? {
         willSet {
             guard newValue != nil else {
@@ -58,7 +73,11 @@ class EditToolImageThumbView: UICollectionView {
             autoreleasepool {
                 do {
                     let cgImage = try self.generator!.copyCGImage(at: time, actualTime: nil)
-                    image = UIImage(cgImage: cgImage).qe.convertToSquare().qe.scaleToSize(.init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE))
+                    let convertImage = UIImage(cgImage: cgImage).qe.convertToSquare()
+                    guard convertImage != nil else {
+                        return
+                    }
+                    image = convertImage!.qe.scaleToSize(.init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE))
                 } catch {
                     print(error.localizedDescription)
                 }
@@ -87,6 +106,9 @@ extension EditToolImageThumbView: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard isNeedLoadImageAtDisplay else {
+            return
+        }
         let c = cell as! EditToolImageCell
         if itemModelClosure != nil {
             let model = itemModelClosure!(indexPath.item)

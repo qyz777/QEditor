@@ -52,13 +52,13 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo)
     
+    func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
+    
 }
 
 protocol EditViewPresenterInput {
     
     func prepare(forVideo model: MediaVideoModel)
-    
-    func prepareWaveForm(with size: CGSize)
     
     func add(videos: [MediaVideoModel], images: [MediaImageModel])
     

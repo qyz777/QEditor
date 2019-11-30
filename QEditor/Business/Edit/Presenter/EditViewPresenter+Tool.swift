@@ -34,4 +34,10 @@ extension EditViewPresenter: EditToolViewOutput {
         refreshView()
     }
     
+    func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
+        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count) { (box) in
+            self.toolView?.refreshWaveFormView(with: box)
+        }
+    }
+    
 }

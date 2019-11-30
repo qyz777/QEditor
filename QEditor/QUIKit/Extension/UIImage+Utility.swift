@@ -10,7 +10,7 @@ import UIKit
 
 public extension Namespace where Base: UIImage {
     
-    func convertToSquare() -> UIImage {
+    func convertToSquare() -> UIImage? {
         let length = min(base.size.width, base.size.height)
         let cgImage = base.cgImage
         let centerX = base.size.width / 2
@@ -19,7 +19,10 @@ public extension Namespace where Base: UIImage {
                           y: centerY - (length / 2),
                           width: length,
                           height: length)
-        let newCgImage = cgImage!.cropping(to: rect)
+        let newCgImage = cgImage?.cropping(to: rect)
+        guard newCgImage != nil else {
+            return nil
+        }
         return UIImage(cgImage: newCgImage!)
     }
     

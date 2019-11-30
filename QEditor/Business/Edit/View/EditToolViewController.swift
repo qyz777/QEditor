@@ -16,8 +16,6 @@ fileprivate let MIN_SCROLL_WIDTH = SCREEN_WIDTH + SCREEN_WIDTH / 2
 /// 容器左边距
 fileprivate let CONTAINER_PADDING_LEFT = SCREEN_WIDTH / 2
 
-fileprivate let WAVEFORM_HEIGHT: CGFloat = 40
-
 
 /// 视图层级枚举
 fileprivate enum InsertViewLevel: Int {
@@ -161,7 +159,7 @@ class EditToolViewController: UIViewController {
         partInfos.append(info)
         view.info = info
         //5.准备波形图
-        presenter.prepareWaveForm(with: .init(width: CGFloat(itemCount) * SCREEN_WIDTH, height: WAVEFORM_HEIGHT))
+        presenter.toolView(self, needRefreshWaveformViewWith: .init(width: CGFloat(itemCount) * SCREEN_WIDTH, height: WAVEFORM_HEIGHT))
     }
     
     private func resetChooseViews() {
@@ -172,7 +170,7 @@ class EditToolViewController: UIViewController {
         partInfos.removeAll()
         //2.增加新的
         var lastInfo: EditToolSplitInfo?
-        splitInfos.forEach { [weak self] (info) in
+        splitInfos.forEach { [unowned self] (info) in
             let view = EditToolChooseBoxView(with: info.point.x - CONTAINER_PADDING_LEFT)
             if lastInfo == nil {
                 view.qe.left = CONTAINER_PADDING_LEFT - 25
@@ -183,16 +181,13 @@ class EditToolViewController: UIViewController {
             }
             view.qe.centerY = thumbView.qe.centerY
             view.initializeLeft = view.qe.left
-            guard let ss = self else {
-                return
-            }
-            ss.contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+            self.contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
             let partInfo = EditToolPartInfo()
             partInfo.chooseView = view
             partInfo.beginTime = lastInfo?.videoPoint ?? 0
             partInfo.endTime = info.videoPoint
             partInfo.duration = partInfo.endTime - partInfo.beginTime
-            ss.partInfos.append(partInfo)
+            self.partInfos.append(partInfo)
             view.info = partInfo
             lastInfo = info
         }
@@ -224,13 +219,15 @@ class EditToolViewController: UIViewController {
     }
     
     @objc
+    func thumbViewLoadImagesIfScrollStop() {
+        thumbView.loadImages()
+    }
+    
+    @objc
     func didClickAddButton() {
         let vc = MediaViewController.buildView()
-        vc.completion = { [weak self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
-            guard let ss = self else {
-                return
-            }
-            ss.presenter.add(videos: videos, images: photos)
+        vc.completion = { [unowned self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
+            self.presenter.add(videos: videos, images: photos)
         }
         let nav = NavigationController(rootViewController: vc)
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
@@ -308,17 +305,11 @@ class EditToolViewController: UIViewController {
         let view = EditToolImageThumbView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: EDIT_THUMB_CELL_SIZE), collectionViewLayout: layout)
         view.isScrollEnabled = false
         view.layer.cornerRadius = 4
-        view.itemCountClosure = { [weak self] in
-            if let ss = self {
-                return ss.presenter.toolImageThumbViewItemsCount(ss)
-            }
-            return 0
+        view.itemCountClosure = { [unowned self] in
+            return self.presenter.toolImageThumbViewItemsCount(self)
         }
-        view.itemModelClosure = { [weak self] (item: Int) -> EditToolImageCellModel in
-            if let ss = self {
-                return ss.presenter.toolView(ss, thumbModelAt: item)
-            }
-            return EditToolImageCellModel()
+        view.itemModelClosure = { [unowned self] (item: Int) -> EditToolImageCellModel in
+            return self.presenter.toolView(self, thumbModelAt: item)
         }
         return view
     }()
@@ -343,17 +334,11 @@ class EditToolViewController: UIViewController {
         let view = EditToolTimeScaleView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: 25), collectionViewLayout: layout)
         view.isScrollEnabled = false
         view.showsHorizontalScrollIndicator = false
-        view.itemCountClosure = { [weak self] in
-            if let ss = self {
-                return ss.presenter.toolImageThumbViewItemsCount(ss)
-            }
-            return 0
+        view.itemCountClosure = { [unowned self] in
+            return self.presenter.toolImageThumbViewItemsCount(self)
         }
-        view.itemContentClosure = { [weak self] (item: Int) -> String in
-            if let ss = self {
-                return ss.presenter.toolView(ss, contentAt: item)
-            }
-            return ""
+        view.itemContentClosure = { [unowned self] (item: Int) -> String in
+            self.presenter.toolView(self, contentAt: item)
         }
         return view
     }()
@@ -365,13 +350,10 @@ class EditToolViewController: UIViewController {
         layout.minimumInteritemSpacing = 15
         layout.itemSize = .init(width: 40, height: 50)
         let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
-        view.selectedClosure = { [weak self] (_ index: Int) in
-            guard let ss = self else {
-                return
-            }
+        view.selectedClosure = { [unowned self] (_ index: Int) in
             switch index {
             case 0:
-                ss.showEditBar()
+                self.showEditBar()
             default:
                 break
             }
@@ -579,11 +561,33 @@ extension EditToolViewController: UIScrollViewDelegate {
             isPlayingBeforeDragging = false
             presenter.playerShouldPlay()
         }
+        
+        let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
+        if (scrollToScrollStop) {
+            thumbViewLoadImagesIfScrollStop()
+            thumbView.isNeedLoadImageAtDisplay = true
+        } else {
+            thumbView.isNeedLoadImageAtDisplay = false
+        }
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         isPlayingBeforeDragging = playerStatus == .playing
         presenter.playerShouldPause()
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            let dragToDragStop = scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
+            if (dragToDragStop) {
+                thumbViewLoadImagesIfScrollStop()
+                thumbView.isNeedLoadImageAtDisplay = true
+            } else {
+                thumbView.isNeedLoadImageAtDisplay = false
+            }
+        } else {
+            thumbView.isNeedLoadImageAtDisplay = false
+        }
     }
     
 }

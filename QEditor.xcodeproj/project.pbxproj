@@ -50,7 +50,6 @@
 		A09CF7DE234B0A7200139461 /* MediaVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */; };
 		A09CF7E0234B0A7C00139461 /* MediaImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */; };
 		A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7E2234B0E0200139461 /* MediaCell.swift */; };
-		A0B489FA238ACE5700F5255E /* EditToolWaveformCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B489F9238ACE5600F5255E /* EditToolWaveformCell.swift */; };
 		A0DADA0A235AD47A00BD83D7 /* EditToolImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */; };
 		A0DADA0D235AE28C00BD83D7 /* EditToolImageCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA0C235AE28C00BD83D7 /* EditToolImageCellModel.swift */; };
 		A0DADA12235AECB600BD83D7 /* EditToolService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA11235AECB600BD83D7 /* EditToolService.swift */; };
@@ -110,7 +109,6 @@
 		A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaVideoViewController.swift; sourceTree = "<group>"; };
 		A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaImageViewController.swift; sourceTree = "<group>"; };
 		A09CF7E2234B0E0200139461 /* MediaCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
-		A0B489F9238ACE5600F5255E /* EditToolWaveformCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolWaveformCell.swift; sourceTree = "<group>"; };
 		A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageCell.swift; sourceTree = "<group>"; };
 		A0DADA0C235AE28C00BD83D7 /* EditToolImageCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageCellModel.swift; sourceTree = "<group>"; };
 		A0DADA11235AECB600BD83D7 /* EditToolService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolService.swift; sourceTree = "<group>"; };
@@ -372,7 +370,6 @@
 				A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */,
 				A021233C236531280073A125 /* EditToolTimeScaleCell.swift */,
 				A0EE9B42236D3F15001CE0D8 /* EditToolNormalCell.swift */,
-				A0B489F9238ACE5600F5255E /* EditToolWaveformCell.swift */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -587,7 +584,6 @@
 				A09CF7E0234B0A7C00139461 /* MediaImageViewController.swift in Sources */,
 				A09CF7AF2349DFE500139461 /* AppDelegate.swift in Sources */,
 				A0753FDF237650280096939A /* EditToolPartInfo.swift in Sources */,
-				A0B489FA238ACE5700F5255E /* EditToolWaveformCell.swift in Sources */,
 				A0753FE12376536E0096939A /* EditToolSplitInfo.swift in Sources */,
 				A09CF7CC2349E25E00139461 /* HomeViewController.swift in Sources */,
 				A0870A572351C84E006DC38D /* Namespace.swift in Sources */,

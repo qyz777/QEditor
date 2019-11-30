@@ -51,12 +51,6 @@ extension EditViewPresenter: EditViewPresenterInput {
         refreshView()
     }
     
-    func prepareWaveForm(with size: CGSize) {
-        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count) { (box) in
-            self.toolView?.refreshWaveFormView(with: box)
-        }
-    }
-    
     func add(videos: [MediaVideoModel], images: [MediaImageModel]) {
         //todo:先只能处理视频了
         guard videos.count > 0 else {
