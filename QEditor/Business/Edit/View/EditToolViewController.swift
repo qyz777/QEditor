@@ -35,6 +35,8 @@ class EditToolViewController: UIViewController {
     /// 视频时长
     private var duration: Double = 0
     
+    private var isEnableOptimize = false
+    
     /// 播放器状态
     private var playerStatus: PlayerViewStatus = .error
     
@@ -372,6 +374,7 @@ class EditToolViewController: UIViewController {
 
 }
 
+//MARK: EditToolEditBarDelegate
 extension EditToolViewController: EditToolEditBarDelegate {
     
     func viewDidSelectedCut(_ view: EditToolEditBar) {
@@ -450,6 +453,7 @@ extension EditToolViewController: EditToolEditBarDelegate {
     
 }
 
+//MARK: EditToolViewInput
 extension EditToolViewController: EditToolViewInput {
     
     func refreshWaveFormView(with sampleBox: [[CGFloat]]) {
@@ -459,6 +463,7 @@ extension EditToolViewController: EditToolViewInput {
     
 }
 
+//MARK: EditViewPresenterOutput
 extension EditToolViewController: EditViewPresenterOutput {
     
     func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {
@@ -469,6 +474,7 @@ extension EditToolViewController: EditViewPresenterOutput {
     
     func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double) {
         self.duration = duration
+        isEnableOptimize = duration > 60
     }
     
     func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
@@ -494,6 +500,7 @@ extension EditToolViewController: EditViewPresenterOutput {
     
 }
 
+//MARK: UIScrollViewDelegate
 extension EditToolViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -562,12 +569,14 @@ extension EditToolViewController: UIScrollViewDelegate {
             presenter.playerShouldPlay()
         }
         
-        let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
-        if (scrollToScrollStop) {
-            thumbViewLoadImagesIfScrollStop()
-            thumbView.isNeedLoadImageAtDisplay = true
-        } else {
-            thumbView.isNeedLoadImageAtDisplay = false
+        if isEnableOptimize {
+            let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
+            if (scrollToScrollStop) {
+                thumbViewLoadImagesIfScrollStop()
+                thumbView.isNeedLoadImageAtDisplay = true
+            } else {
+                thumbView.isNeedLoadImageAtDisplay = false
+            }
         }
     }
     
@@ -577,16 +586,18 @@ extension EditToolViewController: UIScrollViewDelegate {
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate {
-            let dragToDragStop = scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
-            if (dragToDragStop) {
-                thumbViewLoadImagesIfScrollStop()
-                thumbView.isNeedLoadImageAtDisplay = true
+        if isEnableOptimize {
+            if !decelerate {
+                let dragToDragStop = scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
+                if (dragToDragStop) {
+                    thumbViewLoadImagesIfScrollStop()
+                    thumbView.isNeedLoadImageAtDisplay = true
+                } else {
+                    thumbView.isNeedLoadImageAtDisplay = false
+                }
             } else {
                 thumbView.isNeedLoadImageAtDisplay = false
             }
-        } else {
-            thumbView.isNeedLoadImageAtDisplay = false
         }
     }
     
