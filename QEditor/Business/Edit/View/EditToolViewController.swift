@@ -141,6 +141,7 @@ class EditToolViewController: UIViewController {
         contentView.snp.updateConstraints { (make) in
             make.width.equalTo(width)
         }
+        view.layoutIfNeeded()
         //3.设置视频最大宽度
         videoContentWidth = width - SCREEN_WIDTH
         //4.初始化第一个最大的框选view
@@ -150,6 +151,7 @@ class EditToolViewController: UIViewController {
         view.qe.width = chooseMaxWidth
         view.qe.centerY = thumbView.qe.centerY
         view.initializeLeft = view.qe.left
+        forceChooseView = view
         contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
         let info = EditToolPartInfo()
         info.chooseView = view
@@ -374,6 +376,12 @@ extension EditToolViewController: EditToolViewInput {
     }
     
     func toolBarShouldShow() {
+        //清除工具view
+        view.subviews.forEach {
+            if $0.isKind(of: EditToolChangeSpeedView.self) {
+                $0.removeFromSuperview()
+            }
+        }
         UIView.animate(withDuration: 0.25) {
             self.toolBarView.alpha = 1
         }
@@ -451,6 +459,25 @@ extension EditToolViewController: EditToolViewInput {
         }
         //3.抛给presenter删除
         presenter.toolView(self, deletePartFrom: deleteInfo!)
+    }
+    
+    func showChangeSpeedView() {
+        let changeSpeedView = EditToolChangeSpeedView()
+        changeSpeedView.closure = { [unowned self] (progress) in
+            //todo:变速...
+            guard let forceChooseView = self.forceChooseView else {
+                return
+            }
+            guard let part = forceChooseView.info else {
+                return
+            }
+            self.presenter.toolView(self, didChangeSpeedFrom: part.beginTime, to: part.endTime, of: progress)
+        }
+        view.addSubview(changeSpeedView)
+        changeSpeedView.snp.makeConstraints { (make) in
+            make.left.bottom.right.equalTo(self.view)
+            make.height.equalTo(40)
+        }
     }
     
     func reloadView() {

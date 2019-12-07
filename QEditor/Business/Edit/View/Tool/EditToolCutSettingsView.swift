@@ -11,6 +11,7 @@ import UIKit
 public enum CutSettingsType {
     case split
     case delete
+    case changeSpeed
 }
 
 public let CUT_SETTINGS_VIEW_HEIGHT: CGFloat = 50
@@ -41,7 +42,7 @@ class EditToolCutSettingsView: UICollectionView {
 extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -50,6 +51,8 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
             cell.label.text = "分割"
         } else if indexPath.item == 1 {
             cell.label.text = "删除"
+        } else if indexPath.item == 2 {
+            cell.label.text = "变速"
         }
         return cell
     }
@@ -60,6 +63,8 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
             selecctedClosure?(.split)
         case 1:
             selecctedClosure?(.delete)
+        case 2:
+            selecctedClosure?(.changeSpeed)
         default:
             break
         }

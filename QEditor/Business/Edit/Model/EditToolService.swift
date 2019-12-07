@@ -31,6 +31,19 @@ class EditToolService {
         return times
     }
     
+    public func changeSpeed(for model: EditChangeScaleModel) {
+        guard videoModel != nil else {
+            return
+        }
+        let timeRange = CMTimeRange(start: CMTime(seconds: model.beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: model.endTime, preferredTimescale: CMTimeScale(600)))
+        let composition = videoModel!.composition
+        let videoTrack = composition.tracks(withMediaType: .video).first!
+        let audioTrack = composition.tracks(withMediaType: .audio).first!
+        let toDuration = CMTime(seconds: model.scaleDuration, preferredTimescale: CMTimeScale(600))
+        videoTrack.scaleTimeRange(timeRange, toDuration: toDuration)
+        audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
+    }
+    
     public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])

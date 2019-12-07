@@ -14,3 +14,9 @@ struct EditVideoModel {
     var composition: AVMutableComposition
     var formatTime: String
 }
+
+struct EditChangeScaleModel {
+    let beginTime: Double
+    let endTime: Double
+    let scaleDuration: Double
+}

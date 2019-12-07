@@ -146,6 +146,8 @@ public extension PlayerView {
     
     func setupPlayer(asset: AVAsset) {
         currentItem = AVPlayerItem(asset: asset)
+        //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
+        currentItem?.audioTimePitchAlgorithm = .varispeed
         player.replaceCurrentItem(with: currentItem)
         playerLayer?.removeFromSuperlayer()
         playerLayer = AVPlayerLayer(player: player)

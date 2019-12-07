@@ -15,6 +15,8 @@ extension EditViewPresenter: EditViewOutput {
         //交给Service处理成model
         let asset = AVURLAsset(url: model.url!)
         toolService.generateVideoModel(from: [asset])
+        toolView?.updateDuration(asset.duration.seconds)
+        playerView?.updateDuration(asset.duration.seconds)
         //刷新视图
         refreshView()
     }
@@ -33,6 +35,8 @@ extension EditViewPresenter: EditViewOutput {
             toolView?.split()
         case .delete:
             toolView?.deletePart()
+        case .changeSpeed:
+            toolView?.showChangeSpeedView()
         }
     }
     

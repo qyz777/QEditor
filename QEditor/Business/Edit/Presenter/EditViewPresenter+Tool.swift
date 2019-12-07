@@ -66,4 +66,12 @@ extension EditViewPresenter: EditToolViewOutput {
         refreshView()
     }
     
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float) {
+        let duration = endTime - beginTime
+        let scaleDuration = duration * Double(scale)
+        let model = EditChangeScaleModel(beginTime: beginTime, endTime: endTime, scaleDuration: scaleDuration)
+        toolService.changeSpeed(for: model)
+        refreshView()
+    }
+    
 }

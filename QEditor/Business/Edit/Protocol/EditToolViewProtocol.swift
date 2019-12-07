@@ -22,6 +22,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func reloadView()
     
+    func showChangeSpeedView()
+    
 }
 
 protocol EditToolViewOutput: class {
@@ -48,5 +50,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType)
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
+    
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float)
     
 }
