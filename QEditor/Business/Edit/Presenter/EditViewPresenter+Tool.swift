@@ -19,8 +19,21 @@ extension EditViewPresenter: EditToolViewOutput {
         return thumbModels[index]
     }
     
-    func toolView(_ toolView: EditToolViewInput, onDragWith percent: Float) {
+    func toolView(_ toolView: EditToolViewInput, isDraggingWith percent: Float) {
         playerView?.seek(to: percent)
+    }
+    
+    func toolViewWillBeginDragging(_ toolView: EditToolViewInput) {
+        isPlayingBeforeDragging = playerStatus == .playing
+        //开始拖动时暂停播放器
+        playerView?.pause()
+    }
+    
+    func toolViewDidEndDecelerating(_ toolView: EditToolViewInput) {
+        if isPlayingBeforeDragging {
+            isPlayingBeforeDragging = false
+            playerView?.play()
+        }
     }
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
@@ -42,6 +55,15 @@ extension EditViewPresenter: EditToolViewOutput {
     
     func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType) {
         view?.showSettings(for: type)
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel]) {
+        //todo:先只能处理视频了
+        guard videos.count > 0 else {
+            return
+        }
+        toolService.addVideos(from: videos)
+        refreshView()
     }
     
 }

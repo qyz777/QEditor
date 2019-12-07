@@ -28,7 +28,7 @@ class EditViewController: UIViewController {
         return vc
     }
     
-    public var presenter: (EditViewPresenterInput & EditViewOutput)!
+    public var presenter: (EditViewOutput)!
     
     private var sourceModel: MediaVideoModel?
     
@@ -48,7 +48,7 @@ class EditViewController: UIViewController {
         initView()
         
         if sourceModel != nil {
-            presenter.prepare(forVideo: sourceModel!)
+            presenter.view(self, didLoadMediaVideo: sourceModel!)
         }
     }
     

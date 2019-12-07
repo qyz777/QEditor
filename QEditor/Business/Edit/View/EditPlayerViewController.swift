@@ -12,7 +12,7 @@ import AVFoundation
 
 class EditPlayerViewController: UIViewController {
     
-    public var presenter: (EditViewPresenterInput & EditPlayerViewOutput & PlayerViewDelegate)!
+    public var presenter: (EditPlayerViewOutput & PlayerViewDelegate)!
     
     private var duration: Double = 0
     
@@ -90,30 +90,6 @@ class EditPlayerViewController: UIViewController {
 
 }
 
-extension EditPlayerViewController: EditViewPresenterOutput {
-    
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel) {
-        self.model = model
-        playerView.stop()
-        playerView.setupPlayer(asset: model.composition)
-    }
-    
-    func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
-        let timeFormat = String.qe.formatTime(Int(time))
-        timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
-    }
-    
-    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double) {
-        self.duration = duration
-        timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
-    }
-    
-    func presenterPlayerDidEndToTime(_ presenter: EditViewPresenterInput) {
-        playButton.setImage(UIImage(named: "edit_play"), for: .normal)
-    }
-    
-}
-
 extension EditPlayerViewController: EditPlayerViewInput {
     
     func seek(to percent: Float) {
@@ -128,6 +104,26 @@ extension EditPlayerViewController: EditPlayerViewInput {
     
     func pause() {
         playerView.pause()
+        playButton.setImage(UIImage(named: "edit_play"), for: .normal)
+    }
+    
+    func loadVideoModel(_ model: EditVideoModel) {
+        self.model = model
+        playerView.stop()
+        playerView.setupPlayer(asset: model.composition)
+    }
+    
+    func updatePlayTime(_ time: Double) {
+        let timeFormat = String.qe.formatTime(Int(time))
+        timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
+    }
+    
+    func updateDuration(_ duration: Double) {
+        self.duration = duration
+        timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
+    }
+    
+    func playToEndTime() {
         playButton.setImage(UIImage(named: "edit_play"), for: .normal)
     }
     

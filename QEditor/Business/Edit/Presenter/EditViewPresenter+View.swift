@@ -7,8 +7,17 @@
 //
 
 import Foundation
+import AVFoundation
 
 extension EditViewPresenter: EditViewOutput {
+    
+    func view(_ view: EditViewInput, didLoadMediaVideo model: MediaVideoModel) {
+        //交给Service处理成model
+        let asset = AVURLAsset(url: model.url!)
+        toolService.generateVideoModel(from: [asset])
+        //刷新视图
+        refreshView()
+    }
     
     func viewWillShowSettings(_ view: EditViewInput) {
         toolView?.toolBarShouldHidden()

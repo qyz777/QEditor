@@ -12,28 +12,26 @@ import AVFoundation
 extension EditViewPresenter: PlayerViewDelegate {
     
     public func player(_ player: PlayerView, didChange status: AVPlayerItem.Status) {
-        toolView?.presenter(self, playerDidChange: status)
-        playerView?.presenter(self, playerDidChange: status)
+        
     }
     
     func player(_ player: PlayerView, playAt time: Double) {
-        toolView?.presenter(self, playerPlayAt: time)
-        playerView?.presenter(self, playerPlayAt: time)
+        toolView?.updatePlayTime(time)
+        playerView?.updatePlayTime(time)
     }
     
     public func player(_ player: PlayerView, didLoadVideoWith duration: Double) {
-        toolView?.presenter(self, playerDidLoadVideoWith: duration)
-        playerView?.presenter(self, playerDidLoadVideoWith: duration)
+        toolView?.updateDuration(duration)
+        playerView?.updateDuration(duration)
     }
     
     func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {
-        toolView?.presenter(self, playerStatusDidChange: status)
-        playerView?.presenter(self, playerStatusDidChange: status)
+        playerStatus = status
+        toolView?.updatePlayViewStatus(status)
     }
     
     func playerDidPlayToEndTime(_ player: PlayerView) {
-        toolView?.presenterPlayerDidEndToTime(self)
-        playerView?.presenterPlayerDidEndToTime(self)
+        playerView?.playToEndTime()
     }
     
 }

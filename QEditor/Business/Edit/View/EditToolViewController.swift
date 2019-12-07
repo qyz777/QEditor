@@ -30,7 +30,7 @@ fileprivate enum InsertViewLevel: Int {
 
 class EditToolViewController: UIViewController {
     
-    public var presenter: (EditViewPresenterInput & EditToolViewOutput)!
+    public var presenter: (EditToolViewOutput)!
     
     /// 视频时长
     private var duration: Double = 0
@@ -39,8 +39,6 @@ class EditToolViewController: UIViewController {
     
     /// 播放器状态
     private var playerStatus: PlayerViewStatus = .error
-    
-    private var isPlayingBeforeDragging = false
     
     /// 视频最大宽度，每次新增、删除视频需要重新设置这个属性
     private var videoContentWidth: CGFloat = 0
@@ -229,7 +227,7 @@ class EditToolViewController: UIViewController {
     func didClickAddButton() {
         let vc = MediaViewController.buildView()
         vc.completion = { [unowned self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
-            self.presenter.add(videos: videos, images: photos)
+            self.presenter.toolView(self, didSelected: videos, images: photos)
         }
         let nav = NavigationController(rootViewController: vc)
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
@@ -455,23 +453,17 @@ extension EditToolViewController: EditToolViewInput {
         presenter.toolView(self, deletePartFrom: deleteInfo!)
     }
     
-}
-
-//MARK: EditViewPresenterOutput
-extension EditToolViewController: EditViewPresenterOutput {
-    
-    func presenterViewShouldReload(_ presenter: EditViewPresenterInput) {
+    func reloadView() {
         refreshContainerView()
         thumbView.reloadData()
         timeScaleView.reloadData()
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, playerDidLoadVideoWith duration: Double) {
-        self.duration = duration
-        isEnableOptimize = duration > 60
+    func loadVideoModel(_ model: EditVideoModel) {
+        thumbView.videoModel = model
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, playerPlayAt time: Double) {
+    func updatePlayTime(_ time: Double) {
         guard duration > 0 else {
             return
         }
@@ -484,12 +476,13 @@ extension EditToolViewController: EditViewPresenterOutput {
         containerView.contentOffset = .init(x: offsetX, y: 0)
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, playerStatusDidChange status: PlayerViewStatus) {
-        playerStatus = status
+    func updateDuration(_ duration: Double) {
+        self.duration = duration
+        isEnableOptimize = duration > 60
     }
     
-    func presenter(_ presenter: EditViewPresenterInput, didLoadVideo model: EditVideoModel) {
-        thumbView.videoModel = model
+    func updatePlayViewStatus(_ status: PlayerViewStatus) {
+        playerStatus = status
     }
     
 }
@@ -503,7 +496,7 @@ extension EditToolViewController: UIScrollViewDelegate {
         
         if totalWidth - SCREEN_WIDTH > 0 && playerStatus != .playing {
             let percent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
-            presenter.toolView(self, onDragWith: percent)
+            presenter.toolView(self, isDraggingWith: percent)
         }
         
         if offsetX < SCREEN_WIDTH / 2 {
@@ -556,12 +549,10 @@ extension EditToolViewController: UIScrollViewDelegate {
         let totalWidth = scrollView.contentSize.width
         if totalWidth - SCREEN_WIDTH > 0 {
             let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
-            presenter.toolView(self, onDragWith: percent)
+            presenter.toolView(self, isDraggingWith: percent)
         }
-        if isPlayingBeforeDragging {
-            isPlayingBeforeDragging = false
-            presenter.playerShouldPlay()
-        }
+        
+        presenter.toolViewDidEndDecelerating(self)
         
         if isEnableOptimize {
             let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
@@ -575,8 +566,7 @@ extension EditToolViewController: UIScrollViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        isPlayingBeforeDragging = playerStatus == .playing
-        presenter.playerShouldPause()
+        presenter.toolViewWillBeginDragging(self)
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {

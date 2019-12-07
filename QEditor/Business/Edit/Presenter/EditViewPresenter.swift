@@ -4,7 +4,7 @@
 //
 //  Created by Q YiZhong on 2019/10/19.
 //  Copyright © 2019 YiZhong Qi. All rights reserved.
-//  todo:我觉得这个p太大了，可以拆成子p
+//
 
 import UIKit
 import AVFoundation
@@ -13,13 +13,17 @@ class EditViewPresenter {
     
     public weak var view: (UIViewController & EditViewInput)?
     
-    public weak var playerView: (UIViewController & EditPlayerViewInput & EditViewPresenterOutput)?
+    public weak var playerView: (UIViewController & EditPlayerViewInput)?
     
-    public weak var toolView: (UIViewController & EditToolViewInput & EditViewPresenterOutput)?
+    public weak var toolView: (UIViewController & EditToolViewInput)?
     
     let toolService = EditToolService()
     
     var thumbModels: [EditToolImageCellModel] = []
+    
+    var playerStatus: PlayerViewStatus = .stop
+    
+    var isPlayingBeforeDragging = false
     
     func refreshView() {
         guard toolService.videoModel != nil else {
@@ -33,39 +37,10 @@ class EditViewPresenter {
             return m
         })
         //2.对外发送加载成功的消息
-        playerView?.presenter(self, didLoadVideo: toolService.videoModel!)
-        toolView?.presenter(self, didLoadVideo: toolService.videoModel!)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        toolView?.loadVideoModel(toolService.videoModel!)
         //3.刷新工具栏
-        toolView?.presenterViewShouldReload(self)
-    }
-    
-}
-
-extension EditViewPresenter: EditViewPresenterInput {
-    
-    func prepare(forVideo model: MediaVideoModel) {
-        //交给Service处理成model
-        let asset = AVURLAsset(url: model.url!)
-        toolService.generateVideoModel(from: [asset])
-        //刷新视图
-        refreshView()
-    }
-    
-    func add(videos: [MediaVideoModel], images: [MediaImageModel]) {
-        //todo:先只能处理视频了
-        guard videos.count > 0 else {
-            return
-        }
-        toolService.addVideos(from: videos)
-        refreshView()
-    }
-    
-    func playerShouldPause() {
-        playerView?.pause()
-    }
-    
-    func playerShouldPlay() {
-        playerView?.play()
+        toolView?.reloadView()
     }
     
 }
