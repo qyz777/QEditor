@@ -24,6 +24,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeSpeedView()
     
+    func forceVideoTimeRange() -> (start: Double, end: Double)
+    
 }
 
 protocol EditToolViewOutput: class {

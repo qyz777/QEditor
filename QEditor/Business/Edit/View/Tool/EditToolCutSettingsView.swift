@@ -12,6 +12,7 @@ public enum CutSettingsType {
     case split
     case delete
     case changeSpeed
+    case reverse
 }
 
 public let CUT_SETTINGS_VIEW_HEIGHT: CGFloat = 50
@@ -28,6 +29,7 @@ class EditToolCutSettingsView: UICollectionView {
         layout.itemSize = .init(width: CUT_SETTINGS_VIEW_HEIGHT * 2, height: CUT_SETTINGS_VIEW_HEIGHT)
         layout.sectionInset = .init(top: 0, left: 30, bottom: 0, right: 0)
         super.init(frame: .zero, collectionViewLayout: layout)
+        showsHorizontalScrollIndicator = false
         delegate = self
         dataSource = self
         register(EditToolCutSettingsCell.self, forCellWithReuseIdentifier: "EditToolCutSettingsCell")
@@ -42,7 +44,7 @@ class EditToolCutSettingsView: UICollectionView {
 extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return 4
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -53,11 +55,14 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
             cell.label.text = "删除"
         } else if indexPath.item == 2 {
             cell.label.text = "变速"
+        } else if indexPath.item == 3 {
+            cell.label.text = "反转"
         }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
         switch indexPath.item {
         case 0:
             selecctedClosure?(.split)
@@ -65,6 +70,8 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
             selecctedClosure?(.delete)
         case 2:
             selecctedClosure?(.changeSpeed)
+        case 3:
+            selecctedClosure?(.reverse)
         default:
             break
         }

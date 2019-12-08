@@ -37,6 +37,8 @@ extension EditViewPresenter: EditViewOutput {
             toolView?.deletePart()
         case .changeSpeed:
             toolView?.showChangeSpeedView()
+        case .reverse:
+            shouldReverseVideo()
         }
     }
     

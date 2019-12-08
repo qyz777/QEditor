@@ -76,3 +76,17 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
 }
+
+extension EditViewPresenter {
+    
+    func shouldReverseVideo() {
+        guard let tuple = toolView?.forceVideoTimeRange() else {
+            return
+        }
+        let timeRange = CMTimeRange(start: CMTime(seconds: tuple.0, preferredTimescale: 600), end: CMTime(seconds: tuple.1, preferredTimescale: 600))
+        toolService.reverseVideo(at: timeRange) { [unowned self] in
+            self.refreshView()
+        }
+    }
+    
+}

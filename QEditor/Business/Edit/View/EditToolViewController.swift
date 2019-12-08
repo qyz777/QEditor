@@ -462,9 +462,13 @@ extension EditToolViewController: EditToolViewInput {
     }
     
     func showChangeSpeedView() {
+        guard !view.subviews.contains(where: { (v) -> Bool in
+            return v.isKind(of: EditToolChangeSpeedView.self)
+        }) else {
+            return
+        }
         let changeSpeedView = EditToolChangeSpeedView()
         changeSpeedView.closure = { [unowned self] (progress) in
-            //todo:变速...
             guard let forceChooseView = self.forceChooseView else {
                 return
             }
@@ -478,6 +482,16 @@ extension EditToolViewController: EditToolViewInput {
             make.left.bottom.right.equalTo(self.view)
             make.height.equalTo(40)
         }
+    }
+    
+    func forceVideoTimeRange() -> (start: Double, end: Double) {
+        guard let forceChooseView = self.forceChooseView else {
+            return (start: 0, end: 0)
+        }
+        guard let part = forceChooseView.info else {
+            return (start: 0, end: 0)
+        }
+        return (start: part.beginTime, end: part.endTime)
     }
     
     func reloadView() {

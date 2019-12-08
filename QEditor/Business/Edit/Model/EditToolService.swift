@@ -14,6 +14,8 @@ fileprivate let BOX_SAMPLE_Width: CGFloat = 2
 class EditToolService {
     
     public var videoModel: EditVideoModel?
+    
+    private var reverseTool: EditToolReverseTool?
 
     public func split() -> [CMTime] {
         guard videoModel != nil else {
@@ -22,6 +24,10 @@ class EditToolService {
 
         let asset = videoModel!.composition
         let duration = Int(asset.duration.seconds)
+        
+        guard duration > 1 else {
+            return []
+        }
 
         var times: [CMTime] = []
         for i in 1...duration {
@@ -44,6 +50,30 @@ class EditToolService {
         audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
     }
     
+    public func reverseVideo(at timeRange: CMTimeRange, closure: @escaping () -> Void) {
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        do {
+            reverseTool = try EditToolReverseTool(with: composition.mutableCopy() as! AVMutableComposition, at: timeRange)
+        } catch {
+            return
+        }
+        reverseTool!.completionClosure = { [unowned self] (path) in
+            let url = URL(fileURLWithPath: path)
+            let asset = AVURLAsset(url: url)
+            let assetTimeRange = CMTimeRange(start: .zero, end: asset.duration)
+            do {
+                try self.replaceTimeRange(assetTimeRange, of: asset, at: timeRange.start)
+                closure()
+            } catch {
+                QELog("replace failed, reason: \(error.localizedDescription)")
+            }
+            self.reverseTool = nil
+        }
+        reverseTool!.reverse()
+    }
+    
     public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])
@@ -59,7 +89,9 @@ class EditToolService {
                     simpleData = self.readAudioSamples()
                 }
                 guard simpleData != nil else {
-                    closure([])
+                    DispatchQueue.main.sync {
+                        closure([])
+                    }
                     return
                 }
                 let samples = self.filteredSamples(from: simpleData!, size: size)
@@ -143,6 +175,16 @@ class EditToolService {
     private func resetVideoModel(_ composition: AVMutableComposition) {
         videoModel?.composition = composition
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
+    }
+    
+    private func replaceTimeRange(_ timeRange: CMTimeRange, of asset: AVAsset, at startTime: CMTime) throws {
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        let duration = timeRange.duration
+        let removeTimeRange = CMTimeRange(start: startTime, end: CMTimeAdd(startTime, duration))
+        composition.removeTimeRange(removeTimeRange)
+        try composition.insertTimeRange(timeRange, of: asset, at: startTime)
     }
     
     private func readAudioSamples() -> Data? {
