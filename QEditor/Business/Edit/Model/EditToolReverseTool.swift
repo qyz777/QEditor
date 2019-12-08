@@ -27,9 +27,10 @@ enum ReverseToolError: Error {
 
 class EditToolReverseTool {
     
+    /// 此进度不是连续增长
     public var progress: Float = 0
     
-    public var completionClosure: ((_ path: String) -> Void)?
+    public var completionClosure: ((_ composition: AVMutableComposition) -> Void)?
     
     private var composition: AVMutableComposition?
     
@@ -41,13 +42,11 @@ class EditToolReverseTool {
     
     private var assetWriterPixelBufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
     
-    private var timeElapsed: Double = 0
-    
-    private var outputPath = ""
-    
     private var sampleBuffers: [CMSampleBuffer] = []
     
-    private var tempVideoPaths: [String] = []
+    private var tempVideoPartPaths: [String] = []
+    
+    private var incrementTime: Double = 0
     
     init(with composition: AVMutableComposition, at timeRange: CMTimeRange) throws {
         self.composition = composition
@@ -57,9 +56,6 @@ class EditToolReverseTool {
         if !FileManager.default.fileExists(atPath: SAVE_PATH, isDirectory: point) {
             try FileManager.default.createDirectory(atPath: SAVE_PATH, withIntermediateDirectories: true, attributes: nil)
         }
-        
-        let timestamp = String.qe.timestamp()
-        outputPath = SAVE_PATH + "/" + timestamp + ".mov"
     }
     
     public func reverse() {
@@ -71,16 +67,12 @@ class EditToolReverseTool {
     
     public func cancel() {
         assetWriter?.cancelWriting()
+        removeTempVideoParts()
+        sampleBuffers.removeAll()
+        progress = 0
     }
     
     private func readImages() {
-        do {
-            try startWriting()
-        } catch {
-            QELog("start writing failed, reason: \(error.localizedDescription)")
-            return
-        }
-        
         let track = composition!.tracks(withMediaType: .video).first!
         let reader: AVAssetReader
         do {
@@ -94,17 +86,45 @@ class EditToolReverseTool {
         let readerOutput = AVAssetReaderTrackOutput(track: track, outputSettings: settings)
         reader.add(readerOutput)
         reader.startReading()
+        //读取每一帧
         while let sample = readerOutput.copyNextSampleBuffer() {
-            autoreleasepool {
-                sampleBuffers.append(sample)
+            sampleBuffers.append(sample)
+            //分段加载
+            if sampleBuffers.count >= MAX_READ_SAMPLE_COUNT {
+                writeAsset()
             }
         }
-        writeSample()
+        if sampleBuffers.count > 0 {
+            writeAsset()
+        }
         reader.cancelReading()
-        endWriting()
+        //组合临时存储的asset
+        let outputComposition = AVMutableComposition()
+        var insertTime: CMTime = .zero
+        while let path = tempVideoPartPaths.popLast() {
+            let url = URL(fileURLWithPath: path)
+            let options: [String: Any] = [AVURLAssetPreferPreciseDurationAndTimingKey: NSNumber(value: true)]
+            let asset = AVURLAsset(url: url, options: options)
+            let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+            do {
+                try outputComposition.insertTimeRange(timeRange, of: asset, at: insertTime)
+            } catch {
+                QELog("merge assets failed, reason:\(error.localizedDescription)")
+            }
+            insertTime = CMTimeAdd(insertTime, asset.duration)
+        }
+        //清楚临时视频片段
+        removeTempVideoParts()
+        progress = 1
+        DispatchQueue.main.async {
+            QELog("开始反转视频结束")
+            self.completionClosure?(outputComposition)
+        }
     }
     
     private func startWriting() throws {
+        let outputPath = SAVE_PATH + "/\(String.qe.timestamp())_\(arc4random()).mov"
+        tempVideoPartPaths.append(outputPath)
         let outputURL = URL(fileURLWithPath: outputPath)
         assetWriter = try AVAssetWriter(outputURL: outputURL, fileType: .mov)
         guard assetWriter != nil else {
@@ -128,21 +148,15 @@ class EditToolReverseTool {
     }
     
     private func endWriting() {
-        assetWriterInput!.markAsFinished()
-        assetWriter!.finishWriting { [unowned self] in
-            self.assetWriter = nil
-            self.assetWriterInput = nil
-            self.assetWriterPixelBufferAdaptor = nil
-            self.sampleBuffers.removeAll()
-            DispatchQueue.main.async {
-                QELog("反转结束")
-                self.composition = nil
-                self.completionClosure?(self.outputPath)
-            }
+        let semaphoe = DispatchSemaphore(value: 0)
+        assetWriter?.finishWriting {
+            semaphoe.signal()
         }
+        semaphoe.wait()
     }
     
     private func writeSample() {
+        var timeElapsed: Double = 0
         for i in (0..<sampleBuffers.count).reversed() {
             let sample = sampleBuffers[i]
             let pixelBuffer = CMSampleBufferGetImageBuffer(sample)
@@ -154,6 +168,30 @@ class EditToolReverseTool {
             assetWriterPixelBufferAdaptor!.append(pixelBuffer!, withPresentationTime: presentationTime)
             timeElapsed += INCREMENT_TIME
         }
+        incrementTime += timeElapsed
+        progress = Float(incrementTime / reverseTimeRange.duration.seconds)
+    }
+    
+    private func removeTempVideoParts() {
+        tempVideoPartPaths.forEach {
+            do {
+                try FileManager.default.removeItem(atPath: $0)
+            } catch {
+                QELog(error.localizedDescription)
+            }
+        }
+    }
+    
+    private func writeAsset() {
+        do {
+            try startWriting()
+        } catch {
+            QELog("start writing failed, reason: \(error.localizedDescription)")
+            return
+        }
+        writeSample()
+        endWriting()
+        sampleBuffers.removeAll()
     }
     
 }

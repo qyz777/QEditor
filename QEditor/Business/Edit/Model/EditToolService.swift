@@ -59,9 +59,7 @@ class EditToolService {
         } catch {
             return
         }
-        reverseTool!.completionClosure = { [unowned self] (path) in
-            let url = URL(fileURLWithPath: path)
-            let asset = AVURLAsset(url: url)
+        reverseTool!.completionClosure = { [unowned self] (asset) in
             let assetTimeRange = CMTimeRange(start: .zero, end: asset.duration)
             do {
                 try self.replaceTimeRange(assetTimeRange, of: asset, at: timeRange.start)
