@@ -71,6 +71,7 @@ extension EditViewPresenter: EditToolViewOutput {
         let scaleDuration = duration * Double(scale)
         let model = EditChangeScaleModel(beginTime: beginTime, endTime: endTime, scaleDuration: scaleDuration)
         toolService.changeSpeed(for: model)
+        view?.hiddenSettings()
         refreshView()
     }
     

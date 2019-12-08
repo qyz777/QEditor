@@ -100,24 +100,7 @@ class EditViewController: UIViewController {
     
     @objc
     func didClickCloseSettingButton() {
-        guard isShowSettings else {
-            return
-        }
-        presenter.viewWillHiddenSettings(self)
-        UIView.animate(withDuration: 0.25, animations: {
-            self.containerView.qe.top = 0
-            self.settingContainerView.subviews.forEach {
-                $0.alpha = 0
-            }
-            self.navigationController?.navigationBar.alpha = 1
-        }) { (_) in
-            self.isShowSettings = false
-            self.settingContainerView.subviews.forEach {
-                if !$0.isEqual(self.closeSettingButton) {
-                    $0.removeFromSuperview()
-                }
-            }
-        }
+        hiddenSettings()
     }
     
     @objc
@@ -181,6 +164,27 @@ extension EditViewController: EditViewInput {
             self.navigationController?.navigationBar.alpha = 0
         }) { (_) in
             self.isShowSettings = true
+        }
+    }
+    
+    func hiddenSettings() {
+        guard isShowSettings else {
+            return
+        }
+        presenter.viewWillHiddenSettings(self)
+        UIView.animate(withDuration: 0.25, animations: {
+            self.containerView.qe.top = 0
+            self.settingContainerView.subviews.forEach {
+                $0.alpha = 0
+            }
+            self.navigationController?.navigationBar.alpha = 1
+        }) { (_) in
+            self.isShowSettings = false
+            self.settingContainerView.subviews.forEach {
+                if !$0.isEqual(self.closeSettingButton) {
+                    $0.removeFromSuperview()
+                }
+            }
         }
     }
     

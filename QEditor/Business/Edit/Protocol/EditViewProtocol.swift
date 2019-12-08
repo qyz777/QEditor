@@ -12,6 +12,8 @@ protocol EditViewInput {
     
     func showSettings(for type: EditSettingType)
     
+    func hiddenSettings()
+    
 }
 
 protocol EditViewOutput: class {
