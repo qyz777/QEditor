@@ -1,24 +1,39 @@
 PODS:
   - FLEX (3.0.0)
   - KVOController (1.2.0)
+  - MarqueeLabel (4.0.0)
+  - NotificationBannerSwift (3.0.2):
+    - MarqueeLabel (~> 4.0.0)
+    - SnapKit (~> 5.0.0)
+  - NVActivityIndicatorView (4.8.0):
+    - NVActivityIndicatorView/Presenter (= 4.8.0)
+  - NVActivityIndicatorView/Presenter (4.8.0)
   - SnapKit (5.0.1)
 
 DEPENDENCIES:
   - FLEX
   - KVOController
+  - NotificationBannerSwift (~> 3.0.0)
+  - NVActivityIndicatorView
   - SnapKit
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - FLEX
     - KVOController
+    - MarqueeLabel
+    - NotificationBannerSwift
+    - NVActivityIndicatorView
     - SnapKit
 
 SPEC CHECKSUMS:
   FLEX: d66c759bce0f6ebbbf472c742380874d846f2883
   KVOController: d72ace34afea42468329623b3379ab3cd1d286b6
+  MarqueeLabel: b55b26e690b6ad41faedd95cbf5eae6f1d1735b4
+  NotificationBannerSwift: 713e20f21b6105f4a36a00e5d9fa414a930d3d8e
+  NVActivityIndicatorView: d24b7ebcf80af5dcd994adb650e2b6c93379270f
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
 
-PODFILE CHECKSUM: e7655f9569992e2cd47cbfde522a597dc69ffb12
+PODFILE CHECKSUM: ee8d3f20c1b3208b159e76540e758476d69dcff7
 
 COCOAPODS: 1.5.0
