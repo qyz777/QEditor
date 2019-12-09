@@ -38,6 +38,7 @@ extension EditViewPresenter: EditViewOutput {
         case .changeSpeed:
             toolView?.showChangeSpeedView()
         case .reverse:
+            MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
             shouldReverseVideo()
         }
     }

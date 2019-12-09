@@ -30,7 +30,7 @@ class EditToolReverseTool {
     /// 此进度不是连续增长
     public var progress: Float = 0
     
-    public var completionClosure: ((_ composition: AVMutableComposition) -> Void)?
+    public var completionClosure: ((_ composition: AVMutableComposition?, _ error: Error?) -> Void)?
     
     private var composition: AVMutableComposition?
     
@@ -79,6 +79,7 @@ class EditToolReverseTool {
             reader = try AVAssetReader(asset: composition!)
         } catch {
             QELog("init reader failed, reason: \(error.localizedDescription)")
+            completionClosure?(nil, error)
             return
         }
         reader.timeRange = reverseTimeRange
@@ -118,7 +119,7 @@ class EditToolReverseTool {
         progress = 1
         DispatchQueue.main.async {
             QELog("开始反转视频结束")
-            self.completionClosure?(outputComposition)
+            self.completionClosure?(outputComposition, nil)
         }
     }
     
@@ -187,6 +188,7 @@ class EditToolReverseTool {
             try startWriting()
         } catch {
             QELog("start writing failed, reason: \(error.localizedDescription)")
+            completionClosure?(nil, error)
             return
         }
         writeSample()

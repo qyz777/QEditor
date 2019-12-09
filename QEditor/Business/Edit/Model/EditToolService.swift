@@ -50,7 +50,7 @@ class EditToolService {
         audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
     }
     
-    public func reverseVideo(at timeRange: CMTimeRange, closure: @escaping () -> Void) {
+    public func reverseVideo(at timeRange: CMTimeRange, closure: @escaping (_ error: Error?) -> Void) {
         guard let composition = videoModel?.composition else {
             return
         }
@@ -59,13 +59,17 @@ class EditToolService {
         } catch {
             return
         }
-        reverseTool!.completionClosure = { [unowned self] (asset) in
-            let assetTimeRange = CMTimeRange(start: .zero, end: asset.duration)
-            do {
-                try self.replaceTimeRange(assetTimeRange, of: asset, at: timeRange.start)
-                closure()
-            } catch {
-                QELog("replace failed, reason: \(error.localizedDescription)")
+        reverseTool!.completionClosure = { [unowned self] (asset, error) in
+            if let asset = asset {
+                let assetTimeRange = CMTimeRange(start: .zero, end: asset.duration)
+                do {
+                    try self.replaceTimeRange(assetTimeRange, of: asset, at: timeRange.start)
+                    closure(nil)
+                } catch {
+                    QELog("replace failed, reason: \(error.localizedDescription)")
+                }
+            } else if let error = error {
+                closure(error)
             }
             self.reverseTool = nil
         }

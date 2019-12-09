@@ -45,6 +45,7 @@ extension EditViewPresenter: EditToolViewOutput {
         let range = CMTimeRange(start: CMTime(seconds: info.beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: info.endTime, preferredTimescale: CMTimeScale(600)))
         toolService.removeVideoTimeRange(range)
         refreshView()
+        MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
@@ -64,6 +65,7 @@ extension EditViewPresenter: EditToolViewOutput {
         }
         toolService.addVideos(from: videos)
         refreshView()
+        MessageBanner.show(title: "任务", subTitle: "添加成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float) {
@@ -73,6 +75,7 @@ extension EditViewPresenter: EditToolViewOutput {
         toolService.changeSpeed(for: model)
         view?.hiddenSettings()
         refreshView()
+        MessageBanner.show(title: "任务", subTitle: "变速视频成功", style: .success)
     }
     
 }
@@ -84,8 +87,13 @@ extension EditViewPresenter {
             return
         }
         let timeRange = CMTimeRange(start: CMTime(seconds: tuple.0, preferredTimescale: 600), end: CMTime(seconds: tuple.1, preferredTimescale: 600))
-        toolService.reverseVideo(at: timeRange) { [unowned self] in
+        toolService.reverseVideo(at: timeRange) { [unowned self] (error) in
+            guard error == nil else {
+                MessageBanner.show(title: "任务", subTitle: "反转视频任务失败", style: .danger)
+                return
+            }
             self.refreshView()
+            MessageBanner.show(title: "任务", subTitle: "反转视频任务成功", style: .success)
         }
     }
     
