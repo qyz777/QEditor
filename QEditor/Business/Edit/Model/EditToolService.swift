@@ -67,6 +67,7 @@ class EditToolService {
                     closure(nil)
                 } catch {
                     QELog("replace failed, reason: \(error.localizedDescription)")
+                    closure(error)
                 }
             } else if let error = error {
                 closure(error)

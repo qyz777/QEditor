@@ -12,8 +12,9 @@
 import UIKit
 import AVFoundation
 
-fileprivate let FRAMES_PER_SEC: Double = 25
+fileprivate let FRAMES_PER_SEC: Double = 30
 fileprivate let FRAME_SCALE: CMTimeScale = 600
+//FPS
 fileprivate let INCREMENT_TIME: Double = 1 / FRAMES_PER_SEC
 fileprivate let MAX_READ_SAMPLE_COUNT = 50
 
@@ -45,6 +46,8 @@ class EditToolReverseTool {
     private var sampleBuffers: [CMSampleBuffer] = []
     
     private var tempVideoPartPaths: [String] = []
+    
+    private var processedAssetTime: Double = 0
     
     private var incrementTime: Double = 0
     
@@ -114,11 +117,11 @@ class EditToolReverseTool {
             }
             insertTime = CMTimeAdd(insertTime, asset.duration)
         }
-        //清楚临时视频片段
+        //清除临时视频片段
         removeTempVideoParts()
         progress = 1
         DispatchQueue.main.async {
-            QELog("开始反转视频结束")
+            QELog("反转视频结束")
             self.completionClosure?(outputComposition, nil)
         }
     }
@@ -169,8 +172,8 @@ class EditToolReverseTool {
             assetWriterPixelBufferAdaptor!.append(pixelBuffer!, withPresentationTime: presentationTime)
             timeElapsed += INCREMENT_TIME
         }
-        incrementTime += timeElapsed
-        progress = Float(incrementTime / reverseTimeRange.duration.seconds)
+        processedAssetTime += timeElapsed
+        progress = Float(processedAssetTime / reverseTimeRange.duration.seconds)
     }
     
     private func removeTempVideoParts() {

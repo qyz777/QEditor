@@ -156,6 +156,10 @@ public extension PlayerView {
             let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(600))
             timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] (time) in
                 if let strongSelf = self {
+                    //seek的时候也会调这个，判断一下状态不要回调出去
+                    guard strongSelf.status == .playing else {
+                        return
+                    }
                     strongSelf.delegate?.player(strongSelf, playAt: time.seconds)
                 }
             }

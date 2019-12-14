@@ -131,19 +131,22 @@ class EditToolViewController: UIViewController {
         //1.清除
         clearViewsAndInfos()
         //2.更新容器view的contentSize
+        let itemCount = presenter.toolImageThumbViewItemsCount(self)
+        //视频最大滑动宽度
+        let contentWidth = CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE
+        //容器最大滑动宽度
+        let containerContentWidth = max(contentWidth + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
+        containerView.contentSize = .init(width: containerContentWidth, height: 0)
         //todo:先这么处理
         containerView.contentOffset = .zero
         thumbView.contentOffset = .zero
         waveformView.contentOffset = .zero
-        let itemCount = presenter.toolImageThumbViewItemsCount(self)
-        containerView.contentSize = .init(width: CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE, height: 0)
-        let width = max(containerView.contentSize.width + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
         contentView.snp.updateConstraints { (make) in
-            make.width.equalTo(width)
+            make.width.equalTo(containerContentWidth)
         }
         view.layoutIfNeeded()
         //3.设置视频最大宽度
-        videoContentWidth = width - SCREEN_WIDTH
+        videoContentWidth = contentWidth
         //4.初始化第一个最大的框选view
         let chooseMaxWidth = videoContentWidth + 50
         let view = EditToolChooseBoxView(with: chooseMaxWidth)
@@ -512,7 +515,7 @@ extension EditToolViewController: EditToolViewInput {
         guard percent <= 1 else {
             return
         }
-        let totalWidth = thumbView.contentSize.width
+        let totalWidth = videoContentWidth
         let offsetX = totalWidth * percent
         containerView.contentOffset = .init(x: offsetX, y: 0)
     }
@@ -541,7 +544,7 @@ extension EditToolViewController: UIScrollViewDelegate {
         }
         
         if offsetX < SCREEN_WIDTH / 2 {
-            //在左侧
+            //在左侧滚动
             thumbView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
             }
@@ -554,21 +557,8 @@ extension EditToolViewController: UIScrollViewDelegate {
             thumbView.contentOffset = .zero
             timeScaleView.contentOffset = .zero
             waveformView.contentOffset = .zero
-        } else if offsetX >= totalWidth - SCREEN_WIDTH * 1.5 {
-            //在右侧
-            thumbView.snp.updateConstraints { (make) in
-                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
-            }
-            timeScaleView.snp.updateConstraints { (make) in
-                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
-            }
-            waveformView.snp.updateConstraints { (make) in
-                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
-            }
-            thumbView.contentOffset = .init(x: thumbView.contentSize.width - SCREEN_WIDTH, y: 0)
-            timeScaleView.contentOffset = .init(x: timeScaleView.contentSize.width - SCREEN_WIDTH, y: 0)
-            waveformView.contentOffset = .init(x: waveformView.contentSize.width - SCREEN_WIDTH, y: 0)
-        } else if offsetX >= SCREEN_WIDTH / 2 {
+        } else if offsetX >= SCREEN_WIDTH / 2 && offsetX < totalWidth - SCREEN_WIDTH * 1.5 {
+            //在中间滚动
             thumbView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(offsetX)
             }
@@ -582,6 +572,20 @@ extension EditToolViewController: UIScrollViewDelegate {
             thumbView.contentOffset = .init(x: newOffsetX, y: 0)
             timeScaleView.contentOffset = .init(x: newOffsetX, y: 0)
             waveformView.contentOffset = .init(x: newOffsetX, y: 0)
+        } else {
+            //在右侧滚动
+            thumbView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
+            }
+            timeScaleView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
+            }
+            waveformView.snp.updateConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
+            }
+            thumbView.contentOffset = .init(x: thumbView.contentSize.width - SCREEN_WIDTH, y: 0)
+            timeScaleView.contentOffset = .init(x: timeScaleView.contentSize.width - SCREEN_WIDTH, y: 0)
+            waveformView.contentOffset = .init(x: waveformView.contentSize.width - SCREEN_WIDTH, y: 0)
         }
     }
     

@@ -94,6 +94,7 @@ extension EditPlayerViewController: EditPlayerViewInput {
     
     func seek(to percent: Float) {
         let time = Double(duration) * Double(percent)
+        updatePlayTime(time)
         playerView.seek(to: time)
     }
     
