@@ -17,6 +17,8 @@ public enum CutSettingsType {
 
 public let CUT_SETTINGS_VIEW_HEIGHT: CGFloat = 50
 
+fileprivate let CELL_HEIGHT: CGFloat = 40
+
 class EditToolCutSettingsView: UICollectionView {
 
     public var selecctedClosure: ((_ type: CutSettingsType) -> Void)?
@@ -26,8 +28,8 @@ class EditToolCutSettingsView: UICollectionView {
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 15
         layout.minimumInteritemSpacing = 0
-        layout.itemSize = .init(width: CUT_SETTINGS_VIEW_HEIGHT * 2, height: CUT_SETTINGS_VIEW_HEIGHT)
-        layout.sectionInset = .init(top: 0, left: 30, bottom: 0, right: 30)
+        layout.itemSize = .init(width: CUT_SETTINGS_VIEW_HEIGHT * 2, height: CELL_HEIGHT)
+        layout.sectionInset = .init(top: 0, left: 30, bottom: 10, right: 30)
         super.init(frame: .zero, collectionViewLayout: layout)
         showsHorizontalScrollIndicator = false
         delegate = self

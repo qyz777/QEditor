@@ -14,6 +14,10 @@ protocol EditViewInput {
     
     func hiddenSettings()
     
+    func taskWillBegin()
+    
+    func taskDidComplete()
+    
 }
 
 protocol EditViewOutput: class {

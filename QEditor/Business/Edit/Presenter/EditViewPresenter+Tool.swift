@@ -69,6 +69,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float) {
+        beginTaskRunning()
         let duration = endTime - beginTime
         let scaleDuration = duration * Double(scale)
         let model = EditChangeScaleModel(beginTime: beginTime, endTime: endTime, scaleDuration: scaleDuration)
@@ -76,6 +77,7 @@ extension EditViewPresenter: EditToolViewOutput {
         view?.hiddenSettings()
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "变速视频成功", style: .success)
+        endTaskRunning()
     }
     
 }
@@ -86,14 +88,17 @@ extension EditViewPresenter {
         guard let tuple = toolView?.forceVideoTimeRange() else {
             return
         }
+        self.beginTaskRunning()
         let timeRange = CMTimeRange(start: CMTime(seconds: tuple.0, preferredTimescale: 600), end: CMTime(seconds: tuple.1, preferredTimescale: 600))
         toolService.reverseVideo(at: timeRange) { [unowned self] (error) in
             guard error == nil else {
                 MessageBanner.show(title: "任务", subTitle: "反转视频任务失败", style: .danger)
+                self.endTaskRunning()
                 return
             }
             self.refreshView()
             MessageBanner.show(title: "任务", subTitle: "反转视频任务成功", style: .success)
+            self.endTaskRunning()
         }
     }
     

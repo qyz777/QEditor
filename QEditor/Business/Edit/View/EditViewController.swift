@@ -8,7 +8,7 @@
 
 import UIKit
 
-fileprivate let SETTING_HEIGHT: CGFloat = 200
+fileprivate let SETTING_HEIGHT: CGFloat = 110
 
 enum EditSettingType {
     case cut
@@ -28,7 +28,7 @@ class EditViewController: UIViewController {
         return vc
     }
     
-    public var presenter: (EditViewOutput)!
+    public var presenter: EditViewOutput!
     
     private var sourceModel: MediaVideoModel?
     
@@ -68,6 +68,7 @@ class EditViewController: UIViewController {
         view.backgroundColor = .black
         view.addSubview(settingContainerView)
         settingContainerView.addSubview(closeSettingButton)
+        settingContainerView.addSubview(settingLoadingView)
         view.addSubview(containerView)
         addChild(editPlayer)
         containerView.addSubview(editPlayer.view)
@@ -84,7 +85,7 @@ class EditViewController: UIViewController {
         
         closeSettingButton.snp.makeConstraints { (make) in
             make.right.equalTo(-SCREEN_PADDING_X)
-            make.top.equalTo(self.settingContainerView).offset(15)
+            make.top.equalTo(self.settingContainerView)
         }
         
         editPlayer.view.snp.makeConstraints { (make) in
@@ -96,6 +97,12 @@ class EditViewController: UIViewController {
             make.left.right.bottom.equalTo(self.containerView)
             make.top.equalTo(self.editPlayer.view.snp.bottom)
         }
+        
+        settingLoadingView.snp.makeConstraints { (make) in
+            make.top.equalTo(self.closeSettingButton.snp.bottom)
+            make.left.right.bottom.equalTo(self.settingContainerView)
+        }
+        
     }
     
     @objc
@@ -135,6 +142,12 @@ class EditViewController: UIViewController {
         view.alpha = 0
         return view
     }()
+    
+    lazy var settingLoadingView: EditToolSettingLoadingView = {
+        let view = EditToolSettingLoadingView(frame: .zero)
+        view.isHidden = true
+        return view
+    }()
 
 }
 
@@ -148,8 +161,7 @@ extension EditViewController: EditViewInput {
         }
         settingContainerView.addSubview(settingsView)
         settingsView.snp.makeConstraints { (make) in
-            make.center.equalTo(self.settingContainerView)
-            make.left.right.equalTo(self.settingContainerView)
+            make.left.right.bottom.equalTo(self.settingContainerView)
             make.height.equalTo(CUT_SETTINGS_VIEW_HEIGHT)
         }
         settingsView.reloadData()
@@ -186,6 +198,14 @@ extension EditViewController: EditViewInput {
                 }
             }
         }
+    }
+    
+    func taskWillBegin() {
+        settingLoadingView.show()
+    }
+    
+    func taskDidComplete() {
+        settingLoadingView.dismiss()
     }
     
 }

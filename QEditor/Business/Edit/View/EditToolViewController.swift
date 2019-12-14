@@ -448,8 +448,8 @@ extension EditToolViewController: EditToolViewInput {
     func deletePart() {
         //[剪辑][删除]
         //1.校验是否有选定视频
-        guard forceChooseView != nil else {
-            QELog("当前没有选定视频，无法删除!")
+        guard partInfos.count > 1 else {
+            MessageBanner.show(title: "提示", subTitle: "当前只有一段视频，无法删除", style: .warning)
             return
         }
         //2.删除选定视频

@@ -17,6 +17,8 @@ class EditViewPresenter {
     
     public weak var toolView: (UIViewController & EditToolViewInput)?
     
+    public internal(set) var isTaskRunning = false
+    
     let toolService = EditToolService()
     
     var thumbModels: [EditToolImageCellModel] = []
@@ -41,6 +43,21 @@ class EditViewPresenter {
         toolView?.loadVideoModel(toolService.videoModel!)
         //3.刷新工具栏
         toolView?.reloadView()
+    }
+    
+    func beginTaskRunning() {
+        view?.taskWillBegin()
+        isTaskRunning = true
+    }
+    
+    func endTaskRunning() {
+        //下一个runloop刷新这个属性
+        if isTaskRunning {
+            DispatchQueue.main.async {
+                self.isTaskRunning = false
+                self.view?.taskDidComplete()
+            }
+        }
     }
     
 }
