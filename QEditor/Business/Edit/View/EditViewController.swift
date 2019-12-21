@@ -159,13 +159,18 @@ extension EditViewController: EditViewInput {
         settingsView.selecctedClosure = { [unowned self] (type) in
             self.presenter.view(self, didSelectedCutType: type)
         }
-        settingContainerView.addSubview(settingsView)
+        settingContainerView.insertSubview(settingsView, at: 0)
         settingsView.snp.makeConstraints { (make) in
             make.left.right.bottom.equalTo(self.settingContainerView)
             make.height.equalTo(CUT_SETTINGS_VIEW_HEIGHT)
         }
         settingsView.reloadData()
         settingContainerView.layoutIfNeeded()
+        
+        //再打开还在任务执行中，展示loading
+        if presenter.viewIsLoading(self) {
+            taskWillBegin()
+        }
         
         presenter.viewWillShowSettings(self)
         UIView.animate(withDuration: 0.25, animations: {
@@ -193,7 +198,7 @@ extension EditViewController: EditViewInput {
         }) { (_) in
             self.isShowSettings = false
             self.settingContainerView.subviews.forEach {
-                if !$0.isEqual(self.closeSettingButton) {
+                if $0.self.isEqual(EditToolCutSettingsView.self) {
                     $0.removeFromSuperview()
                 }
             }

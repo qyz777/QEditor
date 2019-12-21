@@ -43,4 +43,8 @@ extension EditViewPresenter: EditViewOutput {
         }
     }
     
+    func viewIsLoading(_ view: EditViewInput) -> Bool {
+        return isTaskRunning
+    }
+    
 }

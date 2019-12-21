@@ -30,4 +30,6 @@ protocol EditViewOutput: class {
     
     func view(_ view: EditViewInput, didSelectedCutType type: CutSettingsType)
     
+    func viewIsLoading(_ view: EditViewInput) -> Bool
+    
 }
