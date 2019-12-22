@@ -7,10 +7,13 @@
 //
 
 import Foundation
+import AVFoundation
 
 protocol EditViewPlayProtocol {
     
     func loadVideoModel(_ model: EditVideoModel)
+    
+    func loadPlayerItem(_ item: AVPlayerItem)
     
     func updatePlayTime(_ time: Double)
     
@@ -25,6 +28,8 @@ protocol EditViewPlayProtocol {
 extension EditViewPlayProtocol {
     
     func loadVideoModel(_ model: EditVideoModel) {}
+    
+    func loadPlayerItem(_ item: AVPlayerItem) {}
     
     func updatePlayTime(_ time: Double) {}
     

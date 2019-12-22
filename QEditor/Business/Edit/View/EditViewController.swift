@@ -12,6 +12,7 @@ fileprivate let SETTING_HEIGHT: CGFloat = 110
 
 enum EditSettingType {
     case cut
+    case adjust
 }
 
 class EditViewController: UIViewController {
@@ -154,17 +155,16 @@ class EditViewController: UIViewController {
 extension EditViewController: EditViewInput {
     
     func showSettings(for type: EditSettingType) {
-        //todo:根据不同type生成不同view，目前先这么写
-        let settingsView = EditToolCutSettingsView()
-        settingsView.selecctedClosure = { [unowned self] (type) in
-            self.presenter.view(self, didSelectedCutType: type)
+        var settingsView = settingsViewFactoryFor(type: type)
+        settingsView.selectedClosure = { [unowned self] (action) in
+            self.presenter.view(self, didSelectedSetting: action)
         }
         settingContainerView.insertSubview(settingsView, at: 0)
         settingsView.snp.makeConstraints { (make) in
             make.left.right.bottom.equalTo(self.settingContainerView)
-            make.height.equalTo(CUT_SETTINGS_VIEW_HEIGHT)
+            make.height.equalTo(EDIT_TOOL_SETTINGS_VIEW_HEIGHT)
         }
-        settingsView.reloadData()
+        settingsView.reload()
         settingContainerView.layoutIfNeeded()
         
         //再打开还在任务执行中，展示loading

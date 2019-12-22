@@ -80,6 +80,17 @@ extension EditViewPresenter: EditToolViewOutput {
         endTaskRunning()
     }
     
+    func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float) {
+        if let composition = toolService.videoModel?.composition {
+            let context = [EditFilterBrightnessKey: value]
+            let item = adjustService.adjust(composition, with: context)
+            playerView?.loadPlayerItem(item)
+            MessageBanner.show(title: "任务", subTitle: "亮度调节成功", style: .success)
+        } else {
+            QELog("亮度调节失败: \(value)")
+        }
+    }
+    
 }
 
 extension EditViewPresenter {

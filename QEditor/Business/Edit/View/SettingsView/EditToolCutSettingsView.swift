@@ -8,33 +8,22 @@
 
 import UIKit
 
-public enum CutSettingsType {
-    case split
-    case delete
-    case changeSpeed
-    case reverse
-}
-
-public let CUT_SETTINGS_VIEW_HEIGHT: CGFloat = 50
-
-fileprivate let CELL_HEIGHT: CGFloat = 40
-
 class EditToolCutSettingsView: UICollectionView {
-
-    public var selecctedClosure: ((_ type: CutSettingsType) -> Void)?
+    
+    var selectedClosure: ((EditSettingAction) -> Void)?
     
     init() {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 15
         layout.minimumInteritemSpacing = 0
-        layout.itemSize = .init(width: CUT_SETTINGS_VIEW_HEIGHT * 2, height: CELL_HEIGHT)
+        layout.itemSize = .init(width: EDIT_TOOL_SETTINGS_VIEW_HEIGHT * 2, height: EDIT_TOOL_SETTINGS_CELL_HEIGHT)
         layout.sectionInset = .init(top: 0, left: 30, bottom: 10, right: 30)
         super.init(frame: .zero, collectionViewLayout: layout)
         showsHorizontalScrollIndicator = false
         delegate = self
         dataSource = self
-        register(EditToolCutSettingsCell.self, forCellWithReuseIdentifier: "EditToolCutSettingsCell")
+        register(EditToolSettingsCustomCell.self, forCellWithReuseIdentifier: "EditToolSettingsCustomCell")
     }
     
     required init?(coder: NSCoder) {
@@ -50,7 +39,7 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditToolCutSettingsCell", for: indexPath) as! EditToolCutSettingsCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditToolSettingsCustomCell", for: indexPath) as! EditToolSettingsCustomCell
         if indexPath.item == 0 {
             cell.label.text = "分割"
         } else if indexPath.item == 1 {
@@ -67,13 +56,13 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
         collectionView.deselectItem(at: indexPath, animated: true)
         switch indexPath.item {
         case 0:
-            selecctedClosure?(.split)
+            selectedClosure?(.split)
         case 1:
-            selecctedClosure?(.delete)
+            selectedClosure?(.delete)
         case 2:
-            selecctedClosure?(.changeSpeed)
+            selectedClosure?(.changeSpeed)
         case 3:
-            selecctedClosure?(.reverse)
+            selectedClosure?(.reverse)
         default:
             break
         }
@@ -81,27 +70,10 @@ extension EditToolCutSettingsView: UICollectionViewDelegate, UICollectionViewDat
     
 }
 
-class EditToolCutSettingsCell: UICollectionViewCell {
+extension EditToolCutSettingsView: EditToolSettingsViewProtocol {
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        layer.cornerRadius = 5
-        backgroundColor = UIColor.qe.hex(0x2F4F4F)
-        contentView.addSubview(label)
-        label.snp.makeConstraints { (make) in
-            make.center.equalTo(self.contentView)
-        }
+    func reload() {
+        reloadData()
     }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    lazy var label: UILabel = {
-        let view = UILabel()
-        view.textColor = .white
-        view.font = UIFont.qe.HelveticaBold(size: 13)
-        return view
-    }()
     
 }

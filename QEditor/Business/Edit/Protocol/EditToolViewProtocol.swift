@@ -24,6 +24,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeSpeedView()
     
+    func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
+    
     func forceVideoTimeRange() -> (start: Double, end: Double)
     
 }
@@ -54,5 +56,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float)
+    
+    func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float)
     
 }

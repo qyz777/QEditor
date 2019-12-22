@@ -28,7 +28,7 @@ protocol EditViewOutput: class {
     
     func viewWillHiddenSettings(_ view: EditViewInput)
     
-    func view(_ view: EditViewInput, didSelectedCutType type: CutSettingsType)
+    func view(_ view: EditViewInput, didSelectedSetting action: EditSettingAction)
     
     func viewIsLoading(_ view: EditViewInput) -> Bool
     

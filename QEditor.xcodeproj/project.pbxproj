@@ -59,8 +59,15 @@
 		A09CF7DE234B0A7200139461 /* MediaVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */; };
 		A09CF7E0234B0A7C00139461 /* MediaImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */; };
 		A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7E2234B0E0200139461 /* MediaCell.swift */; };
+		A0C1A29A23ADC1AC0075AD4F /* EditToolBarFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A29923ADC1AC0075AD4F /* EditToolBarFactory.swift */; };
+		A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */; };
+		A0C1A29F23ADC6A20075AD4F /* EditToolSettingsCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A29E23ADC6A20075AD4F /* EditToolSettingsCustomCell.swift */; };
+		A0C1A2A123ADC81C0075AD4F /* EditToolSettingsViewDefine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A023ADC81C0075AD4F /* EditToolSettingsViewDefine.swift */; };
+		A0C1A2A323ADD7750075AD4F /* EditAdjustService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A223ADD7750075AD4F /* EditAdjustService.swift */; };
+		A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */; };
+		A0C1A2A823AE17AC0075AD4F /* EditBrightnessFilterOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A723AE17AC0075AD4F /* EditBrightnessFilterOperation.swift */; };
+		A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */; };
 		A0DADA0A235AD47A00BD83D7 /* EditToolImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */; };
-		A0DADA0D235AE28C00BD83D7 /* EditToolImageCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA0C235AE28C00BD83D7 /* EditToolImageCellModel.swift */; };
 		A0DADA12235AECB600BD83D7 /* EditToolService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA11235AECB600BD83D7 /* EditToolService.swift */; };
 		A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03BFC235AA2490012F226 /* EditToolViewController.swift */; };
 		A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */; };
@@ -125,8 +132,15 @@
 		A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaVideoViewController.swift; sourceTree = "<group>"; };
 		A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaImageViewController.swift; sourceTree = "<group>"; };
 		A09CF7E2234B0E0200139461 /* MediaCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
+		A0C1A29923ADC1AC0075AD4F /* EditToolBarFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolBarFactory.swift; sourceTree = "<group>"; };
+		A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustSettingsView.swift; sourceTree = "<group>"; };
+		A0C1A29E23ADC6A20075AD4F /* EditToolSettingsCustomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSettingsCustomCell.swift; sourceTree = "<group>"; };
+		A0C1A2A023ADC81C0075AD4F /* EditToolSettingsViewDefine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSettingsViewDefine.swift; sourceTree = "<group>"; };
+		A0C1A2A223ADD7750075AD4F /* EditAdjustService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAdjustService.swift; sourceTree = "<group>"; };
+		A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFilterOperation.swift; sourceTree = "<group>"; };
+		A0C1A2A723AE17AC0075AD4F /* EditBrightnessFilterOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditBrightnessFilterOperation.swift; sourceTree = "<group>"; };
+		A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustProgressView.swift; sourceTree = "<group>"; };
 		A0DADA09235AD47A00BD83D7 /* EditToolImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageCell.swift; sourceTree = "<group>"; };
-		A0DADA0C235AE28C00BD83D7 /* EditToolImageCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageCellModel.swift; sourceTree = "<group>"; };
 		A0DADA11235AECB600BD83D7 /* EditToolService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolService.swift; sourceTree = "<group>"; };
 		A0E03BFC235AA2490012F226 /* EditToolViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolViewController.swift; sourceTree = "<group>"; };
 		A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewProtocol.swift; sourceTree = "<group>"; };
@@ -213,7 +227,6 @@
 		A0870A5D2352FB57006DC38D /* Edit */ = {
 			isa = PBXGroup;
 			children = (
-				A0DADA0B235AE02900BD83D7 /* CellModel */,
 				A0DADA0E235AEC6900BD83D7 /* Model */,
 				A0E03BFF235AA2CF0012F226 /* Presenter */,
 				A0E03BFE235AA2C50012F226 /* Protocol */,
@@ -225,6 +238,8 @@
 		A0870A5E2352FB6E006DC38D /* View */ = {
 			isa = PBXGroup;
 			children = (
+				A0C1A29B23ADC42F0075AD4F /* SettingsView */,
+				A0C1A29823ADC1960075AD4F /* Factory */,
 				A0753FDD237650020096939A /* Info */,
 				A0DADA07235AD35E00BD83D7 /* Tool */,
 				A0870A5F2352FB85006DC38D /* EditViewController.swift */,
@@ -372,6 +387,34 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
+		A0C1A29823ADC1960075AD4F /* Factory */ = {
+			isa = PBXGroup;
+			children = (
+				A0C1A29923ADC1AC0075AD4F /* EditToolBarFactory.swift */,
+			);
+			path = Factory;
+			sourceTree = "<group>";
+		};
+		A0C1A29B23ADC42F0075AD4F /* SettingsView */ = {
+			isa = PBXGroup;
+			children = (
+				A06679C42392699300C5EFC4 /* EditToolCutSettingsView.swift */,
+				A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */,
+				A0C1A29E23ADC6A20075AD4F /* EditToolSettingsCustomCell.swift */,
+				A0C1A2A023ADC81C0075AD4F /* EditToolSettingsViewDefine.swift */,
+			);
+			path = SettingsView;
+			sourceTree = "<group>";
+		};
+		A0C1A2A623AE178D0075AD4F /* FilterOperation */ = {
+			isa = PBXGroup;
+			children = (
+				A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */,
+				A0C1A2A723AE17AC0075AD4F /* EditBrightnessFilterOperation.swift */,
+			);
+			path = FilterOperation;
+			sourceTree = "<group>";
+		};
 		A0DADA07235AD35E00BD83D7 /* Tool */ = {
 			isa = PBXGroup;
 			children = (
@@ -382,9 +425,9 @@
 				A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */,
 				A0753FE2237654370096939A /* EditToolSplitView.swift */,
 				A0875AB0238A244200061394 /* EditToolAudioWaveformView.swift */,
-				A06679C42392699300C5EFC4 /* EditToolCutSettingsView.swift */,
 				A02F7DD2239B4A7900398065 /* EditToolChangeSpeedView.swift */,
 				A02F7DD923A472E200398065 /* EditToolSettingLoadingView.swift */,
+				A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -398,21 +441,15 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
-		A0DADA0B235AE02900BD83D7 /* CellModel */ = {
-			isa = PBXGroup;
-			children = (
-				A0DADA0C235AE28C00BD83D7 /* EditToolImageCellModel.swift */,
-			);
-			path = CellModel;
-			sourceTree = "<group>";
-		};
 		A0DADA0E235AEC6900BD83D7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				A0C1A2A623AE178D0075AD4F /* FilterOperation */,
 				A0DADA11235AECB600BD83D7 /* EditToolService.swift */,
 				A0753FE52377A7640096939A /* EditVideoModel.swift */,
 				A0753FE72377A85F0096939A /* EditVideoEdtior.swift */,
 				A02F7DD4239CE94E00398065 /* EditToolReverseTool.swift */,
+				A0C1A2A223ADD7750075AD4F /* EditAdjustService.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -577,16 +614,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */,
 				A021233B23652FE40073A125 /* EditToolTimeScaleView.swift in Sources */,
 				A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */,
 				A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */,
 				A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */,
+				A0C1A2A323ADD7750075AD4F /* EditAdjustService.swift in Sources */,
 				A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */,
 				A0870A692353210B006DC38D /* EditPlayerViewController.swift in Sources */,
 				A0870A662352FDB7006DC38D /* PlayerProtocol.swift in Sources */,
 				A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */,
 				A02F7DCD239B3A7600398065 /* EditViewPlayProtocol.swift in Sources */,
-				A0DADA0D235AE28C00BD83D7 /* EditToolImageCellModel.swift in Sources */,
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A0870A6B23532612006DC38D /* String+Video.swift in Sources */,
 				A02F7DCF239B3F8C00398065 /* EditToolViewProtocol.swift in Sources */,
@@ -595,7 +633,9 @@
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A02F7DD8239E8DB000398065 /* NotificationBannerExtension.swift in Sources */,
 				A0212343236583520073A125 /* EditToolBar.swift in Sources */,
+				A0C1A2A123ADC81C0075AD4F /* EditToolSettingsViewDefine.swift in Sources */,
 				A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */,
+				A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */,
 				A02F7DD3239B4A7900398065 /* EditToolChangeSpeedView.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
 				A021233923652E0C0073A125 /* Debug.swift in Sources */,
@@ -607,13 +647,16 @@
 				A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */,
 				A0870A602352FB85006DC38D /* EditViewController.swift in Sources */,
 				A06679C52392699300C5EFC4 /* EditToolCutSettingsView.swift in Sources */,
+				A0C1A29F23ADC6A20075AD4F /* EditToolSettingsCustomCell.swift in Sources */,
 				A021233D236531280073A125 /* EditToolTimeScaleCell.swift in Sources */,
 				A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */,
 				A0753FE3237654370096939A /* EditToolSplitView.swift in Sources */,
 				A09CF7DA2349E38400139461 /* MediaManager.swift in Sources */,
 				A09CF7C62349E15800139461 /* NavigationController.swift in Sources */,
 				A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */,
+				A0C1A2A823AE17AC0075AD4F /* EditBrightnessFilterOperation.swift in Sources */,
 				A0753FE62377A7640096939A /* EditVideoModel.swift in Sources */,
+				A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */,
 				A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */,
 				A02F7DD1239B3FB500398065 /* EditPlayerViewProtocol.swift in Sources */,
 				A02F7DD5239CE94E00398065 /* EditToolReverseTool.swift in Sources */,
@@ -629,6 +672,7 @@
 				A0753FE12376536E0096939A /* EditToolSplitInfo.swift in Sources */,
 				A09CF7CC2349E25E00139461 /* HomeViewController.swift in Sources */,
 				A0870A572351C84E006DC38D /* Namespace.swift in Sources */,
+				A0C1A29A23ADC1AC0075AD4F /* EditToolBarFactory.swift in Sources */,
 				A0870A632352FBEA006DC38D /* PlayerView.swift in Sources */,
 				A09CF7DE234B0A7200139461 /* MediaVideoViewController.swift in Sources */,
 				A02123412365428B0073A125 /* UIView+Layout.swift in Sources */,

@@ -346,6 +346,8 @@ class EditToolViewController: UIViewController {
             switch index {
             case 0:
                 self.presenter.toolView(self, shouldShowSettingsFor: .cut)
+            case 1:
+                self.presenter.toolView(self, shouldShowSettingsFor: .adjust)
             default:
                 break
             }
@@ -381,7 +383,8 @@ extension EditToolViewController: EditToolViewInput {
     func toolBarShouldShow() {
         //清除工具view
         view.subviews.forEach {
-            if $0.isKind(of: EditToolChangeSpeedView.self) {
+            if $0.isKind(of: EditToolChangeSpeedView.self) ||
+                $0.isKind(of: EditToolAdjustProgressView.self) {
                 $0.removeFromSuperview()
             }
         }
@@ -482,6 +485,23 @@ extension EditToolViewController: EditToolViewInput {
         }
         view.addSubview(changeSpeedView)
         changeSpeedView.snp.makeConstraints { (make) in
+            make.left.bottom.right.equalTo(self.view)
+            make.height.equalTo(40)
+        }
+    }
+    
+    func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {
+        guard !view.subviews.contains(where: { (v) -> Bool in
+            return v.isKind(of: EditToolAdjustProgressView.self)
+        }) else {
+            return
+        }
+        let progressView = EditToolAdjustProgressView(info: info)
+        progressView.closure = { [unowned self] (progress) in
+            self.presenter.toolView(self, didChangeBrightness: progress)
+        }
+        view.addSubview(progressView)
+        progressView.snp.makeConstraints { (make) in
             make.left.bottom.right.equalTo(self.view)
             make.height.equalTo(40)
         }

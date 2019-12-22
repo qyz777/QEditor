@@ -15,9 +15,11 @@ class EditToolService {
     
     public var videoModel: EditVideoModel?
     
+    public var videoComposition: AVMutableVideoComposition?
+    
     private var reverseTool: EditToolReverseTool?
 
-    public func split() -> [CMTime] {
+    public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
             return []
         }

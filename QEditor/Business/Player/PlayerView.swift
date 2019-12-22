@@ -145,10 +145,8 @@ public extension PlayerView {
     }
     
     func setupPlayer(asset: AVAsset) {
-        currentItem = AVPlayerItem(asset: asset)
-        //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
-        currentItem?.audioTimePitchAlgorithm = .varispeed
-        player.replaceCurrentItem(with: currentItem)
+        let item = AVPlayerItem(asset: asset)
+        updatePlayerItem(item)
         playerLayer?.removeFromSuperlayer()
         playerLayer = AVPlayerLayer(player: player)
         layer.addSublayer(playerLayer!)
@@ -164,6 +162,15 @@ public extension PlayerView {
                 }
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTime), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+    }
+    
+    func updatePlayerItem(_ item: AVPlayerItem) {
+        currentItem = item
+        //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
+        currentItem?.audioTimePitchAlgorithm = .varispeed
+        player.replaceCurrentItem(with: currentItem)
         kvoControllerNonRetaining.observe(currentItem!, keyPath: "status", options: [.initial, .new]) { [weak self] (_, _, change) in
             let status = AVPlayerItem.Status(rawValue: (change["new"] as! NSNumber).intValue)!
             if let strongSelf = self {
@@ -178,7 +185,6 @@ public extension PlayerView {
                 }
             }
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTime), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
     }
     
 }

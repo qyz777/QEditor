@@ -29,8 +29,8 @@ extension EditViewPresenter: EditViewOutput {
         toolView?.toolBarShouldShow()
     }
     
-    func view(_ view: EditViewInput, didSelectedCutType type: CutSettingsType) {
-        switch type {
+    func view(_ view: EditViewInput, didSelectedSetting action: EditSettingAction) {
+        switch action {
         case .split:
             toolView?.split()
         case .delete:
@@ -40,6 +40,9 @@ extension EditViewPresenter: EditViewOutput {
         case .reverse:
             MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
             shouldReverseVideo()
+        case .brightness:
+            let info = AdjustProgressViewInfo(startValue: -1, endValue: 1, currentValue: adjustService.brightness)
+            toolView?.showChangeBrightnessView(info)
         }
     }
     

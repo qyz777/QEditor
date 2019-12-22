@@ -15,8 +15,6 @@ class EditPlayerViewController: UIViewController {
     public var presenter: (EditPlayerViewOutput & PlayerViewDelegate)!
     
     private var duration: Double = 0
-    
-    private var model: EditVideoModel?
 
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -109,9 +107,13 @@ extension EditPlayerViewController: EditPlayerViewInput {
     }
     
     func loadVideoModel(_ model: EditVideoModel) {
-        self.model = model
         playerView.stop()
         playerView.setupPlayer(asset: model.composition)
+    }
+    
+    func loadPlayerItem(_ item: AVPlayerItem) {
+        playerView.pause()
+        playerView.updatePlayerItem(item)
     }
     
     func updatePlayTime(_ time: Double) {

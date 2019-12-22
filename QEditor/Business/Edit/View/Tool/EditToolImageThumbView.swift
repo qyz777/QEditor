@@ -9,6 +9,13 @@
 import UIKit
 import AVFoundation
 
+class EditToolImageCellModel {
+    
+    var time: CMTime = .zero
+    var image: UIImage?
+    
+}
+
 let EDIT_THUMB_CELL_SIZE: CGFloat = 80
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"

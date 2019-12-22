@@ -21,6 +21,8 @@ class EditViewPresenter {
     
     let toolService = EditToolService()
     
+    let adjustService = EditAdjustService()
+    
     var thumbModels: [EditToolImageCellModel] = []
     
     var playerStatus: PlayerViewStatus = .stop
@@ -33,7 +35,7 @@ class EditViewPresenter {
             return
         }
         //1.处理工具栏数据源
-        thumbModels = toolService.split().map({ (time) -> EditToolImageCellModel in
+        thumbModels = toolService.splitTime().map({ (time) -> EditToolImageCellModel in
             let m = EditToolImageCellModel()
             m.time = time
             return m
