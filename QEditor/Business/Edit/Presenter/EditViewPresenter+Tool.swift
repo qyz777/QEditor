@@ -102,6 +102,17 @@ extension EditViewPresenter: EditToolViewOutput {
         }
     }
     
+    func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float) {
+        if let composition = toolService.videoModel?.composition {
+            let context = [EditFilterContrastKey: value]
+            let item = filterService.adjust(composition, with: context)
+            playerView?.loadPlayerItem(item)
+            MessageBanner.show(title: "任务", subTitle: "对比度调节成功", style: .success)
+        } else {
+            MessageBanner.show(title: "任务", subTitle: "对比度调节失败", style: .warning)
+        }
+    }
+    
 }
 
 extension EditViewPresenter {

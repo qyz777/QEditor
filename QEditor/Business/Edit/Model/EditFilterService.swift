@@ -16,6 +16,9 @@ let EditFilterBrightnessKey = "EditFilterBrightnessKey"
 /// 饱和度 默认为1 取值范围为 -30 ～ 30
 let EditFilterSaturationKey = "EditFilterSaturationKey"
 
+/// 对比度 默认为1 取值范围为 -30 ～ 30
+let EditFilterContrastKey = "EditFilterContrastKey"
+
 /// CIImage，滤镜处理链的数据源
 let EditFilterImageKey = "EditFilterImageKey"
 
@@ -36,6 +39,8 @@ class EditFilterService {
     public private(set) var brightness: Float = 0
     
     public private(set) var saturation: Float = 1
+    
+    public private(set) var contrast: Float = 1
     
     init() {
         operation = EditColorControlsFilterOperation()
@@ -69,6 +74,9 @@ class EditFilterService {
         }
         if let value = context[EditFilterSaturationKey] {
             saturation = value as! Float
+        }
+        if let value = context[EditFilterContrastKey] {
+            contrast = value as! Float
         }
     }
     

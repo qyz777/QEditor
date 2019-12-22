@@ -28,6 +28,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeSaturationView(_ info: AdjustProgressViewInfo)
     
+    func showChangeContrastView(_ info: AdjustProgressViewInfo)
+    
     func forceVideoTimeRange() -> (start: Double, end: Double)
     
 }
@@ -62,5 +64,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float)
     
     func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float)
+    
+    func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float)
     
 }

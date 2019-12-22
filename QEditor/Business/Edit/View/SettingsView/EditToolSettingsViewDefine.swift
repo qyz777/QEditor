@@ -15,6 +15,7 @@ enum EditSettingAction {
     case reverse
     case brightness
     case saturation
+    case contrast
 }
 
 protocol EditToolSettingsViewProtocol {

@@ -28,6 +28,9 @@ class EditColorControlsFilterOperation: EditFilterOperation {
         if let value = context[EditFilterSaturationKey] {
             newFilter?.setValue(value, forKey: "inputSaturation")
         }
+        if let value = context[EditFilterContrastKey] {
+            newFilter?.setValue(value, forKey: "inputContrast")
+        }
         //滤镜是nil是个严重的问题!!!
         assert(newFilter != nil)
         return nextOperation?.excute(newFilter, context) ?? newFilter!

@@ -46,6 +46,9 @@ extension EditViewPresenter: EditViewOutput {
         case .saturation:
             let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: filterService.saturation)
             toolView?.showChangeSaturationView(info)
+        case .contrast:
+            let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: filterService.contrast)
+            toolView?.showChangeContrastView(info)
         }
     }
     

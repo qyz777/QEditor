@@ -525,6 +525,14 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
+    func showChangeContrastView(_ info: AdjustProgressViewInfo) {
+        if let progressView = showAdjustView(info) {
+            progressView.closure = { [unowned self] (progress) in
+                self.presenter.toolView(self, didChangeContrast: progress)
+            }
+        }
+    }
+    
     func forceVideoTimeRange() -> (start: Double, end: Double) {
         guard let forceChooseView = self.forceChooseView else {
             return (start: 0, end: 0)
