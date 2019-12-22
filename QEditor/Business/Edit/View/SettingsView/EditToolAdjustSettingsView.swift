@@ -35,13 +35,15 @@ class EditToolAdjustSettingsView: UICollectionView {
 extension EditToolAdjustSettingsView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditToolSettingsCustomCell", for: indexPath) as! EditToolSettingsCustomCell
         if indexPath.item == 0 {
             cell.label.text = "亮度"
+        } else if indexPath.item == 1 {
+            cell.label.text = "饱和度"
         }
         return cell
     }
@@ -51,6 +53,8 @@ extension EditToolAdjustSettingsView: UICollectionViewDelegate, UICollectionView
         switch indexPath.item {
         case 0:
             selectedClosure?(.brightness)
+        case 1:
+            selectedClosure?(.saturation)
         default:
             break
         }

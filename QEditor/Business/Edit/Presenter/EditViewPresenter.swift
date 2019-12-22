@@ -21,7 +21,7 @@ class EditViewPresenter {
     
     let toolService = EditToolService()
     
-    let adjustService = EditAdjustService()
+    let filterService = EditFilterService()
     
     var thumbModels: [EditToolImageCellModel] = []
     

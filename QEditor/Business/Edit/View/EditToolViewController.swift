@@ -127,6 +127,8 @@ class EditToolViewController: UIViewController {
         }
     }
     
+    //MARK: Private
+    
     private func refreshContainerView() {
         //1.清除
         clearViewsAndInfos()
@@ -222,6 +224,23 @@ class EditToolViewController: UIViewController {
         partInfos.removeAll()
         splitInfos.removeAll()
     }
+    
+    private func showAdjustView(_ info: AdjustProgressViewInfo) -> EditToolAdjustProgressView? {
+        guard !view.subviews.contains(where: { (v) -> Bool in
+            return v.isKind(of: EditToolAdjustProgressView.self)
+        }) else {
+            return nil
+        }
+        let progressView = EditToolAdjustProgressView(info: info)
+        view.addSubview(progressView)
+        progressView.snp.makeConstraints { (make) in
+            make.left.bottom.right.equalTo(self.view)
+            make.height.equalTo(40)
+        }
+        return progressView
+    }
+    
+    //MARK: Action
     
     @objc
     func thumbViewLoadImagesIfScrollStop() {
@@ -491,19 +510,18 @@ extension EditToolViewController: EditToolViewInput {
     }
     
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {
-        guard !view.subviews.contains(where: { (v) -> Bool in
-            return v.isKind(of: EditToolAdjustProgressView.self)
-        }) else {
-            return
+        if let progressView = showAdjustView(info) {
+            progressView.closure = { [unowned self] (progress) in
+                self.presenter.toolView(self, didChangeBrightness: progress)
+            }
         }
-        let progressView = EditToolAdjustProgressView(info: info)
-        progressView.closure = { [unowned self] (progress) in
-            self.presenter.toolView(self, didChangeBrightness: progress)
-        }
-        view.addSubview(progressView)
-        progressView.snp.makeConstraints { (make) in
-            make.left.bottom.right.equalTo(self.view)
-            make.height.equalTo(40)
+    }
+    
+    func showChangeSaturationView(_ info: AdjustProgressViewInfo) {
+        if let progressView = showAdjustView(info) {
+            progressView.closure = { [unowned self] (progress) in
+                self.presenter.toolView(self, didChangeSaturation: progress)
+            }
         }
     }
     

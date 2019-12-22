@@ -83,11 +83,22 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float) {
         if let composition = toolService.videoModel?.composition {
             let context = [EditFilterBrightnessKey: value]
-            let item = adjustService.adjust(composition, with: context)
+            let item = filterService.adjust(composition, with: context)
             playerView?.loadPlayerItem(item)
             MessageBanner.show(title: "任务", subTitle: "亮度调节成功", style: .success)
         } else {
-            QELog("亮度调节失败: \(value)")
+            MessageBanner.show(title: "任务", subTitle: "亮度调节失败", style: .warning)
+        }
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float) {
+        if let composition = toolService.videoModel?.composition {
+            let context = [EditFilterSaturationKey: value]
+            let item = filterService.adjust(composition, with: context)
+            playerView?.loadPlayerItem(item)
+            MessageBanner.show(title: "任务", subTitle: "饱和度调节成功", style: .success)
+        } else {
+            MessageBanner.show(title: "任务", subTitle: "饱和度调节失败", style: .warning)
         }
     }
     

@@ -1,5 +1,5 @@
 //
-//  EditBrightnessFilterOperation.swift
+//  EditColorControlsFilterOperation.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2019/12/21.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class EditBrightnessFilterOperation: EditFilterOperation {
+class EditColorControlsFilterOperation: EditFilterOperation {
     
     var nextOperation: EditFilterOperation?
     
@@ -24,6 +24,9 @@ class EditBrightnessFilterOperation: EditFilterOperation {
         }
         if let value = context[EditFilterBrightnessKey] {
             newFilter?.setValue(value, forKey: "inputBrightness")
+        }
+        if let value = context[EditFilterSaturationKey] {
+            newFilter?.setValue(value, forKey: "inputSaturation")
         }
         //滤镜是nil是个严重的问题!!!
         assert(newFilter != nil)

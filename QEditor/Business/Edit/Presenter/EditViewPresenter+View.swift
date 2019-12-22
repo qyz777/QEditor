@@ -41,8 +41,11 @@ extension EditViewPresenter: EditViewOutput {
             MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
             shouldReverseVideo()
         case .brightness:
-            let info = AdjustProgressViewInfo(startValue: -1, endValue: 1, currentValue: adjustService.brightness)
+            let info = AdjustProgressViewInfo(startValue: -1, endValue: 1, currentValue: filterService.brightness)
             toolView?.showChangeBrightnessView(info)
+        case .saturation:
+            let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: filterService.saturation)
+            toolView?.showChangeSaturationView(info)
         }
     }
     

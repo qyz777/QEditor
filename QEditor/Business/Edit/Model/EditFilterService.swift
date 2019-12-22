@@ -1,5 +1,5 @@
 //
-//  EditAdjustService.swift
+//  EditFilterService.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2019/12/21.
@@ -13,6 +13,9 @@ import CoreImage
 /// 亮度 默认为0，取值范围为 -1～1
 let EditFilterBrightnessKey = "EditFilterBrightnessKey"
 
+/// 饱和度 默认为1 取值范围为 -30 ～ 30
+let EditFilterSaturationKey = "EditFilterSaturationKey"
+
 /// CIImage，滤镜处理链的数据源
 let EditFilterImageKey = "EditFilterImageKey"
 
@@ -20,7 +23,7 @@ enum AdjustError: Error {
     case filterError
 }
 
-class EditAdjustService {
+class EditFilterService {
     
     public var videoComposition: AVMutableVideoComposition?
     
@@ -32,8 +35,10 @@ class EditAdjustService {
     
     public private(set) var brightness: Float = 0
     
+    public private(set) var saturation: Float = 1
+    
     init() {
-        operation = EditBrightnessFilterOperation()
+        operation = EditColorControlsFilterOperation()
     }
     
     public func adjust(_ composition: AVMutableComposition, with context: [String: Any]) -> AVPlayerItem {
@@ -61,6 +66,9 @@ class EditAdjustService {
     private func updateState() {
         if let value = context[EditFilterBrightnessKey] {
             brightness = value as! Float
+        }
+        if let value = context[EditFilterSaturationKey] {
+            saturation = value as! Float
         }
     }
     
