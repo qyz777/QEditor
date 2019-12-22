@@ -533,6 +533,14 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
+    func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo) {
+        if let progressView = showAdjustView(info) {
+            progressView.closure = { [unowned self] (progress) in
+                self.presenter.toolView(self, didChangeGaussianBlur: progress)
+            }
+        }
+    }
+    
     func forceVideoTimeRange() -> (start: Double, end: Double) {
         guard let forceChooseView = self.forceChooseView else {
             return (start: 0, end: 0)

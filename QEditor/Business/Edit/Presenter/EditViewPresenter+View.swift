@@ -49,6 +49,9 @@ extension EditViewPresenter: EditViewOutput {
         case .contrast:
             let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: filterService.contrast)
             toolView?.showChangeContrastView(info)
+        case .gaussianBlur:
+            let info = AdjustProgressViewInfo(startValue: 0, endValue: 20, currentValue: filterService.gaussianBlur)
+            toolView?.showChangeGaussianBlurView(info)
         }
     }
     

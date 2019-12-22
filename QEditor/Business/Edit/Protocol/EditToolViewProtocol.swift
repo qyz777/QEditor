@@ -30,6 +30,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeContrastView(_ info: AdjustProgressViewInfo)
     
+    func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo)
+    
     func forceVideoTimeRange() -> (start: Double, end: Double)
     
 }
@@ -66,5 +68,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float)
     
     func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float)
+    
+    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlur value: Float)
     
 }

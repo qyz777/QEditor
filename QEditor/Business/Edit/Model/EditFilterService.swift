@@ -19,6 +19,9 @@ let EditFilterSaturationKey = "EditFilterSaturationKey"
 /// 对比度 默认为1 取值范围为 -30 ～ 30
 let EditFilterContrastKey = "EditFilterContrastKey"
 
+/// 高斯模糊 默认为0 取值范围 0 ～ 20
+let EditFilterGaussianBlurKey = "EditFilterGaussianBlurKey"
+
 /// CIImage，滤镜处理链的数据源
 let EditFilterImageKey = "EditFilterImageKey"
 
@@ -42,8 +45,13 @@ class EditFilterService {
     
     public private(set) var contrast: Float = 1
     
+    public private(set) var gaussianBlur: Float = 0
+    
     init() {
-        operation = EditColorControlsFilterOperation()
+        let colorControlsOperation = EditColorControlsFilterOperation()
+        let gaussianBlurOperation = EditGaussianBlurFilterOperation()
+        colorControlsOperation.nextOperation = gaussianBlurOperation
+        operation = colorControlsOperation
     }
     
     public func adjust(_ composition: AVMutableComposition, with context: [String: Any]) -> AVPlayerItem {
@@ -77,6 +85,9 @@ class EditFilterService {
         }
         if let value = context[EditFilterContrastKey] {
             contrast = value as! Float
+        }
+        if let value = context[EditFilterGaussianBlurKey] {
+            gaussianBlur = value as! Float
         }
     }
     

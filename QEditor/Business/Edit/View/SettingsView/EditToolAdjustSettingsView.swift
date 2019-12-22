@@ -35,7 +35,7 @@ class EditToolAdjustSettingsView: UICollectionView {
 extension EditToolAdjustSettingsView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return 4
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -46,6 +46,8 @@ extension EditToolAdjustSettingsView: UICollectionViewDelegate, UICollectionView
             cell.label.text = "饱和度"
         } else if indexPath.item == 2 {
             cell.label.text = "对比度"
+        } else if indexPath.item == 3 {
+            cell.label.text = "模糊"
         }
         return cell
     }
@@ -59,6 +61,8 @@ extension EditToolAdjustSettingsView: UICollectionViewDelegate, UICollectionView
             selectedClosure?(.saturation)
         case 2:
             selectedClosure?(.contrast)
+        case 3:
+            selectedClosure?(.gaussianBlur)
         default:
             break
         }

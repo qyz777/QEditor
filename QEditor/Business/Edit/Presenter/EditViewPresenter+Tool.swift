@@ -113,6 +113,17 @@ extension EditViewPresenter: EditToolViewOutput {
         }
     }
     
+    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlur value: Float) {
+        if let composition = toolService.videoModel?.composition {
+            let context = [EditFilterGaussianBlurKey: value]
+            let item = filterService.adjust(composition, with: context)
+            playerView?.loadPlayerItem(item)
+            MessageBanner.show(title: "任务", subTitle: "模糊调节成功", style: .success)
+        } else {
+            MessageBanner.show(title: "任务", subTitle: "模糊调节失败", style: .warning)
+        }
+    }
+    
 }
 
 extension EditViewPresenter {
