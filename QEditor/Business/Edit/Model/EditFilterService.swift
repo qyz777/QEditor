@@ -22,22 +22,15 @@ let EditFilterContrastKey = "EditFilterContrastKey"
 /// 高斯模糊 默认为0 取值范围 0 ～ 20
 let EditFilterGaussianBlurKey = "EditFilterGaussianBlurKey"
 
-/// CIImage，滤镜处理链的数据源
-let EditFilterImageKey = "EditFilterImageKey"
-
-enum AdjustError: Error {
-    case filterError
-}
-
 class EditFilterService {
     
     public var videoComposition: AVMutableVideoComposition?
     
-    private let operation: EditFilterOperation
+    private var operation: EditFilterOperation
     
     private let imageContext = CIContext(options: nil)
     
-    private var context: [String: Any] = [:]
+    private var context: [String: (value: Float, range: CMTimeRange)] = [:]
     
     public private(set) var brightness: Float = 0
     
@@ -54,7 +47,7 @@ class EditFilterService {
         operation = colorControlsOperation
     }
     
-    public func adjust(_ composition: AVMutableComposition, with context: [String: Any]) -> AVPlayerItem {
+    public func adjust(_ composition: AVMutableComposition, with context: [String: (value: Float, range: CMTimeRange)]) {
         context.forEach {
             self.context[$0.key] = $0.value
         }
@@ -62,32 +55,23 @@ class EditFilterService {
         videoComposition = AVMutableVideoComposition(asset: composition) { [weak self] (request) in
             guard let strongSelf = self else { return }
             let source = request.sourceImage
-            strongSelf.context[EditFilterImageKey] = source
-            let filter = strongSelf.operation.excute(nil, strongSelf.context)
-            strongSelf.context.removeValue(forKey: EditFilterImageKey)
-            if let result = filter.outputImage?.cropped(to: source.extent) {
-                request.finish(with: result, context: nil)
-            } else {
-                request.finish(with: AdjustError.filterError)
-            }
+            let output = strongSelf.operation.excute(source, at: request.compositionTime, with: strongSelf.context)
+            request.finish(with: output, context: nil)
         }
-        let item = AVPlayerItem(asset: composition)
-        item.videoComposition = videoComposition
-        return item
     }
     
     private func updateState() {
-        if let value = context[EditFilterBrightnessKey] {
-            brightness = value as! Float
+        if let v = context[EditFilterBrightnessKey] {
+            brightness = v.value
         }
-        if let value = context[EditFilterSaturationKey] {
-            saturation = value as! Float
+        if let v = context[EditFilterSaturationKey] {
+            saturation = v.value
         }
-        if let value = context[EditFilterContrastKey] {
-            contrast = value as! Float
+        if let v = context[EditFilterContrastKey] {
+            contrast = v.value
         }
-        if let value = context[EditFilterGaussianBlurKey] {
-            gaussianBlur = value as! Float
+        if let v = context[EditFilterGaussianBlurKey] {
+            gaussianBlur = v.value
         }
     }
     

@@ -8,11 +8,20 @@
 
 import Foundation
 import CoreImage
+import AVFoundation
 
 protocol EditFilterOperation {
     
     var nextOperation: EditFilterOperation? { get set }
     
-    func excute(_ filter: CIFilter?, _ context: [String: Any]) -> CIFilter
+    func excute(_ source: CIImage, at time: CMTime, with context: [String: (value: Float, range: CMTimeRange)]) -> CIImage
+    
+}
+
+extension CMTime {
+    
+    func between(_ range: CMTimeRange) -> Bool {
+        return range.start.seconds <= seconds && seconds <= range.end.seconds
+    }
     
 }

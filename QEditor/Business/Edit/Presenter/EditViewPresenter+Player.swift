@@ -34,6 +34,10 @@ extension EditViewPresenter: PlayerViewDelegate {
         playerView?.playToEndTime()
     }
     
+    func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition? {
+        return filterService.videoComposition
+    }
+    
 }
 
 extension EditViewPresenter: EditPlayerViewOutput {

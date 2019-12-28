@@ -229,6 +229,7 @@
 		A0870A5D2352FB57006DC38D /* Edit */ = {
 			isa = PBXGroup;
 			children = (
+				A0870A612352FBCE006DC38D /* Player */,
 				A0DADA0E235AEC6900BD83D7 /* Model */,
 				A0E03BFF235AA2CF0012F226 /* Presenter */,
 				A0E03BFE235AA2C50012F226 /* Protocol */,
@@ -317,7 +318,6 @@
 		A09CF7C92349E21100139461 /* Business */ = {
 			isa = PBXGroup;
 			children = (
-				A0870A612352FBCE006DC38D /* Player */,
 				A0870A5D2352FB57006DC38D /* Edit */,
 				A09CF7CD2349E2B700139461 /* Media */,
 				A09CF7CA2349E24C00139461 /* Home */,

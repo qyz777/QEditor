@@ -63,12 +63,12 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlur value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float)
     
 }

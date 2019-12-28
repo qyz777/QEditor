@@ -198,7 +198,7 @@ extension EditViewController: EditViewInput {
         }) { (_) in
             self.isShowSettings = false
             self.settingContainerView.subviews.forEach {
-                if $0.self.isEqual(EditToolCutSettingsView.self) {
+                if $0 is EditToolSettingsViewProtocol {
                     $0.removeFromSuperview()
                 }
             }

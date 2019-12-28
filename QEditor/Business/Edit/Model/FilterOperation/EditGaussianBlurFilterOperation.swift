@@ -8,26 +8,24 @@
 //  高斯模糊
 
 import Foundation
+import AVFoundation
 
 class EditGaussianBlurFilterOperation: EditFilterOperation {
     
     var nextOperation: EditFilterOperation?
     
-    func excute(_ filter: CIFilter?, _ context: [String: Any]) -> CIFilter {
-        var newFilter = filter
-        if newFilter == nil {
-            newFilter = CIFilter(name: "CIGaussianBlur")
-            newFilter?.setValue(context[EditFilterImageKey], forKey: kCIInputImageKey)
-        } else {
-            let tempFilter = CIFilter(name: "CIGaussianBlur")
-            tempFilter?.setValue(newFilter!.outputImage, forKey: kCIInputImageKey)
-            newFilter = tempFilter
+    func excute(_ source: CIImage, at time: CMTime, with context: [String: (value: Float, range: CMTimeRange)]) -> CIImage {
+        let filter = CIFilter(name: "CIGaussianBlur")
+        filter?.setValue(source, forKey: kCIInputImageKey)
+        var hasOutput = false
+        if let v = context[EditFilterGaussianBlurKey] {
+            if time.between(v.range) {
+                filter?.setValue(v.value, forKey: "inputRadius")
+                hasOutput = true
+            }
         }
-        if let value = context[EditFilterGaussianBlurKey] {
-            newFilter?.setValue(value, forKey: "inputRadius")
-        }
-        assert(newFilter != nil)
-        return nextOperation?.excute(newFilter, context) ?? newFilter!
+        let output = hasOutput ? filter!.outputImage!.cropped(to: source.extent) : source
+        return nextOperation?.excute(output, at: time, with: context) ?? output
     }
     
 }

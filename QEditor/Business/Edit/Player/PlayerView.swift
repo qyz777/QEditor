@@ -31,6 +31,8 @@ public protocol PlayerViewDelegate: class {
     
     func playerDidPlayToEndTime(_ player: PlayerView)
     
+    func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition?
+    
 }
 
 extension PlayerViewDelegate {
@@ -40,6 +42,10 @@ extension PlayerViewDelegate {
     func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {}
     
     func playerDidPlayToEndTime(_ player: PlayerView) {}
+    
+    func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition? {
+        return nil
+    }
     
 }
 
@@ -83,6 +89,34 @@ public class PlayerView: UIView {
         status = .pause
         delegate?.player(self, statusDidChange: status)
         delegate?.playerDidPlayToEndTime(self)
+    }
+    
+    private func updatePlayerItem(_ item: AVPlayerItem) {
+        currentItem = item
+        currentItem?.videoComposition = delegate?.playerVideoComposition(self)
+        //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
+        currentItem?.audioTimePitchAlgorithm = .varispeed
+        player.replaceCurrentItem(with: currentItem)
+        kvoControllerNonRetaining.observe(currentItem!, keyPath: "status", options: [.initial, .new]) { [weak self] (_, _, change) in
+            let status = AVPlayerItem.Status(rawValue: (change["new"] as! NSNumber).intValue)!
+            if let strongSelf = self {
+                //转发播放器状态出去
+                strongSelf.delegate?.player(strongSelf, didChange: status)
+                if status == .readyToPlay {
+                    //转发视频时间出去
+                    let duration = strongSelf.currentItem!.asset.duration.seconds
+                    strongSelf.delegate?.player(strongSelf, didLoadVideoWith: duration)
+                } else if status == .failed || status == .unknown {
+                    strongSelf.delegate?.player(strongSelf, loadVideoFailWith: strongSelf.currentItem!.error?.localizedDescription ?? "")
+                }
+            }
+        }
+    }
+    
+    private func updatePlayerLayer() {
+        playerLayer?.removeFromSuperlayer()
+        playerLayer = AVPlayerLayer(player: player)
+        layer.addSublayer(playerLayer!)
     }
     
     lazy var player: AVPlayer = {
@@ -147,9 +181,7 @@ public extension PlayerView {
     func setupPlayer(asset: AVAsset) {
         let item = AVPlayerItem(asset: asset)
         updatePlayerItem(item)
-        playerLayer?.removeFromSuperlayer()
-        playerLayer = AVPlayerLayer(player: player)
-        layer.addSublayer(playerLayer!)
+        updatePlayerLayer()
         if timeObserver == nil {
             let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(600))
             timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] (time) in
@@ -164,27 +196,6 @@ public extension PlayerView {
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidPlayToEndTime), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-    }
-    
-    func updatePlayerItem(_ item: AVPlayerItem) {
-        currentItem = item
-        //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
-        currentItem?.audioTimePitchAlgorithm = .varispeed
-        player.replaceCurrentItem(with: currentItem)
-        kvoControllerNonRetaining.observe(currentItem!, keyPath: "status", options: [.initial, .new]) { [weak self] (_, _, change) in
-            let status = AVPlayerItem.Status(rawValue: (change["new"] as! NSNumber).intValue)!
-            if let strongSelf = self {
-                //转发播放器状态出去
-                strongSelf.delegate?.player(strongSelf, didChange: status)
-                if status == .readyToPlay {
-                    //转发视频时间出去
-                    let duration = strongSelf.currentItem!.asset.duration.seconds
-                    strongSelf.delegate?.player(strongSelf, didLoadVideoWith: duration)
-                } else if status == .failed || status == .unknown {
-                    strongSelf.delegate?.player(strongSelf, loadVideoFailWith: strongSelf.currentItem!.error?.localizedDescription ?? "")
-                }
-            }
-        }
     }
     
 }

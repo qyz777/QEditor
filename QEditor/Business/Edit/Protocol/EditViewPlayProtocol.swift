@@ -13,8 +13,6 @@ protocol EditViewPlayProtocol {
     
     func loadVideoModel(_ model: EditVideoModel)
     
-    func loadPlayerItem(_ item: AVPlayerItem)
-    
     func updatePlayTime(_ time: Double)
     
     func updateDuration(_ duration: Double)
@@ -28,8 +26,6 @@ protocol EditViewPlayProtocol {
 extension EditViewPlayProtocol {
     
     func loadVideoModel(_ model: EditVideoModel) {}
-    
-    func loadPlayerItem(_ item: AVPlayerItem) {}
     
     func updatePlayTime(_ time: Double) {}
     

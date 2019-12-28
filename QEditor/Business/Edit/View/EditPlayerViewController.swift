@@ -111,11 +111,6 @@ extension EditPlayerViewController: EditPlayerViewInput {
         playerView.setupPlayer(asset: model.composition)
     }
     
-    func loadPlayerItem(_ item: AVPlayerItem) {
-        playerView.pause()
-        playerView.updatePlayerItem(item)
-    }
-    
     func updatePlayTime(_ time: Double) {
         let timeFormat = String.qe.formatTime(Int(time))
         timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))

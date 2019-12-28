@@ -51,6 +51,8 @@ class EditToolViewController: UIViewController {
     
     /// 当前锁定的选择框
     private weak var forceChooseView: EditToolChooseBoxView?
+    
+    //MARK: Override
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,6 +67,8 @@ class EditToolViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+    
+    //MARK: Private
     
     private func initView() {
         view.backgroundColor = .black
@@ -127,9 +131,8 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    //MARK: Private
-    
     private func refreshContainerView() {
+        //todo:后续优化，添加的新片段也是一个单独的choose
         //1.清除
         clearViewsAndInfos()
         //2.更新容器view的contentSize
@@ -257,7 +260,7 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
-    //MARK: 通知
+    //MARK: Notification
     @objc
     func shouldHiddenSplitViews(_ notification: Notification) {
         splitInfos.forEach { (info) in
@@ -512,7 +515,13 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                self.presenter.toolView(self, didChangeBrightness: progress)
+                guard let forceChooseView = self.forceChooseView else {
+                    return
+                }
+                guard let part = forceChooseView.info else {
+                    return
+                }
+                self.presenter.toolView(self, didChangeBrightnessFrom: part.beginTime, to: part.endTime, of: progress)
             }
         }
     }
@@ -520,7 +529,13 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeSaturationView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                self.presenter.toolView(self, didChangeSaturation: progress)
+                guard let forceChooseView = self.forceChooseView else {
+                    return
+                }
+                guard let part = forceChooseView.info else {
+                    return
+                }
+                self.presenter.toolView(self, didChangeSaturationFrom: part.beginTime, to: part.endTime, of: progress)
             }
         }
     }
@@ -528,7 +543,13 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeContrastView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                self.presenter.toolView(self, didChangeContrast: progress)
+                guard let forceChooseView = self.forceChooseView else {
+                    return
+                }
+                guard let part = forceChooseView.info else {
+                    return
+                }
+                self.presenter.toolView(self, didChangeContrastFrom: part.beginTime, to: part.endTime, of: progress)
             }
         }
     }
@@ -536,7 +557,13 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                self.presenter.toolView(self, didChangeGaussianBlur: progress)
+                guard let forceChooseView = self.forceChooseView else {
+                    return
+                }
+                guard let part = forceChooseView.info else {
+                    return
+                }
+                self.presenter.toolView(self, didChangeGaussianBlurFrom: part.beginTime, to: part.endTime, of: progress)
             }
         }
     }

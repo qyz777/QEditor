@@ -7,33 +7,36 @@
 //
 
 import Foundation
+import AVFoundation
 
 class EditColorControlsFilterOperation: EditFilterOperation {
     
     var nextOperation: EditFilterOperation?
     
-    func excute(_ filter: CIFilter?, _ context: [String: Any]) -> CIFilter {
-        var newFilter = filter
-        if newFilter == nil {
-            newFilter = CIFilter(name: "CIColorControls")
-            newFilter?.setValue(context[EditFilterImageKey], forKey: kCIInputImageKey)
-        } else {
-            let tempFilter = CIFilter(name: "CIColorControls")
-            tempFilter?.setValue(newFilter!.outputImage, forKey: kCIInputImageKey)
-            newFilter = tempFilter
+    func excute(_ source: CIImage, at time: CMTime, with context: [String: (value: Float, range: CMTimeRange)]) -> CIImage {
+        let filter = CIFilter(name: "CIColorControls")
+        filter?.setValue(source, forKey: kCIInputImageKey)
+        var hasOutput = false
+        if let v = context[EditFilterBrightnessKey] {
+            if time.between(v.range) {
+                filter?.setValue(v.value, forKey: "inputBrightness")
+                hasOutput = true
+            }
         }
-        if let value = context[EditFilterBrightnessKey] {
-            newFilter?.setValue(value, forKey: "inputBrightness")
+        if let v = context[EditFilterSaturationKey] {
+            if time.between(v.range) {
+                filter?.setValue(v.value, forKey: "inputSaturation")
+                hasOutput = true
+            }
         }
-        if let value = context[EditFilterSaturationKey] {
-            newFilter?.setValue(value, forKey: "inputSaturation")
+        if let v = context[EditFilterContrastKey] {
+            if time.between(v.range) {
+                filter?.setValue(v.value, forKey: "inputContrast")
+                hasOutput = true
+            }
         }
-        if let value = context[EditFilterContrastKey] {
-            newFilter?.setValue(value, forKey: "inputContrast")
-        }
-        //滤镜是nil是个严重的问题!!!
-        assert(newFilter != nil)
-        return nextOperation?.excute(newFilter, context) ?? newFilter!
+        let output = hasOutput ? filter!.outputImage!.cropped(to: source.extent) : source
+        return nextOperation?.excute(output, at: time, with: context) ?? output
     }
     
 }
