@@ -10,7 +10,7 @@ import Foundation
 
 protocol EditToolViewInput: EditViewPlayProtocol {
     
-    func refreshWaveFormView(with sampleBox: [[CGFloat]])
+    func refreshWaveFormView(with box: [[CGFloat]])
     
     func toolBarShouldHidden()
     

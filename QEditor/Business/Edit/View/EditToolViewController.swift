@@ -35,6 +35,7 @@ class EditToolViewController: UIViewController {
     /// 视频时长
     private var duration: Double = 0
     
+    /// 加载图片的优化
     private var isEnableOptimize = false
     
     /// 播放器状态
@@ -169,7 +170,7 @@ class EditToolViewController: UIViewController {
         partInfos.append(info)
         view.info = info
         //5.准备波形图
-        presenter.toolView(self, needRefreshWaveformViewWith: .init(width: CGFloat(itemCount) * SCREEN_WIDTH, height: WAVEFORM_HEIGHT))
+        presenter.toolView(self, needRefreshWaveformViewWith: .init(width: containerContentWidth, height: WAVEFORM_HEIGHT))
     }
     
     private func resetChooseViews() {
@@ -391,9 +392,9 @@ class EditToolViewController: UIViewController {
 //MARK: EditToolViewInput
 extension EditToolViewController: EditToolViewInput {
     
-    func refreshWaveFormView(with sampleBox: [[CGFloat]]) {
-        waveformView.update(sampleBox)
-        waveformView.reloadData()
+    func refreshWaveFormView(with box: [[CGFloat]]) {
+        waveformView.contentSize = .init(width: thumbView.contentSize.width, height: 0)
+        waveformView.update(box)
     }
     
     func toolBarShouldHidden() {
@@ -680,9 +681,9 @@ extension EditToolViewController: UIScrollViewDelegate {
         
         presenter.toolViewDidEndDecelerating(self)
         
+        let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
         if isEnableOptimize {
-            let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
-            if (scrollToScrollStop) {
+            if scrollToScrollStop {
                 thumbViewLoadImagesIfScrollStop()
                 thumbView.isNeedLoadImageAtDisplay = true
             } else {
@@ -699,7 +700,7 @@ extension EditToolViewController: UIScrollViewDelegate {
         if isEnableOptimize {
             if !decelerate {
                 let dragToDragStop = scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
-                if (dragToDragStop) {
+                if dragToDragStop {
                     thumbViewLoadImagesIfScrollStop()
                     thumbView.isNeedLoadImageAtDisplay = true
                 } else {

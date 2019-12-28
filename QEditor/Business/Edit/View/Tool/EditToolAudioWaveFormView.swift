@@ -9,16 +9,17 @@
 import UIKit
 
 public let WAVEFORM_HEIGHT: CGFloat = 40
+fileprivate let CELL_IDENTIFIER = "EditToolWaveformCell"
 
 //以下设置看起来效果比较好
-fileprivate let WIDTH_SCALING: CGFloat = 0.95
-fileprivate let HEIGHT_SCALING: CGFloat = 0.9
-
-fileprivate let CELL_IDENTIFIER = "EditToolWaveformCell"
+fileprivate let HEIGHT_SCALING: CGFloat = 0.5
+public let BOX_SAMPLE_WIDTH: CGFloat = 5
 
 class EditToolAudioWaveFormView: UICollectionView {
     
     private var box: [[CGFloat]] = []
+    
+    private let queue = DispatchQueue(label: "AudioWaveFormView.LoadSamples", qos: .userInteractive, attributes: .concurrent, autoreleaseFrequency: .workItem, target: nil)
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
@@ -33,25 +34,38 @@ class EditToolAudioWaveFormView: UICollectionView {
     
     public func update(_ box: [[CGFloat]]) {
         self.box = box
+        reloadData()
     }
     
-    private func drawImage(from samples: [CGFloat]) -> UIImage? {
-        let maxY = bounds.height
-        UIGraphicsBeginImageContext(CGSize(width: EDIT_THUMB_CELL_SIZE, height: WAVEFORM_HEIGHT))
-        let path = UIBezierPath()
-        path.lineJoinStyle = .round
-        path.lineWidth = 1
-        var i = 0
-        samples.forEach {
-            let p = UIBezierPath()
-            p.move(to: CGPoint(x: CGFloat(i), y: maxY))
-            p.addLine(to: CGPoint(x: CGFloat(i), y: maxY - $0 * HEIGHT_SCALING))
-            path.append(p)
-            i += 1
+    private func drawImage(from samples: [CGFloat], closure: @escaping (_ image: UIImage?) -> Void) {
+        let midY = bounds.size.height / 2
+        queue.async {
+            UIGraphicsBeginImageContextWithOptions(CGSize(width: EDIT_THUMB_CELL_SIZE, height: WAVEFORM_HEIGHT), false, UIScreen.main.scale)
+            let context = UIGraphicsGetCurrentContext()
+            let topPath = CGMutablePath()
+            let bottomPath = CGMutablePath()
+            topPath.move(to: .init(x: 0, y: midY))
+            bottomPath.move(to: .init(x: 0, y: midY))
+            for i in 0..<samples.count {
+                let sample = samples[i]
+                topPath.addLine(to: CGPoint(x: CGFloat(i) * BOX_SAMPLE_WIDTH, y: midY - sample * HEIGHT_SCALING))
+                bottomPath.addLine(to: CGPoint(x: CGFloat(i) * BOX_SAMPLE_WIDTH, y: midY + sample * HEIGHT_SCALING))
+            }
+            topPath.addLine(to: .init(x: CGFloat(samples.count), y: midY))
+            bottomPath.addLine(to: .init(x: CGFloat(samples.count), y: midY))
+            let fullPath = CGMutablePath()
+            fullPath.addPath(topPath)
+            fullPath.addPath(bottomPath)
+            context?.addPath(fullPath)
+            //设置填充颜色
+            context?.setFillColor(UIColor.lightGray.cgColor)
+            context?.drawPath(using: .fill)
+            let image = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            DispatchQueue.main.async {
+                closure(image)
+            }
         }
-        UIColor.qe.hex(0xFF7F24).set()
-        path.stroke()
-        return UIGraphicsGetImageFromCurrentImageContext()
     }
 
 }
@@ -69,7 +83,9 @@ extension EditToolAudioWaveFormView: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let c = cell as! EditToolWaveformCell
-        c.imageView.image = drawImage(from: box[indexPath.item])
+        drawImage(from: box[indexPath.item]) { (image) in
+            c.imageView.image = image
+        }
     }
     
 }
