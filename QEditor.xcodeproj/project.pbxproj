@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		9BC77A73B00FD3AFC27A4856 /* Pods_QEditor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0FDA30D11EE65245A87B79 /* Pods_QEditor.framework */; };
+		A015868B23C0281C0050F5B8 /* CMTimeRange+Edit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015868A23C0281C0050F5B8 /* CMTimeRange+Edit.swift */; };
+		A015868D23C029600050F5B8 /* CMTime+Edit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015868C23C029600050F5B8 /* CMTime+Edit.swift */; };
 		A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021232F2364019E0073A125 /* EditToolImageThumbView.swift */; };
 		A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212331236404090073A125 /* EditViewPresenter+Tool.swift */; };
 		A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123332364168E0073A125 /* UIImage+Utility.swift */; };
@@ -80,6 +82,8 @@
 		6A0FDA30D11EE65245A87B79 /* Pods_QEditor.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_QEditor.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		800CE7CD99EC1462EFFF0184 /* Pods-QEditor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QEditor.debug.xcconfig"; path = "Pods/Target Support Files/Pods-QEditor/Pods-QEditor.debug.xcconfig"; sourceTree = "<group>"; };
 		94C3146E5EAD2F1A784A5AE8 /* Pods-QEditor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-QEditor.release.xcconfig"; path = "Pods/Target Support Files/Pods-QEditor/Pods-QEditor.release.xcconfig"; sourceTree = "<group>"; };
+		A015868A23C0281C0050F5B8 /* CMTimeRange+Edit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTimeRange+Edit.swift"; sourceTree = "<group>"; };
+		A015868C23C029600050F5B8 /* CMTime+Edit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTime+Edit.swift"; sourceTree = "<group>"; };
 		A021232F2364019E0073A125 /* EditToolImageThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageThumbView.swift; sourceTree = "<group>"; };
 		A0212331236404090073A125 /* EditViewPresenter+Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Tool.swift"; sourceTree = "<group>"; };
 		A02123332364168E0073A125 /* UIImage+Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Utility.swift"; sourceTree = "<group>"; };
@@ -171,6 +175,15 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		A015868923C027D00050F5B8 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				A015868A23C0281C0050F5B8 /* CMTimeRange+Edit.swift */,
+				A015868C23C029600050F5B8 /* CMTime+Edit.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		A021233723652E040073A125 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,6 +242,7 @@
 		A0870A5D2352FB57006DC38D /* Edit */ = {
 			isa = PBXGroup;
 			children = (
+				A015868923C027D00050F5B8 /* Extension */,
 				A0870A612352FBCE006DC38D /* Player */,
 				A0DADA0E235AEC6900BD83D7 /* Model */,
 				A0E03BFF235AA2CF0012F226 /* Presenter */,
@@ -619,6 +633,7 @@
 			files = (
 				A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */,
 				A021233B23652FE40073A125 /* EditToolTimeScaleView.swift in Sources */,
+				A015868D23C029600050F5B8 /* CMTime+Edit.swift in Sources */,
 				A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */,
 				A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */,
 				A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */,
@@ -663,6 +678,7 @@
 				A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */,
 				A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */,
 				A02F7DD1239B3FB500398065 /* EditPlayerViewProtocol.swift in Sources */,
+				A015868B23C0281C0050F5B8 /* CMTimeRange+Edit.swift in Sources */,
 				A02F7DD5239CE94E00398065 /* EditToolReverseTool.swift in Sources */,
 				A09CF7D82349E35D00139461 /* MediaPresenter.swift in Sources */,
 				A0875AB1238A244200061394 /* EditToolAudioWaveformView.swift in Sources */,

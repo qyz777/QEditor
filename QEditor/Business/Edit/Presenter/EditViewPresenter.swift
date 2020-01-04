@@ -21,8 +21,6 @@ class EditViewPresenter {
     
     let toolService = EditToolService()
     
-    let filterService = EditFilterService()
-    
     var thumbModels: [EditToolImageCellModel] = []
     
     var playerStatus: PlayerViewStatus = .stop

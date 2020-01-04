@@ -35,7 +35,7 @@ extension EditViewPresenter: PlayerViewDelegate {
     }
     
     func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition? {
-        return filterService.videoComposition
+        return toolService.videoComposition
     }
     
 }

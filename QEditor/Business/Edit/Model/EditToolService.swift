@@ -16,6 +16,8 @@ class EditToolService {
     public var videoComposition: AVMutableVideoComposition?
     
     private var reverseTool: EditToolReverseTool?
+    
+    public let filterService = EditFilterService()
 
     public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
@@ -37,6 +39,15 @@ class EditToolService {
         return times
     }
     
+    //MARK: Filter
+    public func adjustFilter(_ context: [String: (value: Float, range: CMTimeRange)]) {
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        videoComposition = filterService.adjust(composition, with: context)
+    }
+    
+    //MARK: Change Speed
     public func changeSpeed(for model: EditChangeScaleModel) {
         guard videoModel != nil else {
             return
@@ -50,6 +61,7 @@ class EditToolService {
         audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
     }
     
+    //MARK: Reverse
     public func reverseVideo(at timeRange: CMTimeRange, closure: @escaping (_ error: Error?) -> Void) {
         guard let composition = videoModel?.composition else {
             return
@@ -77,6 +89,7 @@ class EditToolService {
         reverseTool!.reverse()
     }
     
+    //MARK: Audio
     public func loadAudioSamples(for size: CGSize, boxCount: Int, width: CGFloat, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])
@@ -113,6 +126,7 @@ class EditToolService {
         }
     }
     
+    //MARK: Add Video
     public func addVideos(from mediaModels: [MediaVideoModel]) {
         guard mediaModels.count > 0 && videoModel != nil else {
             return
@@ -139,6 +153,7 @@ class EditToolService {
         resetVideoModel(composition)
     }
     
+    //MARK: Remove Video
     public func removeVideoTimeRange(_ range: CMTimeRange) {
         guard videoModel != nil else {
             return
@@ -176,6 +191,7 @@ class EditToolService {
         videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
     }
     
+    //MARK: Private
     private func resetVideoModel(_ composition: AVMutableComposition) {
         videoModel?.composition = composition
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))

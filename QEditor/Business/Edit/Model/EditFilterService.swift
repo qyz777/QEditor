@@ -24,8 +24,6 @@ let EditFilterGaussianBlurKey = "EditFilterGaussianBlurKey"
 
 class EditFilterService {
     
-    public var videoComposition: AVMutableVideoComposition?
-    
     private var operation: EditFilterOperation
     
     private let imageContext = CIContext(options: nil)
@@ -47,12 +45,12 @@ class EditFilterService {
         operation = colorControlsOperation
     }
     
-    public func adjust(_ composition: AVMutableComposition, with context: [String: (value: Float, range: CMTimeRange)]) {
+    public func adjust(_ composition: AVMutableComposition, with context: [String: (value: Float, range: CMTimeRange)]) -> AVMutableVideoComposition {
         context.forEach {
             self.context[$0.key] = $0.value
         }
         updateState()
-        videoComposition = AVMutableVideoComposition(asset: composition) { [weak self] (request) in
+        return AVMutableVideoComposition(asset: composition) { [weak self] (request) in
             guard let strongSelf = self else { return }
             let source = request.sourceImage
             let output = strongSelf.operation.excute(source, at: request.compositionTime, with: strongSelf.context)

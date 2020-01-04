@@ -42,7 +42,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo) {
-        let range = CMTimeRange(start: CMTime(seconds: info.beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: info.endTime, preferredTimescale: CMTimeScale(600)))
+        let range = CMTimeRange(beginTime: info.beginTime, endTime: info.endTime)
         toolService.removeVideoTimeRange(range)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
@@ -81,51 +81,35 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float) {
-        if let composition = toolService.videoModel?.composition {
-            let range = handle(beginTime: beginTime, endTime: endTime)
-            let context = [EditFilterBrightnessKey: (value: value, range: range)]
-            filterService.adjust(composition, with: context)
-            playerView?.loadVideoModel(toolService.videoModel!)
-            MessageBanner.show(title: "任务", subTitle: "亮度调节成功", style: .success)
-        } else {
-            MessageBanner.show(title: "任务", subTitle: "亮度调节失败", style: .warning)
-        }
+        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let context = [EditFilterBrightnessKey: (value: value, range: range)]
+        toolService.adjustFilter(context)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        MessageBanner.show(title: "任务", subTitle: "亮度调节成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float) {
-        if let composition = toolService.videoModel?.composition {
-            let range = handle(beginTime: beginTime, endTime: endTime)
-            let context = [EditFilterSaturationKey: (value: value, range: range)]
-            filterService.adjust(composition, with: context)
-            playerView?.loadVideoModel(toolService.videoModel!)
-            MessageBanner.show(title: "任务", subTitle: "饱和度调节成功", style: .success)
-        } else {
-            MessageBanner.show(title: "任务", subTitle: "饱和度调节失败", style: .warning)
-        }
+        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let context = [EditFilterSaturationKey: (value: value, range: range)]
+        toolService.adjustFilter(context)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        MessageBanner.show(title: "任务", subTitle: "饱和度调节成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float) {
-        if let composition = toolService.videoModel?.composition {
-            let range = handle(beginTime: beginTime, endTime: endTime)
-            let context = [EditFilterContrastKey: (value: value, range: range)]
-            filterService.adjust(composition, with: context)
-            playerView?.loadVideoModel(toolService.videoModel!)
-            MessageBanner.show(title: "任务", subTitle: "对比度调节成功", style: .success)
-        } else {
-            MessageBanner.show(title: "任务", subTitle: "对比度调节失败", style: .warning)
-        }
+        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let context = [EditFilterContrastKey: (value: value, range: range)]
+        toolService.adjustFilter(context)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        MessageBanner.show(title: "任务", subTitle: "对比度调节成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float) {
-        if let composition = toolService.videoModel?.composition {
-            let range = handle(beginTime: beginTime, endTime: endTime)
-            let context = [EditFilterGaussianBlurKey: (value: value, range: range)]
-            filterService.adjust(composition, with: context)
-            playerView?.loadVideoModel(toolService.videoModel!)
-            MessageBanner.show(title: "任务", subTitle: "模糊调节成功", style: .success)
-        } else {
-            MessageBanner.show(title: "任务", subTitle: "模糊调节失败", style: .warning)
-        }
+        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let context = [EditFilterGaussianBlurKey: (value: value, range: range)]
+        toolService.adjustFilter(context)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        MessageBanner.show(title: "任务", subTitle: "模糊调节成功", style: .success)
     }
     
 }
@@ -148,10 +132,6 @@ extension EditViewPresenter {
             MessageBanner.show(title: "任务", subTitle: "反转视频任务成功", style: .success)
             self.endTaskRunning()
         }
-    }
-    
-    func handle(beginTime: Double, endTime: Double) -> CMTimeRange {
-        return CMTimeRange(start: CMTime(seconds: beginTime, preferredTimescale: 600), end: CMTime(seconds: endTime, preferredTimescale: 600))
     }
     
 }
