@@ -10,4 +10,5 @@ import Foundation
 
 enum EditCommandKey {
     case rotate
+    case mirror
 }

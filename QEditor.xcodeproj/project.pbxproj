@@ -14,6 +14,7 @@
 		A015869223C02F0A0050F5B8 /* EditCommandList.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015869123C02F0A0050F5B8 /* EditCommandList.swift */; };
 		A015869423C032040050F5B8 /* EditRotateCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015869323C032040050F5B8 /* EditRotateCommand.swift */; };
 		A015869623C03AE60050F5B8 /* EditToolRotateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015869523C03AE60050F5B8 /* EditToolRotateSettingsView.swift */; };
+		A015869823C9C6430050F5B8 /* EditMirrorCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015869723C9C6430050F5B8 /* EditMirrorCommand.swift */; };
 		A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021232F2364019E0073A125 /* EditToolImageThumbView.swift */; };
 		A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212331236404090073A125 /* EditViewPresenter+Tool.swift */; };
 		A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123332364168E0073A125 /* UIImage+Utility.swift */; };
@@ -92,6 +93,7 @@
 		A015869123C02F0A0050F5B8 /* EditCommandList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCommandList.swift; sourceTree = "<group>"; };
 		A015869323C032040050F5B8 /* EditRotateCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRotateCommand.swift; sourceTree = "<group>"; };
 		A015869523C03AE60050F5B8 /* EditToolRotateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolRotateSettingsView.swift; sourceTree = "<group>"; };
+		A015869723C9C6430050F5B8 /* EditMirrorCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMirrorCommand.swift; sourceTree = "<group>"; };
 		A021232F2364019E0073A125 /* EditToolImageThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageThumbView.swift; sourceTree = "<group>"; };
 		A0212331236404090073A125 /* EditViewPresenter+Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Tool.swift"; sourceTree = "<group>"; };
 		A02123332364168E0073A125 /* UIImage+Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Utility.swift"; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 				A015868F23C02BF00050F5B8 /* EditCommand.swift */,
 				A015869123C02F0A0050F5B8 /* EditCommandList.swift */,
 				A015869323C032040050F5B8 /* EditRotateCommand.swift */,
+				A015869723C9C6430050F5B8 /* EditMirrorCommand.swift */,
 			);
 			path = Command;
 			sourceTree = "<group>";
@@ -705,6 +708,7 @@
 				A09CF7D82349E35D00139461 /* MediaPresenter.swift in Sources */,
 				A0875AB1238A244200061394 /* EditToolAudioWaveformView.swift in Sources */,
 				A015869023C02BF00050F5B8 /* EditCommand.swift in Sources */,
+				A015869823C9C6430050F5B8 /* EditMirrorCommand.swift in Sources */,
 				A0DADA0A235AD47A00BD83D7 /* EditToolImageCell.swift in Sources */,
 				A0E03C03235AA3730012F226 /* EditViewPresenter.swift in Sources */,
 				A09CF7C32349E0F900139461 /* Define.swift in Sources */,

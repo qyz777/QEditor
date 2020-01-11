@@ -58,6 +58,12 @@ extension EditViewPresenter: EditViewOutput {
             let context = EditRotateCommandContext(range: range, degress: 90)
             toolService.excute(command: .rotate, with: context)
             playerView?.loadVideoModel(toolService.videoModel!)
+        case .mirror:
+            let t = toolService.videoModel!.composition.duration
+            let range = CMTimeRange(start: .zero, end: t)
+            let context = EditMirrorCommandContext(range: range)
+            toolService.excute(command: .mirror, with: context)
+            playerView?.loadVideoModel(toolService.videoModel!)
         }
     }
     

@@ -300,7 +300,8 @@ class EditToolService {
     }
     
     private let registeredCommands: [EditCommandKey: EditCommand.Type] = [
-        .rotate: EditRotateCommand.self
+        .rotate: EditRotateCommand.self,
+        .mirror: EditMirrorCommand.self
     ]
     
 }

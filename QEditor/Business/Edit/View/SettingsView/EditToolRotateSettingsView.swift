@@ -14,12 +14,12 @@ class EditToolRotateSettingsView: UIView {
 
     init() {
         super.init(frame: .zero)
-//        addSubview(leftButton)
+        addSubview(mirrorButton)
         addSubview(rotateButton)
-//        leftButton.snp.makeConstraints { (make) in
-//            make.left.equalTo(self).offset(100)
-//            make.centerY.equalTo(self)
-//        }
+        mirrorButton.snp.makeConstraints { (make) in
+            make.left.equalTo(self).offset(100)
+            make.centerY.equalTo(self)
+        }
         rotateButton.snp.makeConstraints { (make) in
             make.right.equalTo(self).offset(-100)
             make.centerY.equalTo(self)
@@ -33,7 +33,7 @@ class EditToolRotateSettingsView: UIView {
     //MARK: Action
     @objc
     func didClickLeftButton() {
-//        selectedClosure?(.rotateLeft)
+        selectedClosure?(.mirror)
     }
     
     @objc
@@ -41,9 +41,9 @@ class EditToolRotateSettingsView: UIView {
         selectedClosure?(.rotateRight)
     }
     
-    lazy var leftButton: UIButton = {
+    lazy var mirrorButton: UIButton = {
         let view = UIButton(type: .custom)
-        view.setTitle("向左", for: .normal)
+        view.setTitle("镜像", for: .normal)
         view.setTitleColor(.white, for: .normal)
         view.addTarget(self, action: #selector(didClickLeftButton), for: .touchUpInside)
         return view

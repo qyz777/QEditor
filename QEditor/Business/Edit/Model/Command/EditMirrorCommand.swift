@@ -1,23 +1,22 @@
 //
-//  EditRotateCommand.swift
+//  EditMirrorCommand.swift
 //  QEditor
 //
-//  Created by Q YiZhong on 2020/1/4.
+//  Created by Q YiZhong on 2020/1/11.
 //  Copyright © 2020 YiZhong Qi. All rights reserved.
 //
 
 import Foundation
 import AVFoundation
 
-struct EditRotateCommandContext: EditCommandContext {
+struct EditMirrorCommandContext: EditCommandContext {
     let range: CMTimeRange
-    let degress: CGFloat
 }
 
-class EditRotateCommand: EditCommand {
+class EditMirrorCommand: EditCommand {
     
     override func perform(_ context: EditCommandContext) {
-        guard let context = context as? EditRotateCommandContext else {
+        guard let context = context as? EditMirrorCommandContext else {
             return
         }
         
@@ -25,29 +24,25 @@ class EditRotateCommand: EditCommand {
             return
         }
         
-        let t1 = videoComposition == nil ? CGAffineTransform(translationX: videoTrack.naturalSize.height, y: 0) : CGAffineTransform(translationX: videoComposition!.renderSize.height, y: 0)
-        let t2 = t1.rotated(by: context.degress.toRadians())
+        let t1 = CGAffineTransform(translationX: videoTrack.naturalSize.width, y: 0)
+        let t2 = t1.scaledBy(x: -1, y: 1)
         
         var isNeedReset = false
-        
         let instruction: AVMutableVideoCompositionInstruction
         let layerInstruction: AVMutableVideoCompositionLayerInstruction
         if videoComposition == nil {
             videoComposition = AVMutableVideoComposition()
-            videoComposition?.renderSize = CGSize(width: videoTrack.naturalSize.height, height: videoTrack.naturalSize.width)
+            videoComposition?.renderSize = videoTrack.naturalSize
             videoComposition?.frameDuration = CMTime(value: 1, timescale: 30)
             instruction = AVMutableVideoCompositionInstruction()
             instruction.timeRange = context.range
             layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
             layerInstruction.setTransform(t2, at: .zero)
         } else {
-            videoComposition?.renderSize = CGSize(width: videoComposition!.renderSize.height, height: videoComposition!.renderSize.width)
             instruction = videoComposition?.instructions.first! as! AVMutableVideoCompositionInstruction
             layerInstruction = instruction.layerInstructions.first! as! AVMutableVideoCompositionLayerInstruction
             var existingTransform: CGAffineTransform = .identity
-            //检查是否已经存在变换
             if layerInstruction.getTransformRamp(for: composition!.duration, start: &existingTransform, end: nil, timeRange: nil) {
-                //变换过就在之前的基础上再旋转
                 let t = existingTransform.concatenating(t2)
                 layerInstruction.setTransform(t, at: .zero)
                 isNeedReset = true
@@ -57,9 +52,6 @@ class EditRotateCommand: EditCommand {
             }
         }
         
-        //如果要不同timeRange旋转方向不同的话需要用不同的instruction放在
-        //videoComposition的instructions里就好
-        //暂时只支持整个composition的旋转
         instruction.layerInstructions = [layerInstruction]
         if isNeedReset {
             for i in 0..<videoComposition!.instructions.count {
@@ -71,14 +63,6 @@ class EditRotateCommand: EditCommand {
             }
         }
         videoComposition?.instructions.append(instruction)
-    }
-    
-}
-
-extension CGFloat {
-    
-    func toRadians() -> CGFloat {
-        return self / 180.0 * .pi
     }
     
 }
