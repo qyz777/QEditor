@@ -154,14 +154,15 @@ class EditToolViewController: UIViewController {
         //3.设置视频最大宽度
         videoContentWidth = contentWidth
         //4.初始化第一个最大的框选view
-        let chooseMaxWidth = videoContentWidth + 50
+        let chooseMaxWidth = videoContentWidth
         let view = EditToolChooseBoxView(with: chooseMaxWidth)
-        view.qe.left = SCREEN_WIDTH / 2 - 25
-        view.qe.width = chooseMaxWidth
-        view.qe.centerY = thumbView.qe.centerY
-        view.initializeLeft = view.qe.left
         forceChooseView = view
         contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+        view.snp.makeConstraints { (make) in
+            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
+            make.size.equalTo(CGSize(width: chooseMaxWidth, height: EDIT_THUMB_CELL_SIZE))
+            make.centerY.equalTo(self.thumbView.snp.centerY)
+        }
         let info = EditToolPartInfo()
         info.chooseView = view
         info.beginTime = 0
@@ -183,16 +184,19 @@ class EditToolViewController: UIViewController {
         var lastInfo: EditToolSplitInfo?
         splitInfos.forEach { [unowned self] (info) in
             let view = EditToolChooseBoxView(with: info.point.x - CONTAINER_PADDING_LEFT)
-            if lastInfo == nil {
-                view.qe.left = CONTAINER_PADDING_LEFT - 25
-                view.qe.width = (info.point.x - CONTAINER_PADDING_LEFT) + 50
-            } else {
-                view.qe.left = lastInfo!.point.x - 25
-                view.qe.width = (info.point.x - lastInfo!.point.x) + 50
-            }
-            view.qe.centerY = thumbView.qe.centerY
             view.initializeLeft = view.qe.left
             self.contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+            view.snp.makeConstraints { (make) in
+                if lastInfo == nil {
+                    make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
+                    make.width.equalTo(info.point.x - CONTAINER_PADDING_LEFT)
+                } else {
+                    make.left.equalTo(self.contentView).offset(lastInfo!.point.x)
+                    make.width.equalTo(info.point.x - lastInfo!.point.x)
+                }
+                make.centerY.equalTo(self.thumbView.snp.centerY)
+                make.height.equalTo(EDIT_THUMB_CELL_SIZE)
+            }
             let partInfo = EditToolPartInfo()
             partInfo.chooseView = view
             partInfo.beginTime = lastInfo?.videoPoint ?? 0
@@ -204,11 +208,14 @@ class EditToolViewController: UIViewController {
         }
         
         let view = EditToolChooseBoxView(with: lastInfo!.point.x - CONTAINER_PADDING_LEFT)
-        view.qe.left = lastInfo!.point.x - 25
-        view.qe.width = (containerView.contentSize.width - CONTAINER_PADDING_LEFT - lastInfo!.point.x) + 50
-        view.qe.centerY = thumbView.qe.centerY
         view.initializeLeft = view.qe.left
         contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+        view.snp.makeConstraints { (make) in
+            make.left.equalTo(self.contentView).offset(lastInfo!.point.x)
+            make.width.equalTo(containerView.contentSize.width - CONTAINER_PADDING_LEFT - lastInfo!.point.x)
+            make.centerY.equalTo(self.thumbView.snp.centerY)
+            make.height.equalTo(EDIT_THUMB_CELL_SIZE)
+        }
         let partInfo = EditToolPartInfo()
         partInfo.chooseView = view
         partInfo.beginTime = lastInfo?.videoPoint ?? 0
