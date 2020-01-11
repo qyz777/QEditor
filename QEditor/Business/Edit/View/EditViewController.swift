@@ -13,6 +13,7 @@ fileprivate let SETTING_HEIGHT: CGFloat = 110
 enum EditSettingType {
     case cut
     case adjust
+    case direction
 }
 
 class EditViewController: UIViewController {

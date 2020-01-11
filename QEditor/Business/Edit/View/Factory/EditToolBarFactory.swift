@@ -14,5 +14,7 @@ func settingsViewFactoryFor(type: EditSettingType) -> (UIView & EditToolSettings
         return EditToolCutSettingsView()
     case .adjust:
         return EditToolAdjustSettingsView()
+    case .direction:
+        return EditToolRotateSettingsView()
     }
 }

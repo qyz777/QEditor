@@ -52,6 +52,12 @@ extension EditViewPresenter: EditViewOutput {
         case .gaussianBlur:
             let info = AdjustProgressViewInfo(startValue: 0, endValue: 20, currentValue: toolService.filterService.gaussianBlur)
             toolView?.showChangeGaussianBlurView(info)
+        case .rotateRight:
+            let t = toolService.videoModel!.composition.duration
+            let range = CMTimeRange(start: .zero, end: t)
+            let context = EditRotateCommandContext(range: range, degress: 90)
+            toolService.excute(command: .rotate, with: context)
+            playerView?.loadVideoModel(toolService.videoModel!)
         }
     }
     

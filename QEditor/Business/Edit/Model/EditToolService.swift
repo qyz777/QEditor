@@ -39,6 +39,23 @@ class EditToolService {
         return times
     }
     
+    //MARK: Command
+    public func excute(command: EditCommandKey, with context: EditCommandContext) {
+        guard let type = registeredCommands[command] else {
+            QELog("command unregistered!")
+            return
+        }
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        let com = type.init()
+        com.composition = composition
+        com.videoComposition = videoComposition
+        com.perform(context)
+        videoModel?.composition = com.composition!
+        videoComposition = com.videoComposition
+    }
+    
     //MARK: Filter
     public func adjustFilter(_ context: [String: (value: Float, range: CMTimeRange)]) {
         guard let composition = videoModel?.composition else {
@@ -281,5 +298,9 @@ class EditToolService {
         }
         return res
     }
+    
+    private let registeredCommands: [EditCommandKey: EditCommand.Type] = [
+        .rotate: EditRotateCommand.self
+    ]
     
 }

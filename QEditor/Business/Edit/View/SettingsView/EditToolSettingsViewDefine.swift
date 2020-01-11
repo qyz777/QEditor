@@ -17,6 +17,7 @@ enum EditSettingAction {
     case saturation
     case contrast
     case gaussianBlur
+    case rotateRight
 }
 
 protocol EditToolSettingsViewProtocol {

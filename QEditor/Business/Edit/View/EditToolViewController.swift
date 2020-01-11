@@ -371,6 +371,8 @@ class EditToolViewController: UIViewController {
                 self.presenter.toolView(self, shouldShowSettingsFor: .cut)
             case 1:
                 self.presenter.toolView(self, shouldShowSettingsFor: .adjust)
+            case 2:
+                self.presenter.toolView(self, shouldShowSettingsFor: .direction)
             default:
                 break
             }

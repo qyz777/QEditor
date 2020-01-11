@@ -65,7 +65,7 @@ class EditToolBar: UICollectionView {
 extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -76,6 +76,9 @@ extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
         } else if indexPath.item == 1 {
             cell.imageView.image = UIImage(named: "edit_adjust")
             cell.label.text = "调整"
+        } else if indexPath.item == 2 {
+            cell.imageView.image = UIImage(named: "edit_rotate")
+            cell.label.text = "方向"
         }
         return cell
     }
