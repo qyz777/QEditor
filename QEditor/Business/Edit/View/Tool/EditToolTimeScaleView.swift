@@ -10,6 +10,57 @@ import UIKit
 
 fileprivate let CELL_IDENTIFIER = "EditToolTimeScaleCell"
 
+fileprivate class EditToolTimeScaleCell: UICollectionViewCell {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(leftVView)
+        contentView.addSubview(rightVView)
+        contentView.addSubview(contentLabel)
+        
+        leftVView.snp.makeConstraints { (make) in
+            make.left.top.bottom.equalTo(self.contentView)
+            make.width.equalTo(2)
+        }
+        
+        rightVView.snp.makeConstraints { (make) in
+            make.right.top.bottom.equalTo(self.contentView)
+            make.width.equalTo(2)
+        }
+        
+        contentLabel.snp.makeConstraints { (make) in
+            make.center.equalTo(self.contentView)
+        }
+
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    lazy var leftVView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 1
+        return view
+    }()
+    
+    lazy var rightVView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 1
+        return view
+    }()
+    
+    lazy var contentLabel: UILabel = {
+        let view = UILabel()
+        view.textColor = .white
+        view.font = UIFont.qe.HelveticaBold(size: 12)
+        return view
+    }()
+    
+}
+
 class EditToolTimeScaleView: UICollectionView {
     
     public var itemCountClosure: (() -> Int)?

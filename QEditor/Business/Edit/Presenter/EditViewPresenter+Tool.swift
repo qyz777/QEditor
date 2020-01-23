@@ -57,10 +57,6 @@ extension EditViewPresenter: EditToolViewOutput {
         }
     }
     
-    func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType) {
-        view?.showSettings(for: type)
-    }
-    
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel]) {
         //todo:先只能处理视频了
         guard videos.count > 0 else {
@@ -76,7 +72,6 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float) {
         beginTaskRunning()
         toolService.changeSpeed(at: segment, scale: scale)
-        view?.hiddenSettings()
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "变速视频成功", style: .success)
         endTaskRunning()
@@ -112,6 +107,17 @@ extension EditViewPresenter: EditToolViewOutput {
         toolService.adjustFilter(context)
         playerView?.loadVideoModel(toolService.videoModel!)
         MessageBanner.show(title: "任务", subTitle: "模糊调节成功", style: .success)
+    }
+    
+    func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
+        let time = toolView.currentCursorTime()
+        toolService.splitVideoAt(time: time)
+        toolView.refreshView(toolService.segments)
+    }
+    
+    func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
+        MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
+        shouldReverseVideo()
     }
     
 }

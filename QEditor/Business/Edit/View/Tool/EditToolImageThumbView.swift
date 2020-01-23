@@ -20,6 +20,28 @@ let EDIT_THUMB_CELL_SIZE: CGFloat = 80
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 
+fileprivate class EditToolImageCell: UICollectionViewCell {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(imageView)
+        imageView.snp.makeConstraints { (make) in
+            make.edges.equalTo(self.contentView)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    lazy var imageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        return view
+    }()
+    
+}
+
 class EditToolImageThumbView: UICollectionView {
     
     public var itemCountClosure: (() -> Int)?

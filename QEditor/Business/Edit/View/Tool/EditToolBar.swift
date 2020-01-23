@@ -8,6 +8,19 @@
 
 import UIKit
 
+enum EditToolBarAction {
+    case split
+    case delete
+    case changeSpeed
+    case reverse
+}
+
+struct EditToolBarModel {
+    let action: EditToolBarAction
+    let imageName: String
+    let text: String
+}
+
 fileprivate let CELL_IDENTIFIER = "EditToolBarCell"
 
 class EditToolBarCell: UICollectionViewCell {
@@ -31,6 +44,11 @@ class EditToolBarCell: UICollectionViewCell {
         super.init(coder: coder)
     }
     
+    public func update(_ model: EditToolBarModel) {
+        imageView.image = UIImage(named: model.imageName)
+        label.text = model.text
+    }
+    
     lazy var imageView: UIImageView = {
         let view = UIImageView()
         return view
@@ -47,10 +65,14 @@ class EditToolBarCell: UICollectionViewCell {
 
 class EditToolBar: UICollectionView {
     
-    public var selectedClosure: ((_ index: Int) -> Void)?
+    public var selectedClosure: ((_ model: EditToolBarModel) -> Void)?
+    
+    private var models: [EditToolBarModel] = []
 
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
+        showsVerticalScrollIndicator = false
+        showsHorizontalScrollIndicator = false
         delegate = self
         dataSource = self
         register(EditToolBarCell.self, forCellWithReuseIdentifier: CELL_IDENTIFIER)
@@ -59,32 +81,28 @@ class EditToolBar: UICollectionView {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
+    
+    public func update(_ models: [EditToolBarModel]) {
+        self.models = models
+        reloadData()
+    }
 
 }
 
 extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return models.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CELL_IDENTIFIER, for: indexPath) as! EditToolBarCell
-        if indexPath.item == 0 {
-            cell.imageView.image = UIImage(named: "edit_clip")
-            cell.label.text = "剪辑"
-        } else if indexPath.item == 1 {
-            cell.imageView.image = UIImage(named: "edit_adjust")
-            cell.label.text = "调整"
-        } else if indexPath.item == 2 {
-            cell.imageView.image = UIImage(named: "edit_rotate")
-            cell.label.text = "方向"
-        }
+        cell.update(models[indexPath.item])
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedClosure?(indexPath.item)
+        selectedClosure?(models[indexPath.item])
     }
     
 }

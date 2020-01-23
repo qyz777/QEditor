@@ -51,12 +51,21 @@ class EditToolViewController: UIViewController {
     /// 当前锁定的选择框
     private weak var forceChooseView: EditToolChooseBoxView?
     
+    private var toolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .split, imageName: "edit_split", text: "分割"),
+        EditToolBarModel(action: .delete, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .changeSpeed, imageName: "edit_speed", text: "变速"),
+        EditToolBarModel(action: .reverse, imageName: "edit_reverse", text: "倒放"),
+    ]
+    
+    private var tabSelectedType: EditToolTabSelectedType = .edit
+    
     //MARK: Override
 
     override func viewDidLoad() {
         super.viewDidLoad()
         initView()
-        toolBarView.reloadData()
+        updateToolBar()
         
         NotificationCenter.default.addObserver(self, selector: #selector(shouldHiddenSplitViews(_:)), name: ChooseBoxDidShowNotification, object: nil)
         
@@ -73,8 +82,11 @@ class EditToolViewController: UIViewController {
         view.backgroundColor = .black
         view.addSubview(containerView)
         view.addSubview(verticalTimeLineView)
-        view.addSubview(toolBarView)
+        view.addSubview(operationContainerView)
         view.addSubview(addButton)
+        view.addSubview(loadingView)
+        operationContainerView.addSubview(tabView)
+        operationContainerView.addSubview(toolBarView)
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
         contentView.addSubview(waveformView)
@@ -82,18 +94,29 @@ class EditToolViewController: UIViewController {
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
-            make.bottom.equalTo(self.toolBarView.snp.top)
+            make.bottom.equalTo(self.operationContainerView.snp.top)
+        }
+        
+        operationContainerView.snp.makeConstraints { (make) in
+            make.bottom.left.right.equalTo(self.view)
+            make.height.equalTo(100)
+        }
+        
+        tabView.snp.makeConstraints { (make) in
+            make.left.right.bottom.equalTo(self.operationContainerView)
+            make.height.equalTo(40)
+        }
+        
+        toolBarView.snp.makeConstraints { (make) in
+            make.left.right.equalTo(self.operationContainerView)
+            make.bottom.equalTo(self.tabView.snp.top)
+            make.height.equalTo(60)
         }
         
         verticalTimeLineView.snp.makeConstraints { (make) in
             make.center.equalTo(self.containerView)
             make.width.equalTo(4)
             make.height.equalTo(SCREEN_WIDTH / 3)
-        }
-        
-        toolBarView.snp.makeConstraints { (make) in
-            make.left.right.bottom.equalTo(self.view)
-            make.height.equalTo(50)
         }
         
         contentView.snp.makeConstraints { (make) in
@@ -128,11 +151,16 @@ class EditToolViewController: UIViewController {
             make.centerY.equalTo(self.containerView)
             make.size.equalTo(CGSize(width: 40, height: 40))
         }
+        
+        loadingView.snp.makeConstraints { (make) in
+            make.edges.equalTo(self.view)
+        }
     }
     
     private func refreshContainerView(_ segments: [EditCompositionSegment]) {
         //1.清除
         clearViewsAndInfos()
+        loadingView.dismiss()
         //2.更新容器view的contentSize
         let itemCount = presenter.toolImageThumbViewItemsCount(self)
         //视频最大滑动宽度
@@ -149,8 +177,12 @@ class EditToolViewController: UIViewController {
         //4.刷新选择框
         var left = SCREEN_WIDTH / 2
         var i = 0
+        var resetVideoContentWidth = videoContentWidth
         for segment in segments {
-            let chooseWidth = CGFloat(segment.duration) * EDIT_THUMB_CELL_SIZE
+            //处理一下边界case
+            var chooseWidth = CGFloat(segment.duration) * EDIT_THUMB_CELL_SIZE
+            chooseWidth = resetVideoContentWidth < chooseWidth ? resetVideoContentWidth : chooseWidth
+            resetVideoContentWidth -= chooseWidth
             let view = EditToolChooseBoxView(with: chooseWidth)
             view.segment = segment
             forceChooseView = view
@@ -202,6 +234,30 @@ class EditToolViewController: UIViewController {
             make.height.equalTo(40)
         }
         return progressView
+    }
+    
+    private func updateToolBar() {
+        switch tabSelectedType {
+        case .edit:
+            toolBarView.update(toolBarModels)
+        case .music:
+            //音乐暂时先不做
+            break
+        }
+    }
+    
+    private func pushChangeSpeedView() {
+        let vc = EditToolChangeSpeedViewController()
+        vc.closure = { [unowned self] (progress) in
+            guard let forceChooseView = self.forceChooseView else {
+                return
+            }
+            guard let segment = forceChooseView.segment else {
+                return
+            }
+            self.presenter.toolView(self, didChangeSpeedAt: segment, of: progress)
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     //MARK: Action
@@ -324,20 +380,21 @@ class EditToolViewController: UIViewController {
     lazy var toolBarView: EditToolBar = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 15
-        layout.itemSize = .init(width: 40, height: 50)
+        layout.minimumLineSpacing = 30
+        layout.itemSize = .init(width: 40, height: 60)
         let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
-        view.selectedClosure = { [unowned self] (_ index: Int) in
-            switch index {
-            case 0:
-                self.presenter.toolView(self, shouldShowSettingsFor: .cut)
-            case 1:
-                self.presenter.toolView(self, shouldShowSettingsFor: .adjust)
-            case 2:
-                self.presenter.toolView(self, shouldShowSettingsFor: .direction)
-            default:
-                break
+        view.contentInset = .init(top: 0, left: 30, bottom: 0, right: 30)
+        view.selectedClosure = { [unowned self] (model) in
+            switch model.action {
+            case .split:
+                self.presenter.toolViewShouldSplitVideo(self)
+            case .delete:
+                self.deletePart()
+            case .changeSpeed:
+                self.pushChangeSpeedView()
+            case .reverse:
+                self.loadingView.show()
+                self.presenter.toolViewShouldReverseVideo(self)
             }
         }
         return view
@@ -351,6 +408,25 @@ class EditToolViewController: UIViewController {
         view.addTarget(self, action: #selector(didClickAddButton), for: .touchUpInside)
         return view
     }()
+    
+    lazy var operationContainerView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    lazy var tabView: EditToolTabView = {
+        let view = EditToolTabView(frame: .zero)
+        view.selectedClosure = { [unowned self] (type) in
+            self.tabSelectedType = type
+        }
+        return view
+    }()
+    
+    lazy var loadingView: EditToolSettingLoadingView = {
+        let view = EditToolSettingLoadingView(frame: .zero)
+        view.isHidden = true
+        return view
+    }()
 
 }
 
@@ -360,25 +436,6 @@ extension EditToolViewController: EditToolViewInput {
     func refreshWaveFormView(with box: [[CGFloat]]) {
         waveformView.contentSize = .init(width: thumbView.contentSize.width, height: 0)
         waveformView.update(box)
-    }
-    
-    func toolBarShouldHidden() {
-        UIView.animate(withDuration: 0.25) {
-            self.toolBarView.alpha = 0
-        }
-    }
-    
-    func toolBarShouldShow() {
-        //清除工具view
-        view.subviews.forEach {
-            if $0.isKind(of: EditToolChangeSpeedView.self) ||
-                $0.isKind(of: EditToolAdjustProgressView.self) {
-                $0.removeFromSuperview()
-            }
-        }
-        UIView.animate(withDuration: 0.25) {
-            self.toolBarView.alpha = 1
-        }
     }
     
     func currentCursorTime() -> Double {
@@ -402,29 +459,6 @@ extension EditToolViewController: EditToolViewInput {
         }
         //3.抛给presenter删除
         presenter.toolView(self, delete: deleteSegment!)
-    }
-    
-    func showChangeSpeedView() {
-        guard !view.subviews.contains(where: { (v) -> Bool in
-            return v.isKind(of: EditToolChangeSpeedView.self)
-        }) else {
-            return
-        }
-        let changeSpeedView = EditToolChangeSpeedView()
-        changeSpeedView.closure = { [unowned self] (progress) in
-            guard let forceChooseView = self.forceChooseView else {
-                return
-            }
-            guard let segment = forceChooseView.segment else {
-                return
-            }
-            self.presenter.toolView(self, didChangeSpeedAt: segment, of: progress)
-        }
-        view.addSubview(changeSpeedView)
-        changeSpeedView.snp.makeConstraints { (make) in
-            make.left.bottom.right.equalTo(self.view)
-            make.height.equalTo(40)
-        }
     }
     
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {

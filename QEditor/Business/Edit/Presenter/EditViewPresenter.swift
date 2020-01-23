@@ -47,7 +47,6 @@ class EditViewPresenter {
     }
     
     func beginTaskRunning() {
-        view?.taskWillBegin()
         isTaskRunning = true
     }
     
@@ -56,7 +55,6 @@ class EditViewPresenter {
         if isTaskRunning {
             DispatchQueue.main.async {
                 self.isTaskRunning = false
-                self.view?.taskDidComplete()
             }
         }
     }

@@ -13,17 +13,11 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func refreshWaveFormView(with box: [[CGFloat]])
     
-    func toolBarShouldHidden()
-    
-    func toolBarShouldShow()
-    
     func deletePart()
     
     func reloadView(_ segments: [EditCompositionSegment])
     
     func refreshView(_ segments: [EditCompositionSegment])
-    
-    func showChangeSpeedView()
     
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
     
@@ -65,8 +59,6 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
     
-    func toolView(_ toolView: EditToolViewInput, shouldShowSettingsFor type: EditSettingType)
-    
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float)
@@ -78,5 +70,9 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float)
     
     func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float)
+    
+    func toolViewShouldSplitVideo(_ toolView: EditToolViewInput)
+    
+    func toolViewShouldReverseVideo(_ toolView: EditToolViewInput)
     
 }
