@@ -18,8 +18,8 @@ enum EditSettingType {
 
 class EditViewController: UIViewController {
     
-    static func buildView(with model: MediaVideoModel) -> EditViewController {
-        let vc = EditViewController(with: model)
+    static func buildView(with urls: [URL]) -> EditViewController {
+        let vc = EditViewController(with: urls)
         let p = EditViewPresenter()
         vc.presenter = p
         vc.editPlayer.presenter = p
@@ -32,13 +32,13 @@ class EditViewController: UIViewController {
     
     public var presenter: EditViewOutput!
     
-    private var sourceModel: MediaVideoModel?
+    private var sourceUrls: [URL] = []
     
     private var isShowSettings = false
     
-    init(with videoModel: MediaVideoModel) {
+    init(with urls: [URL]) {
         super.init(nibName: nil, bundle: nil)
-        sourceModel = videoModel
+        sourceUrls = urls
     }
     
     required init?(coder: NSCoder) {
@@ -49,9 +49,7 @@ class EditViewController: UIViewController {
         super.viewDidLoad()
         initView()
         
-        if sourceModel != nil {
-            presenter.view(self, didLoadMediaVideo: sourceModel!)
-        }
+        presenter.view(self, didLoadSource: sourceUrls)
     }
     
     override var prefersStatusBarHidden: Bool {

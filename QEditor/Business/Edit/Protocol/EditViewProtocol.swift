@@ -22,7 +22,7 @@ protocol EditViewInput {
 
 protocol EditViewOutput: class {
     
-    func view(_ view: EditViewInput, didLoadMediaVideo model: MediaVideoModel)
+    func view(_ view: EditViewInput, didLoadSource urls: [URL])
     
     func viewWillShowSettings(_ view: EditViewInput)
     

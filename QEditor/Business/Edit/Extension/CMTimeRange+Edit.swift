@@ -15,4 +15,8 @@ extension CMTimeRange {
         self.init(start: CMTime(seconds: beginTime, preferredTimescale: 600), end: CMTime(seconds: endTime, preferredTimescale: 600))
     }
     
+    var description: String {
+        return "\(start.seconds) -> \(end.seconds)"
+    }
+    
 }

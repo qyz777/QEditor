@@ -11,12 +11,14 @@ import AVFoundation
 
 extension EditViewPresenter: EditViewOutput {
     
-    func view(_ view: EditViewInput, didLoadMediaVideo model: MediaVideoModel) {
+    func view(_ view: EditViewInput, didLoadSource urls: [URL]) {
         //交给Service处理成model
-        let asset = AVURLAsset(url: model.url!)
-        toolService.generateVideoModel(from: [asset])
-        toolView?.updateDuration(asset.duration.seconds)
-        playerView?.updateDuration(asset.duration.seconds)
+        let segments = urls.map { (url) -> EditCompositionSegment in
+            return EditCompositionSegment(url: url)
+        }
+        toolService.addVideos(from: segments)
+        toolView?.updateDuration(toolService.videoModel!.composition.duration.seconds)
+        playerView?.updateDuration(toolService.videoModel!.composition.duration.seconds)
         //刷新视图
         refreshView()
     }
@@ -32,7 +34,11 @@ extension EditViewPresenter: EditViewOutput {
     func view(_ view: EditViewInput, didSelectedSetting action: EditSettingAction) {
         switch action {
         case .split:
-            toolView?.split()
+            guard let time = toolView?.currentCursorTime() else {
+                return
+            }
+            toolService.splitVideoAt(time: time)
+            toolView?.refreshView(toolService.segments)
         case .delete:
             toolView?.deletePart()
         case .changeSpeed:

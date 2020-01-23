@@ -37,8 +37,10 @@ class HomeViewController: UIViewController {
     }
     
     private func handleVideos(_ videos: [MediaVideoModel]) {
-        let video = videos.first!
-        let vc = EditViewController.buildView(with: video)
+        let urls = videos.map { (model) -> URL in
+            return model.url!
+        }
+        let vc = EditViewController.buildView(with: urls)
         let nav = NavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true, completion: nil)

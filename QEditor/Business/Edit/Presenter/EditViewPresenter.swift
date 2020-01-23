@@ -41,8 +41,9 @@ class EditViewPresenter {
         //2.对外发送加载成功的消息
         playerView?.loadVideoModel(toolService.videoModel!)
         toolView?.loadVideoModel(toolService.videoModel!)
+        toolView?.loadAsset(toolService.imageSourceComposition!)
         //3.刷新工具栏
-        toolView?.reloadView()
+        toolView?.reloadView(toolService.segments)
     }
     
     func beginTaskRunning() {

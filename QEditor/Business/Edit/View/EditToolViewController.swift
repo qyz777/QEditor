@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 
@@ -46,9 +47,6 @@ class EditToolViewController: UIViewController {
     
     /// 分割信息模型数组
     private var splitInfos: [EditToolSplitInfo] = []
-    
-    /// 分割部分信息模型数组
-    private var partInfos: [EditToolPartInfo] = []
     
     /// 当前锁定的选择框
     private weak var forceChooseView: EditToolChooseBoxView?
@@ -132,8 +130,7 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    private func refreshContainerView() {
-        //todo:后续优化，添加的新片段也是一个单独的choose
+    private func refreshContainerView(_ segments: [EditCompositionSegment]) {
         //1.清除
         clearViewsAndInfos()
         //2.更新容器view的contentSize
@@ -143,86 +140,43 @@ class EditToolViewController: UIViewController {
         //容器最大滑动宽度
         let containerContentWidth = max(contentWidth + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
         containerView.contentSize = .init(width: containerContentWidth, height: 0)
-        //todo:先这么处理
-        containerView.contentOffset = .zero
-        thumbView.contentOffset = .zero
-        waveformView.contentOffset = .zero
         contentView.snp.updateConstraints { (make) in
             make.width.equalTo(containerContentWidth)
         }
         view.layoutIfNeeded()
         //3.设置视频最大宽度
         videoContentWidth = contentWidth
-        //4.初始化第一个最大的框选view
-        let chooseMaxWidth = videoContentWidth
-        let view = EditToolChooseBoxView(with: chooseMaxWidth)
-        forceChooseView = view
-        contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
-        view.snp.makeConstraints { (make) in
-            make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
-            make.size.equalTo(CGSize(width: chooseMaxWidth, height: EDIT_THUMB_CELL_SIZE))
-            make.centerY.equalTo(self.thumbView.snp.centerY)
+        //4.刷新选择框
+        var left = SCREEN_WIDTH / 2
+        var i = 0
+        for segment in segments {
+            let chooseWidth = CGFloat(segment.duration) * EDIT_THUMB_CELL_SIZE
+            let view = EditToolChooseBoxView(with: chooseWidth)
+            view.segment = segment
+            forceChooseView = view
+            contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+            view.snp.makeConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(left)
+                make.size.equalTo(CGSize(width: chooseWidth, height: EDIT_THUMB_CELL_SIZE))
+                make.centerY.equalTo(self.thumbView.snp.centerY)
+            }
+            if i + 1 < segments.count {
+                //添加分割button
+                let view = EditToolSplitView()
+                let point = CGPoint(x: left + chooseWidth, y: thumbView.qe.centerY)
+                view.center = point
+                contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
+                let info = EditToolSplitInfo()
+                info.point = point
+                info.view = view
+                info.videoPoint = segment.duration
+                splitInfos.append(info)
+            }
+            left += chooseWidth
+            i += 1
         }
-        let info = EditToolPartInfo()
-        info.chooseView = view
-        info.beginTime = 0
-        info.endTime = duration
-        info.duration = duration
-        partInfos.append(info)
-        view.info = info
         //5.准备波形图
         presenter.toolView(self, needRefreshWaveformViewWith: .init(width: containerContentWidth, height: WAVEFORM_HEIGHT))
-    }
-    
-    private func resetChooseViews() {
-        //1.删除旧的
-        partInfos.forEach { (info) in
-            info.chooseView?.removeFromSuperview()
-        }
-        partInfos.removeAll()
-        //2.增加新的
-        var lastInfo: EditToolSplitInfo?
-        splitInfos.forEach { [unowned self] (info) in
-            let view = EditToolChooseBoxView(with: info.point.x - CONTAINER_PADDING_LEFT)
-            view.initializeLeft = view.qe.left
-            self.contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
-            view.snp.makeConstraints { (make) in
-                if lastInfo == nil {
-                    make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
-                    make.width.equalTo(info.point.x - CONTAINER_PADDING_LEFT)
-                } else {
-                    make.left.equalTo(self.contentView).offset(lastInfo!.point.x)
-                    make.width.equalTo(info.point.x - lastInfo!.point.x)
-                }
-                make.centerY.equalTo(self.thumbView.snp.centerY)
-                make.height.equalTo(EDIT_THUMB_CELL_SIZE)
-            }
-            let partInfo = EditToolPartInfo()
-            partInfo.chooseView = view
-            partInfo.beginTime = lastInfo?.videoPoint ?? 0
-            partInfo.endTime = info.videoPoint
-            partInfo.duration = partInfo.endTime - partInfo.beginTime
-            self.partInfos.append(partInfo)
-            view.info = partInfo
-            lastInfo = info
-        }
-        
-        let view = EditToolChooseBoxView(with: lastInfo!.point.x - CONTAINER_PADDING_LEFT)
-        view.initializeLeft = view.qe.left
-        contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
-        view.snp.makeConstraints { (make) in
-            make.left.equalTo(self.contentView).offset(lastInfo!.point.x)
-            make.width.equalTo(containerView.contentSize.width - CONTAINER_PADDING_LEFT - lastInfo!.point.x)
-            make.centerY.equalTo(self.thumbView.snp.centerY)
-            make.height.equalTo(EDIT_THUMB_CELL_SIZE)
-        }
-        let partInfo = EditToolPartInfo()
-        partInfo.chooseView = view
-        partInfo.beginTime = lastInfo?.videoPoint ?? 0
-        partInfo.endTime = duration
-        partInfo.duration = partInfo.endTime - partInfo.beginTime
-        partInfos.append(partInfo)
-        view.info = partInfo
     }
     
     private func clearViewsAndInfos() {
@@ -232,7 +186,6 @@ class EditToolViewController: UIViewController {
                 view.removeFromSuperview()
             }
         }
-        partInfos.removeAll()
         splitInfos.removeAll()
     }
     
@@ -276,12 +229,12 @@ class EditToolViewController: UIViewController {
         }
         let obj = notification.object as? EditToolChooseBoxView
         forceChooseView = obj
-        partInfos.forEach { (info) in
-            guard info.chooseView != nil else {
+        contentView.subviews.forEach {
+            guard let view = $0 as? EditToolChooseBoxView else {
                 return
             }
-            if !info.chooseView!.isEqual(obj) {
-                info.chooseView?.hidden()
+            if !view.isEqual(obj) {
+                view.hidden()
             }
         }
     }
@@ -292,8 +245,11 @@ class EditToolViewController: UIViewController {
         splitInfos.forEach { (info) in
             info.view?.isHidden = false
         }
-        partInfos.forEach { (info) in
-            info.chooseView?.hidden()
+        contentView.subviews.forEach {
+            guard let view = $0 as? EditToolChooseBoxView else {
+                return
+            }
+            view.hidden()
         }
     }
     
@@ -425,78 +381,27 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
-    func split() {
-        //[剪辑][分割]
-        //分割规则，不能分割1s以内的视频，距离左边或右边分割点1s内的都不行
-        //1.判断是否符合分割规则
-        //找到第一个比它大的点
+    func currentCursorTime() -> Double {
         let offsetX = containerView.contentOffset.x
         let totalWidth = containerView.contentSize.width
         let percent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
-        let videoPoint = Double(duration) * Double(percent)
-        var rightFlag = Int.max
-        var leftFlag = Int.min
-        for (i, info) in splitInfos.enumerated() {
-            if info.videoPoint > videoPoint {
-                rightFlag = i
-                leftFlag = i - 1
-                break
-            }
-        }
-        if rightFlag == Int.max {
-            leftFlag = splitInfos.count
-        }
-        //判断是否可以分割
-        if splitInfos.count > 0 {
-            if 0 <= rightFlag && rightFlag <= splitInfos.count - 1 {
-                let rightInfo = splitInfos[rightFlag]
-                if rightInfo.videoPoint - videoPoint <= 1 {
-                    QELog("不可以分割这么短的内容哟")
-                    return
-                }
-            }
-            if 0 <= leftFlag && leftFlag <= splitInfos.count - 1 {
-                let leftInfo = splitInfos[leftFlag]
-                if videoPoint - leftInfo.videoPoint <= 1 {
-                    QELog("不可以分割这么短的内容哟")
-                    return
-                }
-            }
-        } else {
-            if videoPoint <= 1 || videoPoint >= Double(duration) - 1 {
-                QELog("不可以分割这么短的内容哟")
-                return
-            }
-        }
-        //2.初始化分割view
-        let view = EditToolSplitView()
-        let point = CGPoint(x: containerView.contentOffset.x + CONTAINER_PADDING_LEFT, y: thumbView.qe.centerY)
-        view.center = point
-        contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
-        //3.初始化分割模型
-        let info = EditToolSplitInfo()
-        info.point = point
-        info.view = view
-        info.videoPoint = videoPoint
-        splitInfos.insert(info, at: max(0, leftFlag))
-        //4.重新设置框选view
-        resetChooseViews()
+        return duration * Double(percent)
     }
     
     func deletePart() {
         //[剪辑][删除]
         //1.校验是否有选定视频
-        guard partInfos.count > 1 else {
+        guard presenter.toolViewCanDeleteAtComposition(self) else {
             MessageBanner.show(title: "提示", subTitle: "当前只有一段视频，无法删除", style: .warning)
             return
         }
         //2.删除选定视频
-        let deleteInfo = forceChooseView!.info
-        guard deleteInfo != nil else {
+        let deleteSegment = forceChooseView!.segment
+        guard deleteSegment != nil else {
             return
         }
         //3.抛给presenter删除
-        presenter.toolView(self, deletePartFrom: deleteInfo!)
+        presenter.toolView(self, delete: deleteSegment!)
     }
     
     func showChangeSpeedView() {
@@ -510,10 +415,10 @@ extension EditToolViewController: EditToolViewInput {
             guard let forceChooseView = self.forceChooseView else {
                 return
             }
-            guard let part = forceChooseView.info else {
+            guard let segment = forceChooseView.segment else {
                 return
             }
-            self.presenter.toolView(self, didChangeSpeedFrom: part.beginTime, to: part.endTime, of: progress)
+            self.presenter.toolView(self, didChangeSpeedAt: segment, of: progress)
         }
         view.addSubview(changeSpeedView)
         changeSpeedView.snp.makeConstraints { (make) in
@@ -528,10 +433,10 @@ extension EditToolViewController: EditToolViewInput {
                 guard let forceChooseView = self.forceChooseView else {
                     return
                 }
-                guard let part = forceChooseView.info else {
+                guard let segment = forceChooseView.segment else {
                     return
                 }
-                self.presenter.toolView(self, didChangeBrightnessFrom: part.beginTime, to: part.endTime, of: progress)
+                self.presenter.toolView(self, didChangeBrightnessFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
             }
         }
     }
@@ -542,10 +447,10 @@ extension EditToolViewController: EditToolViewInput {
                 guard let forceChooseView = self.forceChooseView else {
                     return
                 }
-                guard let part = forceChooseView.info else {
+                guard let segment = forceChooseView.segment else {
                     return
                 }
-                self.presenter.toolView(self, didChangeSaturationFrom: part.beginTime, to: part.endTime, of: progress)
+                self.presenter.toolView(self, didChangeSaturationFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
             }
         }
     }
@@ -556,10 +461,10 @@ extension EditToolViewController: EditToolViewInput {
                 guard let forceChooseView = self.forceChooseView else {
                     return
                 }
-                guard let part = forceChooseView.info else {
+                guard let segment = forceChooseView.segment else {
                     return
                 }
-                self.presenter.toolView(self, didChangeContrastFrom: part.beginTime, to: part.endTime, of: progress)
+                self.presenter.toolView(self, didChangeContrastFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
             }
         }
     }
@@ -570,32 +475,34 @@ extension EditToolViewController: EditToolViewInput {
                 guard let forceChooseView = self.forceChooseView else {
                     return
                 }
-                guard let part = forceChooseView.info else {
+                guard let segment = forceChooseView.segment else {
                     return
                 }
-                self.presenter.toolView(self, didChangeGaussianBlurFrom: part.beginTime, to: part.endTime, of: progress)
+                self.presenter.toolView(self, didChangeGaussianBlurFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
             }
         }
     }
     
-    func forceVideoTimeRange() -> (start: Double, end: Double) {
-        guard let forceChooseView = self.forceChooseView else {
-            return (start: 0, end: 0)
-        }
-        guard let part = forceChooseView.info else {
-            return (start: 0, end: 0)
-        }
-        return (start: part.beginTime, end: part.endTime)
+    func forceSegment() -> EditCompositionSegment? {
+        return forceChooseView?.segment
     }
     
-    func reloadView() {
-        refreshContainerView()
+    func reloadView(_ segments: [EditCompositionSegment]) {
+        refreshContainerView(segments)
         thumbView.reloadData()
         timeScaleView.reloadData()
     }
     
+    func refreshView(_ segments: [EditCompositionSegment]) {
+        refreshContainerView(segments)
+    }
+    
     func loadVideoModel(_ model: EditVideoModel) {
-        thumbView.videoModel = model
+        
+    }
+    
+    func loadAsset(_ asset: AVAsset) {
+        thumbView.asset = asset
     }
     
     func updatePlayTime(_ time: Double) {

@@ -11,13 +11,18 @@ import AVFoundation
 
 class EditToolService {
     
-    public var videoModel: EditVideoModel?
+    public private(set) var videoModel: EditVideoModel?
     
-    public var videoComposition: AVMutableVideoComposition?
+    public private(set) var videoComposition: AVMutableVideoComposition?
+    
+    /// 供缩略图使用
+    public private(set) var imageSourceComposition: AVMutableComposition?
     
     private var reverseTool: EditToolReverseTool?
     
     public let filterService = EditFilterService()
+    
+    public private(set) var segments: [EditCompositionSegment] = []
 
     public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
@@ -64,48 +69,6 @@ class EditToolService {
         videoComposition = filterService.adjust(composition, with: context)
     }
     
-    //MARK: Change Speed
-    public func changeSpeed(for model: EditChangeScaleModel) {
-        guard videoModel != nil else {
-            return
-        }
-        let timeRange = CMTimeRange(start: CMTime(seconds: model.beginTime, preferredTimescale: CMTimeScale(600)), end: CMTime(seconds: model.endTime, preferredTimescale: CMTimeScale(600)))
-        let composition = videoModel!.composition
-        let videoTrack = composition.tracks(withMediaType: .video).first!
-        let audioTrack = composition.tracks(withMediaType: .audio).first!
-        let toDuration = CMTime(seconds: model.scaleDuration, preferredTimescale: CMTimeScale(600))
-        videoTrack.scaleTimeRange(timeRange, toDuration: toDuration)
-        audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
-    }
-    
-    //MARK: Reverse
-    public func reverseVideo(at timeRange: CMTimeRange, closure: @escaping (_ error: Error?) -> Void) {
-        guard let composition = videoModel?.composition else {
-            return
-        }
-        do {
-            reverseTool = try EditToolReverseTool(with: composition.mutableCopy() as! AVMutableComposition, at: timeRange)
-        } catch {
-            return
-        }
-        reverseTool!.completionClosure = { [unowned self] (asset, error) in
-            if let asset = asset {
-                let assetTimeRange = CMTimeRange(start: .zero, end: asset.duration)
-                do {
-                    try self.replaceTimeRange(assetTimeRange, of: asset, at: timeRange.start)
-                    closure(nil)
-                } catch {
-                    QELog("replace failed, reason: \(error.localizedDescription)")
-                    closure(error)
-                }
-            } else if let error = error {
-                closure(error)
-            }
-            self.reverseTool = nil
-        }
-        reverseTool!.reverse()
-    }
-    
     //MARK: Audio
     public func loadAudioSamples(for size: CGSize, boxCount: Int, width: CGFloat, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
@@ -143,66 +106,60 @@ class EditToolService {
         }
     }
     
-    //MARK: Add Video
-    public func addVideos(from mediaModels: [MediaVideoModel]) {
-        guard mediaModels.count > 0 && videoModel != nil else {
-            return
-        }
-        var beginTime = videoModel!.composition.duration.seconds
-        let composition = videoModel!.composition
-        let videoTrack = composition.tracks(withMediaType: .video).first!
-        let audioTrack = composition.tracks(withMediaType: .audio).first!
-        var insertPoint = composition.duration
-        mediaModels.forEach { (m) in
-            let asset = AVURLAsset(url: m.url!)
-            let endTime = beginTime + asset.duration.seconds
-            beginTime = endTime
-            
-            let range = CMTimeRange(start: .zero, end: asset.duration)
-            do {
-                try videoTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .video).first!, at: insertPoint)
-                try audioTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .audio).first!, at: insertPoint)
-            } catch {
-                QELog(error)
-            }
-            insertPoint = CMTimeAdd(insertPoint, asset.duration)
-        }
-        resetVideoModel(composition)
-    }
-    
-    //MARK: Remove Video
-    public func removeVideoTimeRange(_ range: CMTimeRange) {
-        guard videoModel != nil else {
-            return
-        }
-        let composition = videoModel!.composition
-        composition.removeTimeRange(range)
-        resetVideoModel(composition)
-    }
-    
     /// 生成partModel和videoModel
     /// 调用完此方法后所有视频model都使用videoModel
-    public func generateVideoModel(from assets: [AVAsset]) {
+    public func generateVideoModel(from segments: [EditCompositionSegment]) {
+        guard segments.count > 0 else {
+            return
+        }
         let composition = AVMutableComposition()
+        imageSourceComposition = AVMutableComposition()
         let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let videoTrackA = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         
-        var insertPoint: CMTime = .zero
-        assets.forEach { (asset) in
-            //修改方向
-            let videoSourveTrack = asset.tracks(withMediaType: .video).first!
-            videoTrack.preferredTransform = videoSourveTrack.preferredTransform
-            let range = CMTimeRange(start: .zero, end: asset.duration)
+        let tracks = [videoTrackA, videoTrackB]
+        let transitionDuration = CMTime(seconds: 1, preferredTimescale: 600)
+        var cursorTime: CMTime = .zero
+        var imageCursorTime: CMTime = .zero
+
+        for i in 0..<segments.count {
+            let trackIndex = i % 2
+            let currentTrack = tracks[trackIndex]
+            let asset = segments[i].asset
+            segments[i].videoTrackId = currentTrack.trackID
+            var imageSourceRange = segments[i].timeRange
+            if i + 1 < segments.count {
+                imageSourceRange.duration -= transitionDuration
+            }
             
             do {
-                try videoTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .video).first!, at: insertPoint)
-                try audioTrack.insertTimeRange(range, of: asset.tracks(withMediaType: .audio).first!, at: insertPoint)
+                try currentTrack.insertTimeRange(segments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
+                if let sourceAudioTrack = asset.tracks(withMediaType: .audio).first {
+                    try audioTrack.insertTimeRange(segments[i].timeRange, of: sourceAudioTrack, at: cursorTime)
+                }
+                try imageSourceTrack.insertTimeRange(imageSourceRange, of: asset.tracks(withMediaType: .video).first!, at: imageCursorTime)
             } catch {
                 QELog(error)
             }
             
-            insertPoint = CMTimeAdd(insertPoint, asset.duration)
+            var timeRange = CMTimeRange(start: cursorTime, duration: segments[i].timeRange.duration)
+            if i > 0 {
+                timeRange.start += transitionDuration
+                timeRange.duration -= transitionDuration
+            }
+            if i + 1 < segments.count {
+                timeRange.duration -= transitionDuration
+            }
+            segments[i].rangeAtComposition = timeRange
+            
+            cursorTime += segments[i].timeRange.duration
+            cursorTime -= transitionDuration
+            imageCursorTime += imageSourceRange.duration
         }
+
+        videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         
         let formatTime = String.qe.formatTime(Int(composition.duration.seconds))
         videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
@@ -214,14 +171,18 @@ class EditToolService {
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
     }
     
-    private func replaceTimeRange(_ timeRange: CMTimeRange, of asset: AVAsset, at startTime: CMTime) throws {
-        guard let composition = videoModel?.composition else {
-            return
+    private func replaceSegment(_ segment: EditCompositionSegment, with asset: AVAsset) {
+        let newSegment = EditCompositionSegment(asset: asset)
+        var index = 0
+        for i in 0..<segments.count {
+            if segments[i].id == segment.id {
+                index = i
+                break
+            }
         }
-        let duration = timeRange.duration
-        let removeTimeRange = CMTimeRange(start: startTime, end: CMTimeAdd(startTime, duration))
-        composition.removeTimeRange(removeTimeRange)
-        try composition.insertTimeRange(timeRange, of: asset, at: startTime)
+        segments.remove(at: index)
+        segments.insert(newSegment, at: index)
+        generateVideoModel(from: segments)
     }
     
     private func readAudioSamples() -> Data? {
@@ -305,3 +266,197 @@ class EditToolService {
     ]
     
 }
+
+//MARK: Edit
+
+extension EditToolService {
+    
+    //MARK: Add Video
+    public func addVideos(from segments: [EditCompositionSegment]) {
+        self.segments.append(contentsOf: segments)
+        generateVideoModel(from: self.segments)
+    }
+    
+    //MARK: Remove Video
+    public func removeVideo(for segment: EditCompositionSegment) {
+        segments.removeAll { (s) -> Bool in
+            return s.id == segment.id
+        }
+        generateVideoModel(from: segments)
+    }
+    
+    //MARK: Split
+    public func splitVideoAt(time: Double) {
+        //传入了分割的时间点，需要重新处理一遍segments
+        for i in 0..<segments.count {
+            let segment = segments[i]
+            let time = CMTime(seconds: time, preferredTimescale: 600)
+            if time.between(segment.rangeAtComposition) {
+                //找到要分割的段进行分割
+                guard let url = segment.url else {
+                    QELog("没找到合适的segment进行分割")
+                    return
+                }
+                let newSegment = EditCompositionSegment(url: url)
+                newSegment.timeRange = CMTimeRange(start: time, duration: segment.asset.duration - time)
+                segment.removeAfterRangeAt(time: time)
+                segments.insert(newSegment, at: i + 1)
+                break
+            }
+        }
+        generateVideoModel(from: segments)
+    }
+    
+    //MARK: Change Speed
+    public func changeSpeed(at segment: EditCompositionSegment, scale: Float) {
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        let scaleDuration = segment.duration * Double(scale)
+        let timeRange = segment.rangeAtComposition
+        let toDuration = CMTime(seconds: scaleDuration, preferredTimescale: 600)
+        //先拉伸track
+        let videoTrack = composition.track(withTrackID: segment.videoTrackId)!
+        let audioTrack = composition.tracks(withMediaType: .audio).first!
+        videoTrack.scaleTimeRange(timeRange, toDuration: toDuration)
+        audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
+        //直接拉伸图片数据源轨道
+        imageSourceComposition!.scaleTimeRange(timeRange, toDuration: toDuration)
+        //再把数据源的range也拉伸
+        segment.rangeAtComposition.duration = toDuration
+        //重新生成videoComposition
+        videoComposition = AVMutableVideoComposition(propertiesOf: composition)
+    }
+    
+    //MARK: Reverse
+    public func reverseVideo(at segment: EditCompositionSegment, closure: @escaping (_ error: Error?) -> Void) {
+        guard let composition = videoModel?.composition else {
+            return
+        }
+        do {
+            reverseTool = try EditToolReverseTool(with: composition.mutableCopy() as! AVMutableComposition, at: segment.rangeAtComposition)
+        } catch {
+            closure(error)
+            return
+        }
+        reverseTool!.completionClosure = { [unowned self] (asset, error) in
+            if let asset = asset {
+                self.replaceSegment(segment, with: asset)
+                closure(nil)
+            } else if let error = error {
+                closure(error)
+            }
+            self.reverseTool = nil
+        }
+        reverseTool!.reverse()
+    }
+    
+}
+
+//MARK: 废弃的方法
+//    public func generateVideoModel(from segments: [EditCompositionSegment]) {
+//        guard segments.count > 0 else {
+//            return
+//        }
+//        let composition = AVMutableComposition()
+//        imageSourceComposition = AVMutableComposition()
+//        let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+//        let videoTrackA = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+//        let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+//        let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+//
+//        var passThroughTimeRanges: [CMTimeRange] = []
+//        var transitionTimeRanges: [CMTimeRange] = []
+//
+//        var maxWidth = CGFloat.zero
+//        var maxHeight = CGFloat.zero
+//
+//        let tracks = [videoTrackA, videoTrackB]
+//        let transitionDuration = CMTime(seconds: 1, preferredTimescale: 600)
+//        var cursorTime: CMTime = .zero
+//        var imageCursorTime: CMTime = .zero
+//
+//        for i in 0..<segments.count {
+//            let trackIndex = i % 2
+//            let currentTrack = tracks[trackIndex]
+//            let asset = segments[i].asset
+//            var imageSourceRange = segments[i].timeRange
+//            if i + 1 < segments.count {
+//                imageSourceRange.duration -= transitionDuration
+//            }
+//
+//            do {
+//                try currentTrack.insertTimeRange(segments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
+//                try audioTrack.insertTimeRange(segments[i].timeRange, of: asset.tracks(withMediaType: .audio).first!, at: cursorTime)
+//                try imageSourceTrack.insertTimeRange(imageSourceRange, of: asset.tracks(withMediaType: .video).first!, at: imageCursorTime)
+//            } catch {
+//                QELog(error)
+//            }
+//
+//            let videoSourveTrack = asset.tracks(withMediaType: .video).first!
+//            maxWidth = max(videoSourveTrack.naturalSize.width, maxWidth)
+//            maxHeight = max(videoSourveTrack.naturalSize.height, maxHeight)
+//
+//            var timeRange = CMTimeRange(start: cursorTime, duration: segments[i].timeRange.duration)
+//            if i > 0 {
+//                timeRange.start += transitionDuration
+//                timeRange.duration -= transitionDuration
+//            }
+//            if i + 1 < segments.count {
+//                timeRange.duration -= transitionDuration
+//            }
+//            passThroughTimeRanges.append(timeRange)
+//            segments[i].rangeAtComposition = timeRange
+//
+//            cursorTime += segments[i].timeRange.duration
+//            cursorTime -= transitionDuration
+//            imageCursorTime += imageSourceRange.duration
+//
+//            if i + 1 < segments.count {
+//                transitionTimeRanges.append(CMTimeRange(start: cursorTime, duration: transitionDuration))
+//            }
+//        }
+//
+//        var compositionInstructions: [AVMutableVideoCompositionInstruction] = []
+//        for i in 0..<segments.count {
+//            let trackIndex = i % 2
+//            let currentTrack = tracks[trackIndex]
+//            let instruction = AVMutableVideoCompositionInstruction()
+//            instruction.timeRange = passThroughTimeRanges[i]
+//            let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: currentTrack)
+//            instruction.layerInstructions = [layerInstruction]
+//            compositionInstructions.append(instruction)
+//            if i + 1 < segments.count {
+//                let foregroundTrack = tracks[trackIndex]
+//                let backgroundTrack = tracks[1 - trackIndex]
+//                let instruction = AVMutableVideoCompositionInstruction()
+//                let timeRange = transitionTimeRanges[i]
+//                instruction.timeRange = timeRange
+//                let fromLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: foregroundTrack)
+//                let toLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: backgroundTrack)
+//                //todo:暂时设一个溶解效果
+//                toLayerInstruction.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0, timeRange: timeRange)
+//                instruction.layerInstructions = [fromLayerInstruction, toLayerInstruction]
+//                compositionInstructions.append(instruction)
+//            }
+//        }
+//
+//        var lastTimeDuration = CMTime.zero
+//        for i in 0..<segments.count {
+//            if i < segments.count - 1 {
+//                lastTimeDuration += transitionDuration
+//            }
+//        }
+//
+//        let instruction = AVMutableVideoCompositionInstruction()
+//        instruction.timeRange = CMTimeRange(start: cursorTime + transitionDuration, duration: lastTimeDuration)
+//        compositionInstructions.append(instruction)
+//
+//        videoComposition = AVMutableVideoComposition()
+//        videoComposition?.instructions = compositionInstructions
+//        videoComposition?.renderSize = CGSize(width: maxWidth, height: maxHeight)
+//        videoComposition?.frameDuration = CMTime(value: 1, timescale: 30)
+//
+//        let formatTime = String.qe.formatTime(Int(composition.duration.seconds))
+//        videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
+//    }

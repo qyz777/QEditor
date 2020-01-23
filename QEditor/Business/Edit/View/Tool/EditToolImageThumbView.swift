@@ -44,12 +44,12 @@ class EditToolImageThumbView: UICollectionView {
         }
     }
     
-    public var videoModel: EditVideoModel? {
+    public var asset: AVAsset? {
         willSet {
             guard newValue != nil else {
                 return
             }
-            generator = AVAssetImageGenerator(asset: newValue!.composition)
+            generator = AVAssetImageGenerator(asset: newValue!)
             generator!.requestedTimeToleranceAfter = .zero
             generator!.requestedTimeToleranceBefore = .zero
             //防止获取的图片旋转

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AVFoundation
 
 protocol EditToolViewInput: EditViewPlayProtocol {
     
@@ -16,11 +17,11 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func toolBarShouldShow()
     
-    func split()
-    
     func deletePart()
     
-    func reloadView()
+    func reloadView(_ segments: [EditCompositionSegment])
+    
+    func refreshView(_ segments: [EditCompositionSegment])
     
     func showChangeSpeedView()
     
@@ -32,11 +33,18 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo)
     
-    func forceVideoTimeRange() -> (start: Double, end: Double)
+    func forceSegment() -> EditCompositionSegment?
+    
+    /// 当前标尺所指的视频位置
+    func currentCursorTime() -> Double
+    
+    func loadAsset(_ asset: AVAsset)
     
 }
 
 protocol EditToolViewOutput: class {
+    
+    func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
     
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int
     
@@ -53,7 +61,7 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
     
-    func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo)
+    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionSegment)
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
     
@@ -61,7 +69,7 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float)
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float)
     

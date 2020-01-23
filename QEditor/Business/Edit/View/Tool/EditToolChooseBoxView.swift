@@ -25,7 +25,7 @@ class EditToolChooseBoxView: UIView {
     
     public var isForce = false
     
-    public weak var info: EditToolPartInfo?
+    public var segment: EditCompositionSegment?
 
     init(with maxWidth: CGFloat) {
         super.init(frame: .init(x: 0, y: 0, width: CHOOSE_BOX_MIN_WIDTH, height: EDIT_THUMB_CELL_SIZE))

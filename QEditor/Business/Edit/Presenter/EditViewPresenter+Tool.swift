@@ -11,6 +11,10 @@ import AVFoundation
 
 extension EditViewPresenter: EditToolViewOutput {
     
+    func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool {
+        return toolService.segments.count > 1
+    }
+    
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int {
         return thumbModels.count
     }
@@ -41,9 +45,8 @@ extension EditViewPresenter: EditToolViewOutput {
         return String.qe.formatTime(Int(m.time.seconds))
     }
     
-    func toolView(_ toolView: EditToolViewInput, deletePartFrom info: EditToolPartInfo) {
-        let range = CMTimeRange(beginTime: info.beginTime, endTime: info.endTime)
-        toolService.removeVideoTimeRange(range)
+    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionSegment) {
+        toolService.removeVideo(for: segment)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
     }
@@ -63,17 +66,16 @@ extension EditViewPresenter: EditToolViewOutput {
         guard videos.count > 0 else {
             return
         }
-        toolService.addVideos(from: videos)
+        toolService.addVideos(from: videos.map({ (model) -> EditCompositionSegment in
+            return EditCompositionSegment(url: model.url!)
+        }))
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "添加成功", style: .success)
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSpeedFrom beginTime: Double, to endTime: Double, of scale: Float) {
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float) {
         beginTaskRunning()
-        let duration = endTime - beginTime
-        let scaleDuration = duration * Double(scale)
-        let model = EditChangeScaleModel(beginTime: beginTime, endTime: endTime, scaleDuration: scaleDuration)
-        toolService.changeSpeed(for: model)
+        toolService.changeSpeed(at: segment, scale: scale)
         view?.hiddenSettings()
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "变速视频成功", style: .success)
@@ -117,12 +119,11 @@ extension EditViewPresenter: EditToolViewOutput {
 extension EditViewPresenter {
     
     func shouldReverseVideo() {
-        guard let tuple = toolView?.forceVideoTimeRange() else {
+        guard let segment = toolView?.forceSegment() else {
             return
         }
         self.beginTaskRunning()
-        let timeRange = CMTimeRange(start: CMTime(seconds: tuple.0, preferredTimescale: 600), end: CMTime(seconds: tuple.1, preferredTimescale: 600))
-        toolService.reverseVideo(at: timeRange) { [unowned self] (error) in
+        toolService.reverseVideo(at: segment) { (error) in
             guard error == nil else {
                 MessageBanner.show(title: "任务", subTitle: "反转视频任务失败", style: .danger)
                 self.endTaskRunning()
