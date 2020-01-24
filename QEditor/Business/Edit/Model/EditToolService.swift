@@ -119,8 +119,10 @@ class EditToolService {
         let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         
+        //——  ——
+        //  ——  ——
+        //的方式插入到A B轨道中
         let tracks = [videoTrackA, videoTrackB]
-        let transitionDuration = CMTime(seconds: 1, preferredTimescale: 600)
         var cursorTime: CMTime = .zero
         var imageCursorTime: CMTime = .zero
 
@@ -128,6 +130,7 @@ class EditToolService {
             let trackIndex = i % 2
             let currentTrack = tracks[trackIndex]
             let asset = segments[i].asset
+            let transitionDuration = CMTime(seconds: segments[i].transition.duration, preferredTimescale: 600)
             segments[i].videoTrackId = currentTrack.trackID
             var imageSourceRange = segments[i].timeRange
             if i + 1 < segments.count {
@@ -161,11 +164,47 @@ class EditToolService {
 
         videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         
+//        for instruction in videoComposition!.instructions {
+//            let ins = instruction as! AVMutableVideoCompositionInstruction
+//            if ins.layerInstructions.count == 2 {
+//                let layer = ins.layerInstructions[0] as! AVMutableVideoCompositionLayerInstruction
+//                layer.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0, timeRange: ins.timeRange)
+//            }
+//        }
+        
+        setupTransition(segments.map({ (segment) -> EditTransitionModel in
+            return segment.transition
+        }))
+        
         let formatTime = String.qe.formatTime(Int(composition.duration.seconds))
         videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
     }
     
     //MARK: Private
+    private func setupTransition(_ transitions: [EditTransitionModel]) {
+        guard let videoComposition = videoComposition else {
+            return
+        }
+        let instructions = EditTransitionInstructionBulder.buildInstructions(videoComposition: videoComposition, transitions: transitions)
+        for instruction in instructions {
+            let timeRange = instruction.compositionInstruction.timeRange
+            let fromLayer = instruction.fromLayerInstruction
+            let toLayer = instruction.toLayerInstruction
+            switch instruction.transition.style {
+            case .none:
+                //啥也不干
+                break
+            case .fadeIn:
+                toLayer?.setOpacityRamp(fromStartOpacity: 0.0, toEndOpacity: 1.0, timeRange: timeRange)
+            case .fadeOut:
+                fromLayer?.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0, timeRange: timeRange)
+            }
+//            if fromLayer != nil && toLayer != nil {
+//                instruction.compositionInstruction.layerInstructions = [fromLayer!, toLayer!]
+//            }
+        }
+    }
+    
     private func resetVideoModel(_ composition: AVMutableComposition) {
         videoModel?.composition = composition
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
@@ -349,6 +388,16 @@ extension EditToolService {
             self.reverseTool = nil
         }
         reverseTool!.reverse()
+    }
+    
+    //MARK: Transition
+    public func addTransition(_ transition: EditTransitionModel, at index: Int) {
+        guard 0 <= index && index < segments.count else {
+            QELog("转场特效添加错误!")
+            return
+        }
+        segments[index].transition = transition
+        generateVideoModel(from: segments)
     }
     
 }

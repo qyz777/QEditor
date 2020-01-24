@@ -120,6 +120,20 @@ extension EditViewPresenter: EditToolViewOutput {
         shouldReverseVideo()
     }
     
+    func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: EditTransitionModel) {
+        toolService.addTransition(model, at: index)
+        refreshView()
+        playerView?.seek(to: toolView.currentCursorTime())
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel {
+        guard index < toolService.segments.count else {
+            QELog("通过index获取transition失败")
+            return EditTransitionModel(duration: 0, style: .none)
+        }
+        return toolService.segments[index].transition
+    }
+    
 }
 
 extension EditViewPresenter {

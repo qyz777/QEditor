@@ -12,6 +12,8 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
     
     func seek(to percent: Float)
     
+    func seek(to time: Double)
+    
     func play()
     
     func pause()

@@ -45,9 +45,6 @@ class EditToolViewController: UIViewController {
     /// 视频最大宽度，每次新增、删除视频需要重新设置这个属性
     private var videoContentWidth: CGFloat = 0
     
-    /// 分割信息模型数组
-    private var splitInfos: [EditToolSplitInfo] = []
-    
     /// 当前锁定的选择框
     private weak var forceChooseView: EditToolChooseBoxView?
     
@@ -194,15 +191,15 @@ class EditToolViewController: UIViewController {
             }
             if i + 1 < segments.count {
                 //添加分割button
-                let view = EditToolSplitView()
-                let point = CGPoint(x: left + chooseWidth, y: thumbView.qe.centerY)
-                view.center = point
+                let view = EditToolSplitButton()
+                view.addTarget(self, action: #selector(splitButtonDidClick(_:)), for: .touchUpInside)
+                view.index = i
                 contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
-                let info = EditToolSplitInfo()
-                info.point = point
-                info.view = view
-                info.videoPoint = segment.duration
-                splitInfos.append(info)
+                view.snp.makeConstraints { (make) in
+                    make.centerY.equalTo(self.thumbView.snp.centerY)
+                    make.centerX.equalTo(self.contentView.snp.left).offset(left + chooseWidth)
+                    make.size.equalTo(CGSize(width: 30, height: 30))
+                }
             }
             left += chooseWidth
             i += 1
@@ -214,11 +211,10 @@ class EditToolViewController: UIViewController {
     private func clearViewsAndInfos() {
         contentView.subviews.forEach { (view) in
             if view.isKind(of: EditToolChooseBoxView.self) ||
-                view.isKind(of: EditToolSplitView.self) {
+                view.isKind(of: EditToolSplitButton.self) {
                 view.removeFromSuperview()
             }
         }
-        splitInfos.removeAll()
     }
     
     private func showAdjustView(_ info: AdjustProgressViewInfo) -> EditToolAdjustProgressView? {
@@ -277,11 +273,23 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
+    @objc
+    func splitButtonDidClick(_ button: EditToolSplitButton) {
+        let vc = EditToolTransformViewController()
+        vc.currentTransition = presenter.toolView(self, transitionAt: button.index)
+        vc.selectedClosure = { [unowned self] (model) in
+            self.presenter.toolView(self, didSelectedSplit: button.index, withTransition: model)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     //MARK: Notification
     @objc
     func shouldHiddenSplitViews(_ notification: Notification) {
-        splitInfos.forEach { (info) in
-            info.view?.isHidden = true
+        contentView.subviews.forEach {
+            if $0.isKind(of: EditToolSplitButton.self) {
+                $0.isHidden = true
+            }
         }
         let obj = notification.object as? EditToolChooseBoxView
         forceChooseView = obj
@@ -298,8 +306,10 @@ class EditToolViewController: UIViewController {
     @objc
     func shouldShowSplitViews(_ notification: Notification) {
         forceChooseView = nil
-        splitInfos.forEach { (info) in
-            info.view?.isHidden = false
+        contentView.subviews.forEach {
+            if $0.isKind(of: EditToolSplitButton.self) {
+                $0.isHidden = false
+            }
         }
         contentView.subviews.forEach {
             guard let view = $0 as? EditToolChooseBoxView else {
@@ -311,7 +321,7 @@ class EditToolViewController: UIViewController {
     
     //MARK: Getter
     
-    lazy var containerView: UIScrollView = {
+    private lazy var containerView: UIScrollView = {
         let view = UIScrollView()
         view.showsHorizontalScrollIndicator = false
         view.contentSize = .init(width: MIN_SCROLL_WIDTH, height: 0)
@@ -319,19 +329,19 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var contentView: UIView = {
-        let view = UIView()
+    private lazy var contentView: EditToolContentView = {
+        let view = EditToolContentView()
         return view
     }()
     
-    lazy var verticalTimeLineView: UIView = {
+    private lazy var verticalTimeLineView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
         view.layer.cornerRadius = 2
         return view
     }()
     
-    lazy var thumbView: EditToolImageThumbView = {
+    private lazy var thumbView: EditToolImageThumbView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
@@ -348,7 +358,7 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var waveformView: EditToolAudioWaveFormView = {
+    private lazy var waveformView: EditToolAudioWaveFormView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
@@ -360,7 +370,7 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var timeScaleView: EditToolTimeScaleView = {
+    private lazy var timeScaleView: EditToolTimeScaleView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
@@ -377,11 +387,12 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var toolBarView: EditToolBar = {
+    private lazy var toolBarView: EditToolBar = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 30
-        layout.itemSize = .init(width: 40, height: 60)
+        let width = (SCREEN_WIDTH - 60 - 30 * 3) / 4
+        layout.itemSize = .init(width: width, height: 60)
         let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
         view.contentInset = .init(top: 0, left: 30, bottom: 0, right: 30)
         view.selectedClosure = { [unowned self] (model) in
@@ -400,7 +411,7 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var addButton: UIButton = {
+    private lazy var addButton: UIButton = {
         let view = UIButton(type: .custom)
         view.layer.cornerRadius = 4
         view.setImage(UIImage(named: "tool_bar_plus"), for: .normal)
@@ -409,12 +420,12 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var operationContainerView: UIView = {
+    private lazy var operationContainerView: UIView = {
         let view = UIView()
         return view
     }()
     
-    lazy var tabView: EditToolTabView = {
+    private lazy var tabView: EditToolTabView = {
         let view = EditToolTabView(frame: .zero)
         view.selectedClosure = { [unowned self] (type) in
             self.tabSelectedType = type
@@ -422,7 +433,7 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var loadingView: EditToolSettingLoadingView = {
+    private lazy var loadingView: EditToolSettingLoadingView = {
         let view = EditToolSettingLoadingView(frame: .zero)
         view.isHidden = true
         return view
@@ -660,6 +671,22 @@ extension EditToolViewController: UIScrollViewDelegate {
                 thumbView.isNeedLoadImageAtDisplay = false
             }
         }
+    }
+    
+}
+
+fileprivate class EditToolContentView: UIView {
+    
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        //优先响应分割button
+        for view in subviews {
+            if let button: EditToolSplitButton = view as? EditToolSplitButton {
+                if button.frame.contains(point) {
+                    return button
+                }
+            }
+        }
+        return super.hitTest(point, with: event)
     }
     
 }

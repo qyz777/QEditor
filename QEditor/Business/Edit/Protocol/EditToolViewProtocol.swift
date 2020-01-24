@@ -75,4 +75,8 @@ protocol EditToolViewOutput: class {
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput)
     
+    func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: EditTransitionModel)
+    
+    func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel
+    
 }
