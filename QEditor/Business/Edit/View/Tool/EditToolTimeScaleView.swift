@@ -55,7 +55,7 @@ fileprivate class EditToolTimeScaleCell: UICollectionViewCell {
     lazy var contentLabel: UILabel = {
         let view = UILabel()
         view.textColor = .white
-        view.font = UIFont.qe.HelveticaBold(size: 12)
+        view.font = UIFont.qe.HelveticaBold(size: 10)
         return view
     }()
     

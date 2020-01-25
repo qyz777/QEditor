@@ -16,7 +16,7 @@ class EditToolImageCellModel {
     
 }
 
-let EDIT_THUMB_CELL_SIZE: CGFloat = 80
+let EDIT_THUMB_CELL_SIZE: CGFloat = 40
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 

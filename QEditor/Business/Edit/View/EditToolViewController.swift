@@ -86,8 +86,9 @@ class EditToolViewController: UIViewController {
         operationContainerView.addSubview(toolBarView)
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
-        contentView.addSubview(waveformView)
+        contentView.addSubview(originAudioWaveformView)
         contentView.addSubview(timeScaleView)
+        contentView.addSubview(addMusicButton)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -112,7 +113,7 @@ class EditToolViewController: UIViewController {
         
         verticalTimeLineView.snp.makeConstraints { (make) in
             make.center.equalTo(self.containerView)
-            make.width.equalTo(4)
+            make.width.equalTo(2)
             make.height.equalTo(SCREEN_WIDTH / 3)
         }
         
@@ -122,25 +123,32 @@ class EditToolViewController: UIViewController {
             make.width.equalTo(self.containerView.contentSize.width)
         }
         
+        timeScaleView.snp.makeConstraints { (make) in
+            make.height.equalTo(25)
+            make.width.equalTo(SCREEN_WIDTH)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
+            make.top.equalTo(self.contentView).offset(0)
+        }
+        
         thumbView.snp.makeConstraints { (make) in
             make.height.equalTo(EDIT_THUMB_CELL_SIZE)
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.width.equalTo(SCREEN_WIDTH)
-            make.centerY.equalTo(self.contentView)
+            make.top.equalTo(self.timeScaleView.snp.bottom).offset(15)
         }
         
-        waveformView.snp.makeConstraints { (make) in
+        originAudioWaveformView.snp.makeConstraints { (make) in
             make.height.equalTo(WAVEFORM_HEIGHT)
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.width.equalTo(SCREEN_WIDTH)
             make.top.equalTo(self.thumbView.snp.bottom).offset(5)
         }
         
-        timeScaleView.snp.makeConstraints { (make) in
+        addMusicButton.snp.makeConstraints { (make) in
             make.height.equalTo(25)
-            make.width.equalTo(SCREEN_WIDTH)
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
-            make.top.equalTo(self.contentView).offset(0)
+            make.right.equalTo(self.contentView).offset(-SCREEN_WIDTH / 2)
+            make.top.equalTo(self.originAudioWaveformView.snp.bottom).offset(5)
         }
         
         addButton.snp.makeConstraints { (make) in
@@ -236,8 +244,9 @@ class EditToolViewController: UIViewController {
         switch tabSelectedType {
         case .edit:
             toolBarView.update(toolBarModels)
+            addMusicButton.isHidden = true
         case .music:
-            //音乐暂时先不做
+            addMusicButton.isHidden = false
             break
         }
     }
@@ -281,6 +290,11 @@ class EditToolViewController: UIViewController {
             self.presenter.toolView(self, didSelectedSplit: button.index, withTransition: model)
         }
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc
+    func addMusicButtonDidClick() {
+        
     }
     
     //MARK: Notification
@@ -337,7 +351,7 @@ class EditToolViewController: UIViewController {
     private lazy var verticalTimeLineView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
-        view.layer.cornerRadius = 2
+        view.layer.cornerRadius = 1
         return view
     }()
     
@@ -358,7 +372,7 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    private lazy var waveformView: EditToolAudioWaveFormView = {
+    private lazy var originAudioWaveformView: EditToolAudioWaveFormView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 0
@@ -367,6 +381,7 @@ class EditToolViewController: UIViewController {
         let view = EditToolAudioWaveFormView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: WAVEFORM_HEIGHT), collectionViewLayout: layout)
         view.layer.cornerRadius = 4
         view.isScrollEnabled = false
+        view.contentLabel.text = "原声"
         return view
     }()
     
@@ -429,6 +444,7 @@ class EditToolViewController: UIViewController {
         let view = EditToolTabView(frame: .zero)
         view.selectedClosure = { [unowned self] (type) in
             self.tabSelectedType = type
+            self.updateToolBar()
         }
         return view
     }()
@@ -438,6 +454,15 @@ class EditToolViewController: UIViewController {
         view.isHidden = true
         return view
     }()
+    
+    lazy var addMusicButton: EditToolAddMusicButton = {
+        let view = EditToolAddMusicButton(frame: .zero)
+        view.layer.cornerRadius = 4
+        view.backgroundColor = .darkGray
+        view.isHidden = true
+        view.addTarget(self, action: #selector(addMusicButtonDidClick), for: .touchUpInside)
+        return view
+    }()
 
 }
 
@@ -445,8 +470,8 @@ class EditToolViewController: UIViewController {
 extension EditToolViewController: EditToolViewInput {
     
     func refreshWaveFormView(with box: [[CGFloat]]) {
-        waveformView.contentSize = .init(width: thumbView.contentSize.width, height: 0)
-        waveformView.update(box)
+        originAudioWaveformView.contentSize = .init(width: thumbView.contentSize.width, height: 0)
+        originAudioWaveformView.update(box)
     }
     
     func currentCursorTime() -> Double {
@@ -594,12 +619,12 @@ extension EditToolViewController: UIScrollViewDelegate {
             timeScaleView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
             }
-            waveformView.snp.updateConstraints { (make) in
+            originAudioWaveformView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(SCREEN_WIDTH / 2)
             }
             thumbView.contentOffset = .zero
             timeScaleView.contentOffset = .zero
-            waveformView.contentOffset = .zero
+            originAudioWaveformView.contentOffset = .zero
         } else if offsetX >= SCREEN_WIDTH / 2 && offsetX < totalWidth - SCREEN_WIDTH * 1.5 {
             //在中间滚动
             thumbView.snp.updateConstraints { (make) in
@@ -608,13 +633,13 @@ extension EditToolViewController: UIScrollViewDelegate {
             timeScaleView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(offsetX)
             }
-            waveformView.snp.updateConstraints { (make) in
+            originAudioWaveformView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(offsetX)
             }
             let newOffsetX = offsetX - SCREEN_WIDTH / 2
             thumbView.contentOffset = .init(x: newOffsetX, y: 0)
             timeScaleView.contentOffset = .init(x: newOffsetX, y: 0)
-            waveformView.contentOffset = .init(x: newOffsetX, y: 0)
+            originAudioWaveformView.contentOffset = .init(x: newOffsetX, y: 0)
         } else {
             //在右侧滚动
             thumbView.snp.updateConstraints { (make) in
@@ -623,12 +648,15 @@ extension EditToolViewController: UIScrollViewDelegate {
             timeScaleView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
             }
-            waveformView.snp.updateConstraints { (make) in
+            originAudioWaveformView.snp.updateConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(totalWidth - SCREEN_WIDTH * 1.5)
             }
             thumbView.contentOffset = .init(x: thumbView.contentSize.width - SCREEN_WIDTH, y: 0)
             timeScaleView.contentOffset = .init(x: timeScaleView.contentSize.width - SCREEN_WIDTH, y: 0)
-            waveformView.contentOffset = .init(x: waveformView.contentSize.width - SCREEN_WIDTH, y: 0)
+            originAudioWaveformView.contentOffset = .init(x: originAudioWaveformView.contentSize.width - SCREEN_WIDTH, y: 0)
+        }
+        addMusicButton.snp.updateConstraints { (make) in
+            make.left.equalTo(self.contentView).offset(offsetX + CONTAINER_PADDING_LEFT)
         }
     }
     

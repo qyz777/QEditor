@@ -8,7 +8,7 @@
 
 import UIKit
 
-public let WAVEFORM_HEIGHT: CGFloat = 40
+public let WAVEFORM_HEIGHT: CGFloat = 25
 fileprivate let CELL_IDENTIFIER = "EditToolWaveformCell"
 
 //以下设置看起来效果比较好
@@ -26,6 +26,11 @@ class EditToolAudioWaveFormView: UICollectionView {
         delegate = self
         dataSource = self
         register(EditToolWaveformCell.self, forCellWithReuseIdentifier: CELL_IDENTIFIER)
+        addSubview(contentLabel)
+        contentLabel.snp.makeConstraints { (make) in
+            make.left.equalTo(self).offset(SCREEN_PADDING_X)
+            make.centerY.equalTo(self)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -67,6 +72,13 @@ class EditToolAudioWaveFormView: UICollectionView {
             }
         }
     }
+    
+    lazy var contentLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        return view
+    }()
 
 }
 
