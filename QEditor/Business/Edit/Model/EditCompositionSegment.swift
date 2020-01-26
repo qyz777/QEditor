@@ -9,64 +9,31 @@
 import UIKit
 import AVFoundation
 
-class EditCompositionSegment {
+protocol EditCompositionSegment {
     
-    /// segment所在的视频trackId
-    public var videoTrackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
+    /// 所在轨道的Id
+    var trackId: CMPersistentTrackID { get set }
     
     /// segment的唯一标识符
-    public let id: Int
+    var id: Int { get }
     
-    /// 资源数据源，可以是composition
-    public let asset: AVAsset
+    /// segment的媒体数据源
+    var asset: AVAsset { get }
     
-    /// assert的url数据源，从asset初始化时为nil
-    public let url: URL?
+    /// segment的数据源url
+    var url: URL? { get }
     
-    public var duration: Double {
-        return timeRange.duration.seconds
-    }
+    /// segment的时长
+    var duration: Double { get }
     
-    /// segment的转场动画模型
-    public var transition: EditTransitionModel = EditTransitionModel(duration: 0, style: .none)
-    
-    /// 在composition中的timeRange
-    public var rangeAtComposition: CMTimeRange = .zero
+    /// segment在composition中的range
+    var rangeAtComposition: CMTimeRange { get }
     
     /// 用来插入到composition的range
-    public var timeRange: CMTimeRange
+    var timeRange: CMTimeRange { get }
     
-    public init(url: URL) {
-        self.url = url
-        asset = AVURLAsset(url: url)
-        timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-        id = (url.absoluteString + String.qe.timestamp()).hashValue
-    }
+    init(url: URL)
     
-    public init(asset: AVAsset) {
-        url = nil
-        self.asset = asset
-        timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-        id = ("\(asset.duration.seconds)" + String.qe.timestamp()).hashValue
-    }
-    
-    /// 移除在time之后的用来插入composition的range
-    /// - Parameter time: 移除时间点
-    public func removeAfterRangeAt(time: CMTime) {
-        timeRange = CMTimeRange(start: timeRange.start, duration: time)
-    }
-    
-    /// 第一祯图片
-    lazy var thumbnail: UIImage? = {
-        let generator = AVAssetImageGenerator(asset: asset)
-        generator.appliesPreferredTrackTransform = true
-        do {
-            let cgImage = try generator.copyCGImage(at: .zero, actualTime: nil)
-            return UIImage(cgImage: cgImage)
-        } catch {
-            QELog(error)
-        }
-        return nil
-    }()
+    init(asset: AVAsset)
     
 }

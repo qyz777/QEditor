@@ -5,7 +5,9 @@ target 'QEditor' do
   pod "SnapKit"
   pod "KVOController"
   
-  # 视图三方库
+  pod 'TableViewAdapter', :path => './LocalLib/TableViewAdapter'
+  pod 'AudioCollection', :path => './LocalLib/AudioCollection'
+  
   pod 'NotificationBannerSwift', '~> 3.0.0'
   pod 'NVActivityIndicatorView'
   

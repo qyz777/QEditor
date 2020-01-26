@@ -33,6 +33,8 @@ public protocol PlayerViewDelegate: class {
     
     func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition?
     
+    func playerAudioMix(_ player: PlayerView) -> AVAudioMix?
+    
 }
 
 extension PlayerViewDelegate {
@@ -94,6 +96,7 @@ public class PlayerView: UIView {
     private func updatePlayerItem(_ item: AVPlayerItem) {
         currentItem = item
         currentItem?.videoComposition = delegate?.playerVideoComposition(self)
+        currentItem?.audioMix = delegate?.playerAudioMix(self)
         //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
         currentItem?.audioTimePitchAlgorithm = .varispeed
         player.replaceCurrentItem(with: currentItem)

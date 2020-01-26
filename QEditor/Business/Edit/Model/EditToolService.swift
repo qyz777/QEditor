@@ -18,11 +18,13 @@ class EditToolService {
     /// 供缩略图使用
     public private(set) var imageSourceComposition: AVMutableComposition?
     
+    public private(set) var audioMix: AVMutableAudioMix?
+    
     private var reverseTool: EditToolReverseTool?
     
     public let filterService = EditFilterService()
     
-    public private(set) var segments: [EditCompositionSegment] = []
+    public private(set) var segments: [EditCompositionVideoSegment] = []
 
     public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
@@ -108,7 +110,7 @@ class EditToolService {
     
     /// 生成partModel和videoModel
     /// 调用完此方法后所有视频model都使用videoModel
-    public func generateVideoModel(from segments: [EditCompositionSegment]) {
+    public func generateVideoModel(from segments: [EditCompositionVideoSegment]) {
         guard segments.count > 0 else {
             return
         }
@@ -131,7 +133,7 @@ class EditToolService {
             let currentTrack = tracks[trackIndex]
             let asset = segments[i].asset
             let transitionDuration = CMTime(seconds: segments[i].transition.duration, preferredTimescale: 600)
-            segments[i].videoTrackId = currentTrack.trackID
+            segments[i].trackId = currentTrack.trackID
             var imageSourceRange = segments[i].timeRange
             if i + 1 < segments.count {
                 imageSourceRange.duration -= transitionDuration
@@ -210,8 +212,8 @@ class EditToolService {
         videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
     }
     
-    private func replaceSegment(_ segment: EditCompositionSegment, with asset: AVAsset) {
-        let newSegment = EditCompositionSegment(asset: asset)
+    private func replaceSegment(_ segment: EditCompositionVideoSegment, with asset: AVAsset) {
+        let newSegment = EditCompositionVideoSegment(asset: asset)
         var index = 0
         for i in 0..<segments.count {
             if segments[i].id == segment.id {
@@ -311,13 +313,13 @@ class EditToolService {
 extension EditToolService {
     
     //MARK: Add Video
-    public func addVideos(from segments: [EditCompositionSegment]) {
+    public func addVideos(from segments: [EditCompositionVideoSegment]) {
         self.segments.append(contentsOf: segments)
         generateVideoModel(from: self.segments)
     }
     
     //MARK: Remove Video
-    public func removeVideo(for segment: EditCompositionSegment) {
+    public func removeVideo(for segment: EditCompositionVideoSegment) {
         segments.removeAll { (s) -> Bool in
             return s.id == segment.id
         }
@@ -336,7 +338,7 @@ extension EditToolService {
                     QELog("没找到合适的segment进行分割")
                     return
                 }
-                let newSegment = EditCompositionSegment(url: url)
+                let newSegment = EditCompositionVideoSegment(url: url)
                 newSegment.timeRange = CMTimeRange(start: time, duration: segment.asset.duration - time)
                 segment.removeAfterRangeAt(time: time)
                 segments.insert(newSegment, at: i + 1)
@@ -347,7 +349,7 @@ extension EditToolService {
     }
     
     //MARK: Change Speed
-    public func changeSpeed(at segment: EditCompositionSegment, scale: Float) {
+    public func changeSpeed(at segment: EditCompositionVideoSegment, scale: Float) {
         guard let composition = videoModel?.composition else {
             return
         }
@@ -355,7 +357,7 @@ extension EditToolService {
         let timeRange = segment.rangeAtComposition
         let toDuration = CMTime(seconds: scaleDuration, preferredTimescale: 600)
         //先拉伸track
-        let videoTrack = composition.track(withTrackID: segment.videoTrackId)!
+        let videoTrack = composition.track(withTrackID: segment.trackId)!
         let audioTrack = composition.tracks(withMediaType: .audio).first!
         videoTrack.scaleTimeRange(timeRange, toDuration: toDuration)
         audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
@@ -368,7 +370,7 @@ extension EditToolService {
     }
     
     //MARK: Reverse
-    public func reverseVideo(at segment: EditCompositionSegment, closure: @escaping (_ error: Error?) -> Void) {
+    public func reverseVideo(at segment: EditCompositionVideoSegment, closure: @escaping (_ error: Error?) -> Void) {
         guard let composition = videoModel?.composition else {
             return
         }

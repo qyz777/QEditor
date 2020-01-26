@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import AudioCollection
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 
@@ -162,7 +163,7 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    private func refreshContainerView(_ segments: [EditCompositionSegment]) {
+    private func refreshContainerView(_ segments: [EditCompositionVideoSegment]) {
         //1.清除
         clearViewsAndInfos()
         loadingView.dismiss()
@@ -294,7 +295,12 @@ class EditToolViewController: UIViewController {
     
     @objc
     func addMusicButtonDidClick() {
-        
+        let vc = AudioCollectionViewController()
+        vc.selectedClosure = { [unowned self] (asset) in
+            self.presenter.toolView(self, addMusicFrom: asset)
+        }
+        let nav = NavigationController(rootViewController: vc)
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
     //MARK: Notification
@@ -553,17 +559,17 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
-    func forceSegment() -> EditCompositionSegment? {
+    func forceSegment() -> EditCompositionVideoSegment? {
         return forceChooseView?.segment
     }
     
-    func reloadView(_ segments: [EditCompositionSegment]) {
+    func reloadView(_ segments: [EditCompositionVideoSegment]) {
         refreshContainerView(segments)
         thumbView.reloadData()
         timeScaleView.reloadData()
     }
     
-    func refreshView(_ segments: [EditCompositionSegment]) {
+    func refreshView(_ segments: [EditCompositionVideoSegment]) {
         refreshContainerView(segments)
     }
     

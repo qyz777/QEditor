@@ -38,6 +38,10 @@ extension EditViewPresenter: PlayerViewDelegate {
         return toolService.videoComposition
     }
     
+    func playerAudioMix(_ player: PlayerView) -> AVAudioMix? {
+        return toolService.audioMix
+    }
+    
 }
 
 extension EditViewPresenter: EditPlayerViewOutput {

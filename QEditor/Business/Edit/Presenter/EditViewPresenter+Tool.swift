@@ -45,7 +45,7 @@ extension EditViewPresenter: EditToolViewOutput {
         return String.qe.formatTime(Int(m.time.seconds))
     }
     
-    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionSegment) {
+    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment) {
         toolService.removeVideo(for: segment)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
@@ -62,14 +62,14 @@ extension EditViewPresenter: EditToolViewOutput {
         guard videos.count > 0 else {
             return
         }
-        toolService.addVideos(from: videos.map({ (model) -> EditCompositionSegment in
-            return EditCompositionSegment(url: model.url!)
+        toolService.addVideos(from: videos.map({ (model) -> EditCompositionVideoSegment in
+            return EditCompositionVideoSegment(url: model.url!)
         }))
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "添加成功", style: .success)
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float) {
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionVideoSegment, of scale: Float) {
         beginTaskRunning()
         toolService.changeSpeed(at: segment, scale: scale)
         refreshView()
@@ -132,6 +132,12 @@ extension EditViewPresenter: EditToolViewOutput {
             return EditTransitionModel(duration: 0, style: .none)
         }
         return toolService.segments[index].transition
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset) {
+        //todo:添加音频
+//        let currentTime = toolView.currentCursorTime()
+//
     }
     
 }

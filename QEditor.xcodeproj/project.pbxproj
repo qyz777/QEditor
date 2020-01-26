@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -70,6 +70,8 @@
 		A0C6DFBA23DAAE8200A48181 /* EditToolTransformViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFB923DAAE8200A48181 /* EditToolTransformViewController.swift */; };
 		A0C6DFBC23DAD2B700A48181 /* EditTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFBB23DAD2B700A48181 /* EditTransition.swift */; };
 		A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */; };
+		A0C6DFD023DD1C1D00A48181 /* EditCompositionVideoSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFCF23DD1C1C00A48181 /* EditCompositionVideoSegment.swift */; };
+		A0C6DFD223DD1E4900A48181 /* EditCompositionAudioSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFD123DD1E4900A48181 /* EditCompositionAudioSegment.swift */; };
 		A0DADA12235AECB600BD83D7 /* EditToolService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DADA11235AECB600BD83D7 /* EditToolService.swift */; };
 		A0DBD4E323D7360700E26238 /* EditCompositionSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DBD4E223D7360700E26238 /* EditCompositionSegment.swift */; };
 		A0DBD4E523D7392100E26238 /* EditComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DBD4E423D7392100E26238 /* EditComposition.swift */; };
@@ -150,6 +152,8 @@
 		A0C6DFB923DAAE8200A48181 /* EditToolTransformViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolTransformViewController.swift; sourceTree = "<group>"; };
 		A0C6DFBB23DAD2B700A48181 /* EditTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditTransition.swift; sourceTree = "<group>"; };
 		A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAddMusicButton.swift; sourceTree = "<group>"; };
+		A0C6DFCF23DD1C1C00A48181 /* EditCompositionVideoSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCompositionVideoSegment.swift; sourceTree = "<group>"; };
+		A0C6DFD123DD1E4900A48181 /* EditCompositionAudioSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCompositionAudioSegment.swift; sourceTree = "<group>"; };
 		A0DADA11235AECB600BD83D7 /* EditToolService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolService.swift; sourceTree = "<group>"; };
 		A0DBD4E223D7360700E26238 /* EditCompositionSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCompositionSegment.swift; sourceTree = "<group>"; };
 		A0DBD4E423D7392100E26238 /* EditComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditComposition.swift; sourceTree = "<group>"; };
@@ -459,6 +463,8 @@
 				A02F7DD4239CE94E00398065 /* EditToolReverseTool.swift */,
 				A0C1A2AD23AF07830075AD4F /* EditFilterService.swift */,
 				A0DBD4E223D7360700E26238 /* EditCompositionSegment.swift */,
+				A0C6DFCF23DD1C1C00A48181 /* EditCompositionVideoSegment.swift */,
+				A0C6DFD123DD1E4900A48181 /* EditCompositionAudioSegment.swift */,
 				A0DBD4E423D7392100E26238 /* EditComposition.swift */,
 				A0C6DFBB23DAD2B700A48181 /* EditTransition.swift */,
 			);
@@ -602,30 +608,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-QEditor/Pods-QEditor-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/FLEX/FLEX.framework",
-				"${BUILT_PRODUCTS_DIR}/KVOController/KVOController.framework",
-				"${BUILT_PRODUCTS_DIR}/MarqueeLabel/MarqueeLabel.framework",
-				"${BUILT_PRODUCTS_DIR}/NVActivityIndicatorView/NVActivityIndicatorView.framework",
-				"${BUILT_PRODUCTS_DIR}/NotificationBannerSwift/NotificationBannerSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-QEditor/Pods-QEditor-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLEX.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KVOController.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MarqueeLabel.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NVActivityIndicatorView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NotificationBannerSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-QEditor/Pods-QEditor-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-QEditor/Pods-QEditor-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-QEditor/Pods-QEditor-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -635,9 +626,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0C6DFD023DD1C1D00A48181 /* EditCompositionVideoSegment.swift in Sources */,
 				A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */,
 				A021233B23652FE40073A125 /* EditToolTimeScaleView.swift in Sources */,
 				A015868D23C029600050F5B8 /* CMTime+Edit.swift in Sources */,
+				A0C6DFD223DD1E4900A48181 /* EditCompositionAudioSegment.swift in Sources */,
 				A0870A5A2352ECD7006DC38D /* MediaCellModel.swift in Sources */,
 				A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */,
 				A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */,

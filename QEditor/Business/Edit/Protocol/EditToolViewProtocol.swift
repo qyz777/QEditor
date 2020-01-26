@@ -15,9 +15,9 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func deletePart()
     
-    func reloadView(_ segments: [EditCompositionSegment])
+    func reloadView(_ segments: [EditCompositionVideoSegment])
     
-    func refreshView(_ segments: [EditCompositionSegment])
+    func refreshView(_ segments: [EditCompositionVideoSegment])
     
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
     
@@ -27,7 +27,7 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo)
     
-    func forceSegment() -> EditCompositionSegment?
+    func forceSegment() -> EditCompositionVideoSegment?
     
     /// 当前标尺所指的视频位置
     func currentCursorTime() -> Double
@@ -55,13 +55,13 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
     
-    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionSegment)
+    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment)
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionSegment, of scale: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionVideoSegment, of scale: Float)
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float)
     
@@ -78,5 +78,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: EditTransitionModel)
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel
+    
+    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset)
     
 }

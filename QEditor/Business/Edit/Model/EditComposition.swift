@@ -26,6 +26,6 @@ class EditComposition {
         return String.qe.formatTime(Int(composition.duration.seconds))
     }
     
-    public var segments: [EditCompositionSegment] = []
+    public var segments: [EditCompositionVideoSegment] = []
     
 }
