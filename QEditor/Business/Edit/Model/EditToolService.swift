@@ -24,7 +24,11 @@ class EditToolService {
     
     public let filterService = EditFilterService()
     
-    public private(set) var segments: [EditCompositionVideoSegment] = []
+    public private(set) var videoSegments: [EditCompositionVideoSegment] = []
+    
+    public private(set) var musicSegments: [EditCompositionAudioSegment] = []
+    
+    private let sampleAnalyzer = EditAudioSampleAnalyzer()
 
     public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
@@ -72,19 +76,63 @@ class EditToolService {
     }
     
     //MARK: Audio
-    public func loadAudioSamples(for size: CGSize, boxCount: Int, width: CGFloat, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
+    public func addMusic(_ asset: AVAsset, at time: CMTime) -> EditCompositionAudioSegment? {
+        guard let composition = videoModel?.composition else { return nil }
+        let segment = EditCompositionAudioSegment(asset: asset)
+        var nextSegment: EditCompositionAudioSegment?
+        var index = 0
+        var offset = composition.duration.seconds
+        for i in 0..<musicSegments.count {
+            let s = musicSegments[i]
+            //校验添加的segment是否在别的segment段中
+            if segment.rangeAtComposition.start.between(s.rangeAtComposition) {
+                QELog("此位置不能插入音乐")
+                return nil
+            }
+            //找到下一个segment
+            if i + 1 < musicSegments.count {
+                let ns = musicSegments[i + 1]
+                let distance = ns.rangeAtComposition.start.seconds - time.seconds
+                if 0 < distance && distance < offset {
+                    offset = distance
+                    nextSegment = ns
+                    index = i
+                }
+            }
+        }
+        if nextSegment != nil {
+            //如果有下一段segment，那么前一段最多与下一段连接
+            let duration = nextSegment!.rangeAtComposition.start - time
+            segment.timeRange = CMTimeRange(start: .zero, duration: duration)
+            segment.rangeAtComposition = CMTimeRange(start: time, duration: duration)
+        } else {
+            //如果没有，直接插到结尾就完了
+            let duration = composition.duration - time
+            segment.timeRange = CMTimeRange(start: .zero, duration: duration)
+            segment.rangeAtComposition = CMTimeRange(start: time, duration: duration)
+        }
+        musicSegments.insert(segment, at: index)
+        //从新生成composition
+        refreshComposition()
+        return segment
+    }
+    
+    public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])
             return
         }
         let composition = videoModel!.composition
-        let key = "tracks"
         DispatchQueue.global().async {
-            composition.loadValuesAsynchronously(forKeys: [key]) {
-                let status = composition.statusOfValue(forKey: key, error: nil)
+            composition.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks]) { [weak self] in
+                let status = composition.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
+                guard let strongSelf = self else {
+                    closure([])
+                    return
+                }
                 var simpleData: Data? = nil
                 if status == .loaded {
-                    simpleData = self.readAudioSamples()
+                    simpleData = strongSelf.sampleAnalyzer.readAudioSamples(from: composition)
                 }
                 guard simpleData != nil else {
                     DispatchQueue.main.sync {
@@ -92,7 +140,7 @@ class EditToolService {
                     }
                     return
                 }
-                let samples = self.filteredSamples(from: simpleData!, size: size, width: width)
+                let samples = strongSelf.sampleAnalyzer.filteredSamples(from: simpleData!, size: size)
                 var sampleBox: [[CGFloat]] = []
                 //1箱的宽度
                 let boxWidth = Int(samples.count / boxCount)
@@ -108,15 +156,16 @@ class EditToolService {
         }
     }
     
-    /// 生成partModel和videoModel
+    /// 生成composition
     /// 调用完此方法后所有视频model都使用videoModel
-    public func generateVideoModel(from segments: [EditCompositionVideoSegment]) {
-        guard segments.count > 0 else {
+    public func refreshComposition() {
+        guard videoSegments.count > 0 else {
             return
         }
         let composition = AVMutableComposition()
         imageSourceComposition = AVMutableComposition()
         let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let mixAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
         let videoTrackA = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
@@ -128,55 +177,60 @@ class EditToolService {
         var cursorTime: CMTime = .zero
         var imageCursorTime: CMTime = .zero
 
-        for i in 0..<segments.count {
+        for i in 0..<videoSegments.count {
             let trackIndex = i % 2
             let currentTrack = tracks[trackIndex]
-            let asset = segments[i].asset
-            let transitionDuration = CMTime(seconds: segments[i].transition.duration, preferredTimescale: 600)
-            segments[i].trackId = currentTrack.trackID
-            var imageSourceRange = segments[i].timeRange
-            if i + 1 < segments.count {
+            let asset = videoSegments[i].asset
+            let transitionDuration = CMTime(seconds: videoSegments[i].transition.duration, preferredTimescale: 600)
+            videoSegments[i].trackId = currentTrack.trackID
+            var imageSourceRange = videoSegments[i].timeRange
+            if i + 1 < videoSegments.count {
                 imageSourceRange.duration -= transitionDuration
             }
             
             do {
-                try currentTrack.insertTimeRange(segments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
+                try currentTrack.insertTimeRange(videoSegments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
                 if let sourceAudioTrack = asset.tracks(withMediaType: .audio).first {
-                    try audioTrack.insertTimeRange(segments[i].timeRange, of: sourceAudioTrack, at: cursorTime)
+                    try audioTrack.insertTimeRange(videoSegments[i].timeRange, of: sourceAudioTrack, at: cursorTime)
                 }
                 try imageSourceTrack.insertTimeRange(imageSourceRange, of: asset.tracks(withMediaType: .video).first!, at: imageCursorTime)
             } catch {
                 QELog(error)
             }
             
-            var timeRange = CMTimeRange(start: cursorTime, duration: segments[i].timeRange.duration)
+            var timeRange = CMTimeRange(start: cursorTime, duration: videoSegments[i].timeRange.duration)
             if i > 0 {
                 timeRange.start += transitionDuration
                 timeRange.duration -= transitionDuration
             }
-            if i + 1 < segments.count {
+            if i + 1 < videoSegments.count {
                 timeRange.duration -= transitionDuration
             }
-            segments[i].rangeAtComposition = timeRange
+            videoSegments[i].rangeAtComposition = timeRange
             
-            cursorTime += segments[i].timeRange.duration
+            cursorTime += videoSegments[i].timeRange.duration
             cursorTime -= transitionDuration
             imageCursorTime += imageSourceRange.duration
+        }
+        
+        musicSegments.forEach {
+            let asset = $0.asset
+            guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
+            //这里跟插入视频不一样，这里是需要外面告诉segment插入在mixAudioTrack的哪个range里
+            do {
+                try mixAudioTrack.insertTimeRange($0.timeRange, of: audioTrack, at: $0.rangeAtComposition.start)
+            } catch {
+                QELog(error)
+            }
         }
 
         videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         
-//        for instruction in videoComposition!.instructions {
-//            let ins = instruction as! AVMutableVideoCompositionInstruction
-//            if ins.layerInstructions.count == 2 {
-//                let layer = ins.layerInstructions[0] as! AVMutableVideoCompositionLayerInstruction
-//                layer.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0, timeRange: ins.timeRange)
-//            }
-//        }
-        
-        setupTransition(segments.map({ (segment) -> EditTransitionModel in
+        setupTransition(videoSegments.map({ (segment) -> EditTransitionModel in
             return segment.transition
         }))
+        
+        setupAudioMix()
         
         let formatTime = String.qe.formatTime(Int(composition.duration.seconds))
         videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
@@ -201,104 +255,49 @@ class EditToolService {
             case .fadeOut:
                 fromLayer?.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0, timeRange: timeRange)
             }
-//            if fromLayer != nil && toLayer != nil {
-//                instruction.compositionInstruction.layerInstructions = [fromLayer!, toLayer!]
-//            }
         }
     }
     
-    private func resetVideoModel(_ composition: AVMutableComposition) {
-        videoModel?.composition = composition
-        videoModel?.formatTime = String.qe.formatTime(Int(composition.duration.seconds))
+    private func setupAudioMix() {
+        audioMix = AVMutableAudioMix()
+        guard let composition = videoModel?.composition else { return }
+        let mixAudioTrack = composition.tracks(withMediaType: .audio)[1]
+        //设置混音
+        //todo:原声的设置
+        let param = AVMutableAudioMixInputParameters(track: mixAudioTrack)
+        for segment in musicSegments {
+            switch segment.style {
+            case .none:
+                param.setVolume(segment.volume, at: segment.rangeAtComposition.start)
+            case .fadeIn:
+                let duration = min(segment.styleDuration, segment.rangeAtComposition.duration.seconds)
+                let newEnd = segment.rangeAtComposition.start + CMTime(seconds: duration, preferredTimescale: 600)
+                let range = CMTimeRange(start: segment.rangeAtComposition.start, end: newEnd)
+                param.setVolumeRamp(fromStartVolume: 0, toEndVolume: segment.volume, timeRange: range)
+                param.setVolume(segment.volume, at: newEnd)
+            case .fadeOut:
+                let duration = min(segment.styleDuration, segment.rangeAtComposition.duration.seconds)
+                let newStart = segment.rangeAtComposition.end - CMTime(seconds: duration, preferredTimescale: 600)
+                let range = CMTimeRange(start: newStart, end: segment.rangeAtComposition.end)
+                param.setVolume(segment.volume, at: segment.rangeAtComposition.start)
+                param.setVolumeRamp(fromStartVolume: segment.volume, toEndVolume: 0, timeRange: range)
+            }
+        }
+        audioMix!.inputParameters = [param]
     }
     
     private func replaceSegment(_ segment: EditCompositionVideoSegment, with asset: AVAsset) {
         let newSegment = EditCompositionVideoSegment(asset: asset)
         var index = 0
-        for i in 0..<segments.count {
-            if segments[i].id == segment.id {
+        for i in 0..<videoSegments.count {
+            if videoSegments[i].id == segment.id {
                 index = i
                 break
             }
         }
-        segments.remove(at: index)
-        segments.insert(newSegment, at: index)
-        generateVideoModel(from: segments)
-    }
-    
-    private func readAudioSamples() -> Data? {
-        guard videoModel != nil else {
-            return nil
-        }
-        let composition = videoModel!.composition
-        let assetReader: AVAssetReader
-        do {
-            assetReader = try AVAssetReader(asset: composition)
-        } catch {
-            QELog(error)
-            return nil
-        }
-        let track = composition.tracks(withMediaType: .audio).first!
-        let settings: [String : Any] = [AVFormatIDKey: kAudioFormatLinearPCM,
-                                        AVLinearPCMIsBigEndianKey: false,
-                                        AVLinearPCMIsFloatKey: false,
-                                        AVLinearPCMBitDepthKey: 16]
-        let trackOutput = AVAssetReaderTrackOutput(track: track, outputSettings: settings)
-        assetReader.add(trackOutput)
-        assetReader.startReading()
-        
-        var sampleData = Data()
-        while assetReader.status == .reading {
-            let sampleBuffer = trackOutput.copyNextSampleBuffer()
-            if sampleBuffer != nil {
-                let blockBufferRef = CMSampleBufferGetDataBuffer(sampleBuffer!)
-                let length = CMBlockBufferGetDataLength(blockBufferRef!)
-                let sampleBytes = UnsafeMutablePointer<UInt8>.allocate(capacity: length)
-                CMBlockBufferCopyDataBytes(blockBufferRef!, atOffset: 0, dataLength: length, destination: sampleBytes)
-                let ptr = UnsafePointer(sampleBytes)
-                sampleData.append(ptr, count: length)
-                CMSampleBufferInvalidate(sampleBuffer!)
-            }
-        }
-        if assetReader.status == .completed {
-            return sampleData
-        } else {
-            QELog("Failed to read audio samples from asset.")
-            return nil
-        }
-    }
-    
-    /// 过滤音频样本
-    /// 数据分箱选出平均数
-    /// 这里的粒度要控制好
-    private func filteredSamples(from sampleData: Data, size: CGSize, width: CGFloat) -> [CGFloat] {
-        var array: [UInt16] = []
-        let sampleCount = sampleData.count / MemoryLayout<UInt16>.size
-        let binSize = sampleCount / Int(size.width * width)
-        let bytes: [UInt16] = sampleData.withUnsafeBytes( { bytes in
-            let buffer: UnsafePointer<UInt16> = bytes.baseAddress!.assumingMemoryBound(to: UInt16.self)
-            return Array(UnsafeBufferPointer(start: buffer, count: sampleData.count / MemoryLayout<UInt16>.size))
-        })
-        var maxSample: UInt16 = 0
-        var i = 0
-        while i < sampleCount - binSize {
-            var sum: Int = 0
-            //获取一箱的平均数，性能又好效果也好
-            for j in 0..<binSize {
-                sum += Int(bytes[i + j])
-            }
-            let value = sum / binSize
-            array.append(UInt16(value))
-            if value > maxSample {
-                maxSample = UInt16(value)
-            }
-            i += binSize
-        }
-        let scaleFactor = size.height / CGFloat(maxSample)
-        let res: [CGFloat] = array.map { (a) -> CGFloat in
-            return CGFloat(a) * scaleFactor
-        }
-        return res
+        videoSegments.remove(at: index)
+        videoSegments.insert(newSegment, at: index)
+        refreshComposition()
     }
     
     private let registeredCommands: [EditCommandKey: EditCommand.Type] = [
@@ -314,23 +313,23 @@ extension EditToolService {
     
     //MARK: Add Video
     public func addVideos(from segments: [EditCompositionVideoSegment]) {
-        self.segments.append(contentsOf: segments)
-        generateVideoModel(from: self.segments)
+        self.videoSegments.append(contentsOf: segments)
+        refreshComposition()
     }
     
     //MARK: Remove Video
     public func removeVideo(for segment: EditCompositionVideoSegment) {
-        segments.removeAll { (s) -> Bool in
+        videoSegments.removeAll { (s) -> Bool in
             return s.id == segment.id
         }
-        generateVideoModel(from: segments)
+        refreshComposition()
     }
     
     //MARK: Split
     public func splitVideoAt(time: Double) {
         //传入了分割的时间点，需要重新处理一遍segments
-        for i in 0..<segments.count {
-            let segment = segments[i]
+        for i in 0..<videoSegments.count {
+            let segment = videoSegments[i]
             let time = CMTime(seconds: time, preferredTimescale: 600)
             if time.between(segment.rangeAtComposition) {
                 //找到要分割的段进行分割
@@ -341,11 +340,11 @@ extension EditToolService {
                 let newSegment = EditCompositionVideoSegment(url: url)
                 newSegment.timeRange = CMTimeRange(start: time, duration: segment.asset.duration - time)
                 segment.removeAfterRangeAt(time: time)
-                segments.insert(newSegment, at: i + 1)
+                videoSegments.insert(newSegment, at: i + 1)
                 break
             }
         }
-        generateVideoModel(from: segments)
+        refreshComposition()
     }
     
     //MARK: Change Speed
@@ -394,12 +393,12 @@ extension EditToolService {
     
     //MARK: Transition
     public func addTransition(_ transition: EditTransitionModel, at index: Int) {
-        guard 0 <= index && index < segments.count else {
+        guard 0 <= index && index < videoSegments.count else {
             QELog("转场特效添加错误!")
             return
         }
-        segments[index].transition = transition
-        generateVideoModel(from: segments)
+        videoSegments[index].transition = transition
+        refreshComposition()
     }
     
 }

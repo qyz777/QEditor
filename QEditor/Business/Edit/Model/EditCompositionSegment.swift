@@ -9,6 +9,12 @@
 import UIKit
 import AVFoundation
 
+struct AVAssetKey {
+    static let tracks = "tracks"
+    static let duration = "duration"
+    static let metadata = "commonMetadata"
+}
+
 protocol EditCompositionSegment {
     
     /// 所在轨道的Id
@@ -32,8 +38,12 @@ protocol EditCompositionSegment {
     /// 用来插入到composition的range
     var timeRange: CMTimeRange { get }
     
+    var isPrepare: Bool { get }
+    
     init(url: URL)
     
     init(asset: AVAsset)
+    
+    func prepare(_ closure: (() -> Void)?)
     
 }

@@ -12,7 +12,7 @@ import AVFoundation
 extension EditViewPresenter: EditToolViewOutput {
     
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool {
-        return toolService.segments.count > 1
+        return toolService.videoSegments.count > 1
     }
     
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int {
@@ -52,7 +52,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
-        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count, width: BOX_SAMPLE_WIDTH) { (box) in
+        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count) { (box) in
             self.toolView?.refreshWaveFormView(with: box)
         }
     }
@@ -112,7 +112,7 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
         let time = toolView.currentCursorTime()
         toolService.splitVideoAt(time: time)
-        toolView.refreshView(toolService.segments)
+        toolView.refreshView(toolService.videoSegments)
     }
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
@@ -127,17 +127,18 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel {
-        guard index < toolService.segments.count else {
+        guard index < toolService.videoSegments.count else {
             QELog("通过index获取transition失败")
             return EditTransitionModel(duration: 0, style: .none)
         }
-        return toolService.segments[index].transition
+        return toolService.videoSegments[index].transition
     }
     
     func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset) {
-        //todo:添加音频
-//        let currentTime = toolView.currentCursorTime()
-//
+        let currentTime = toolView.currentCursorTime()
+        guard let segment = toolService.addMusic(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
+        playerView?.loadVideoModel(toolService.videoModel!)
+        toolView.addMusicAudioWaveformView(for: segment)
     }
     
 }

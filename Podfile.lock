@@ -2,6 +2,7 @@ PODS:
   - AudioCollection (0.0.1):
     - SnapKit
     - TableViewAdapter
+  - DispatchQueuePool (0.0.1)
   - FLEX (3.0.0)
   - KVOController (1.2.0)
   - MarqueeLabel (4.0.0)
@@ -12,15 +13,22 @@ PODS:
     - NVActivityIndicatorView/Presenter (= 4.8.0)
   - NVActivityIndicatorView/Presenter (4.8.0)
   - SnapKit (5.0.1)
+  - SwifterSwift/Foundation (5.1.0)
+  - SwifterSwift/SwiftStdlib (5.1.0)
+  - SwifterSwift/UIKit (5.1.0)
   - TableViewAdapter (0.0.1)
 
 DEPENDENCIES:
   - AudioCollection (from `./LocalLib/AudioCollection`)
+  - DispatchQueuePool (from `./LocalLib/DispatchQueuePool`)
   - FLEX
   - KVOController
   - NotificationBannerSwift (~> 3.0.0)
   - NVActivityIndicatorView
   - SnapKit
+  - SwifterSwift/Foundation (~> 5.1.0)
+  - SwifterSwift/SwiftStdlib (~> 5.1.0)
+  - SwifterSwift/UIKit (~> 5.1.0)
   - TableViewAdapter (from `./LocalLib/TableViewAdapter`)
 
 SPEC REPOS:
@@ -31,23 +39,29 @@ SPEC REPOS:
     - NotificationBannerSwift
     - NVActivityIndicatorView
     - SnapKit
+  trunk:
+    - SwifterSwift
 
 EXTERNAL SOURCES:
   AudioCollection:
     :path: "./LocalLib/AudioCollection"
+  DispatchQueuePool:
+    :path: "./LocalLib/DispatchQueuePool"
   TableViewAdapter:
     :path: "./LocalLib/TableViewAdapter"
 
 SPEC CHECKSUMS:
   AudioCollection: aa3168fd373c56a1caa119ed7fc974208b583efa
+  DispatchQueuePool: 3f8efa6ee482e88b701498dce385c13fd6d8be60
   FLEX: d66c759bce0f6ebbbf472c742380874d846f2883
   KVOController: d72ace34afea42468329623b3379ab3cd1d286b6
   MarqueeLabel: b55b26e690b6ad41faedd95cbf5eae6f1d1735b4
   NotificationBannerSwift: 713e20f21b6105f4a36a00e5d9fa414a930d3d8e
   NVActivityIndicatorView: d24b7ebcf80af5dcd994adb650e2b6c93379270f
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  SwifterSwift: a9e8e144832638c2850b43da5feaf9598c6ad65b
   TableViewAdapter: c2b204aae9927d66ae67d8c72c1df2118d309a00
 
-PODFILE CHECKSUM: 05c1383a9589c12d86222e0dedf78f39256fa836
+PODFILE CHECKSUM: cac8f95204b7dce1c17865fb924786df00cde36d
 
 COCOAPODS: 1.8.4

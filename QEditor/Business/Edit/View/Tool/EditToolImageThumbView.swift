@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import DispatchQueuePool
 
 class EditToolImageCellModel {
     
@@ -49,7 +50,7 @@ class EditToolImageThumbView: UICollectionView {
     
     private var generator: AVAssetImageGenerator?
     
-    private let queue = DispatchQueue(label: "EditToolService.LoadImage", qos: .userInteractive, attributes: .concurrent, autoreleaseFrequency: .workItem, target: nil)
+    private let queuePool = DispatchQueuePool(name: "AudioWaveFormView.LoadSamples", queueCount: 6, qos: .userInteractive)
     
     public var isNeedLoadImageAtDisplay = true
     
@@ -98,7 +99,7 @@ class EditToolImageThumbView: UICollectionView {
             return
         }
         var image: UIImage?
-        queue.async {
+        queuePool.queue.async {
             autoreleasepool {
                 do {
                     let cgImage = try self.generator!.copyCGImage(at: time, actualTime: nil)

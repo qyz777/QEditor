@@ -7,19 +7,20 @@
 //
 
 import UIKit
+import DispatchQueuePool
 
 public let WAVEFORM_HEIGHT: CGFloat = 25
 fileprivate let CELL_IDENTIFIER = "EditToolWaveformCell"
 
 //以下设置看起来效果比较好
-fileprivate let HEIGHT_SCALING: CGFloat = 0.5
-public let BOX_SAMPLE_WIDTH: CGFloat = 5
+public let HEIGHT_SCALING: CGFloat = 0.9
+public let BOX_SAMPLE_WIDTH: Int = 2
 
 class EditToolAudioWaveFormView: UICollectionView {
     
     private var box: [[CGFloat]] = []
     
-    private let queue = DispatchQueue(label: "AudioWaveFormView.LoadSamples", qos: .userInteractive, attributes: .concurrent, autoreleaseFrequency: .workItem, target: nil)
+    private let queuePool = DispatchQueuePool(name: "AudioWaveFormView.LoadSamples", queueCount: 6, qos: .userInteractive)
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
@@ -44,26 +45,28 @@ class EditToolAudioWaveFormView: UICollectionView {
     
     private func drawImage(from samples: [CGFloat], closure: @escaping (_ image: UIImage?) -> Void) {
         let midY = bounds.size.height / 2
-        queue.async {
+        queuePool.queue.async {
             UIGraphicsBeginImageContextWithOptions(CGSize(width: EDIT_THUMB_CELL_SIZE, height: WAVEFORM_HEIGHT), false, UIScreen.main.scale)
             let context = UIGraphicsGetCurrentContext()
             let topPath = CGMutablePath()
             let bottomPath = CGMutablePath()
             topPath.move(to: .init(x: 0, y: midY))
             bottomPath.move(to: .init(x: 0, y: midY))
-            for i in 0..<samples.count {
+            var i = 0
+            while i < samples.count {
                 let sample = samples[i]
-                topPath.addLine(to: CGPoint(x: CGFloat(i) * BOX_SAMPLE_WIDTH, y: midY - sample * HEIGHT_SCALING))
-                bottomPath.addLine(to: CGPoint(x: CGFloat(i) * BOX_SAMPLE_WIDTH, y: midY + sample * HEIGHT_SCALING))
+                topPath.addLine(to: CGPoint(x: CGFloat(i * BOX_SAMPLE_WIDTH), y: midY - sample * HEIGHT_SCALING))
+                bottomPath.addLine(to: CGPoint(x: CGFloat(i * BOX_SAMPLE_WIDTH), y: midY + sample * HEIGHT_SCALING))
+                i += BOX_SAMPLE_WIDTH
             }
-            topPath.addLine(to: .init(x: CGFloat(samples.count), y: midY))
-            bottomPath.addLine(to: .init(x: CGFloat(samples.count), y: midY))
+            topPath.addLine(to: .init(x: EDIT_THUMB_CELL_SIZE, y: midY))
+            bottomPath.addLine(to: .init(x: EDIT_THUMB_CELL_SIZE, y: midY))
             let fullPath = CGMutablePath()
             fullPath.addPath(topPath)
             fullPath.addPath(bottomPath)
             context?.addPath(fullPath)
             //设置填充颜色
-            context?.setFillColor(UIColor.lightGray.cgColor)
+            context?.setFillColor(UIColor.qe.hex(0xEEEEEE).cgColor)
             context?.drawPath(using: .fill)
             let image = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()

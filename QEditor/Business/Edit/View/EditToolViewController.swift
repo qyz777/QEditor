@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import AudioCollection
+import SwifterSwift
 
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 
@@ -57,6 +58,8 @@ class EditToolViewController: UIViewController {
     ]
     
     private var tabSelectedType: EditToolTabSelectedType = .edit
+    
+    private var musicWaveformViews: [EditAudioWaveformOperationView] = []
     
     //MARK: Override
 
@@ -601,6 +604,37 @@ extension EditToolViewController: EditToolViewInput {
     
     func updatePlayViewStatus(_ status: PlayerViewStatus) {
         playerStatus = status
+    }
+    
+    func addMusicAudioWaveformView(for segment: EditCompositionAudioSegment) {
+        addMusicButton.isHidden = true
+        let currentTime = currentCursorTime()
+        var offset = duration
+        var nextWaveformView: EditAudioWaveformOperationView?
+        musicWaveformViews.forEach {
+            guard let s = $0.segment else { return }
+            let distance = s.rangeAtComposition.start.seconds - currentTime
+            if distance < offset {
+                nextWaveformView = $0
+                offset = distance
+            }
+        }
+        let width: CGFloat
+        let cursorOffset = containerView.contentOffset.x + SCREEN_WIDTH / 2
+        if nextWaveformView != nil {
+            width = nextWaveformView!.x - cursorOffset
+        } else {
+            width = videoContentWidth - cursorOffset + CONTAINER_PADDING_LEFT
+        }
+        let waveformView = EditAudioWaveformOperationView(frame: CGRect(x: 0, y: 0, width: width, height: EDIT_AUDIO_WAVEFORM_SIZE))
+        waveformView.segment = segment
+        contentView.addSubview(waveformView)
+        waveformView.snp.makeConstraints { (make) in
+            make.top.equalTo(originAudioWaveformView.snp.bottom).offset(5)
+            make.left.equalTo(self.contentView).offset(cursorOffset)
+            make.size.equalTo(CGSize(width: width, height: EDIT_AUDIO_WAVEFORM_SIZE))
+        }
+        musicWaveformViews.append(waveformView)
     }
     
 }

@@ -60,6 +60,8 @@
 		A09CF7DE234B0A7200139461 /* MediaVideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */; };
 		A09CF7E0234B0A7C00139461 /* MediaImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */; };
 		A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7E2234B0E0200139461 /* MediaCell.swift */; };
+		A0ADD4BD23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ADD4BC23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift */; };
+		A0ADD4C023E005DA006BF4F5 /* QueueDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ADD4BF23E005DA006BF4F5 /* QueueDemo.swift */; };
 		A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */; };
 		A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */; };
 		A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */; };
@@ -81,6 +83,7 @@
 		A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03BFC235AA2490012F226 /* EditToolViewController.swift */; };
 		A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */; };
 		A0E03C03235AA3730012F226 /* EditViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C02235AA3730012F226 /* EditViewPresenter.swift */; };
+		A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */; };
 		A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */; };
 /* End PBXBuildFile section */
 
@@ -142,6 +145,8 @@
 		A09CF7DD234B0A7200139461 /* MediaVideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaVideoViewController.swift; sourceTree = "<group>"; };
 		A09CF7DF234B0A7C00139461 /* MediaImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaImageViewController.swift; sourceTree = "<group>"; };
 		A09CF7E2234B0E0200139461 /* MediaCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
+		A0ADD4BC23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAudioSampleAnalyzer.swift; sourceTree = "<group>"; };
+		A0ADD4BF23E005DA006BF4F5 /* QueueDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueDemo.swift; sourceTree = "<group>"; };
 		A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustSettingsView.swift; sourceTree = "<group>"; };
 		A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFilterOperation.swift; sourceTree = "<group>"; };
 		A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustProgressView.swift; sourceTree = "<group>"; };
@@ -163,6 +168,7 @@
 		A0E03BFC235AA2490012F226 /* EditToolViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolViewController.swift; sourceTree = "<group>"; };
 		A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewProtocol.swift; sourceTree = "<group>"; };
 		A0E03C02235AA3730012F226 /* EditViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewPresenter.swift; sourceTree = "<group>"; };
+		A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAudioWaveformOperationView.swift; sourceTree = "<group>"; };
 		A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolChooseBoxView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -228,6 +234,7 @@
 			children = (
 				A0870A552351C802006DC38D /* Extension */,
 				A0870A562351C84E006DC38D /* Namespace.swift */,
+				A0ADD4BF23E005DA006BF4F5 /* QueueDemo.swift */,
 			);
 			path = QUIKit;
 			sourceTree = "<group>";
@@ -448,6 +455,7 @@
 				A0DBD4E623D9788D00E26238 /* EditToolTabView.swift */,
 				A0C6DFB723D9CCC800A48181 /* EditToolSplitButton.swift */,
 				A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */,
+				A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -467,6 +475,7 @@
 				A0C6DFD123DD1E4900A48181 /* EditCompositionAudioSegment.swift */,
 				A0DBD4E423D7392100E26238 /* EditComposition.swift */,
 				A0C6DFBB23DAD2B700A48181 /* EditTransition.swift */,
+				A0ADD4BC23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -642,12 +651,14 @@
 				A015869423C032040050F5B8 /* EditRotateCommand.swift in Sources */,
 				A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */,
 				A02F7DCD239B3A7600398065 /* EditViewPlayProtocol.swift in Sources */,
+				A0ADD4C023E005DA006BF4F5 /* QueueDemo.swift in Sources */,
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A0870A6B23532612006DC38D /* String+Video.swift in Sources */,
 				A0C6DFB823D9CCC800A48181 /* EditToolSplitButton.swift in Sources */,
 				A015869623C03AE60050F5B8 /* EditToolRotateSettingsView.swift in Sources */,
 				A02F7DCF239B3F8C00398065 /* EditToolViewProtocol.swift in Sources */,
 				A0DBD4E523D7392100E26238 /* EditComposition.swift in Sources */,
+				A0ADD4BD23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift in Sources */,
 				A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */,
 				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
@@ -658,6 +669,7 @@
 				A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */,
 				A0C6DFBA23DAAE8200A48181 /* EditToolTransformViewController.swift in Sources */,
 				A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */,
+				A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */,
 				A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */,
 				A0C6DFBC23DAD2B700A48181 /* EditTransition.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,

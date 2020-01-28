@@ -9,6 +9,12 @@
 import Foundation
 import AVFoundation
 
+enum EditCompositionAudioSegmentStyle {
+    case none
+    case fadeIn
+    case fadeOut
+}
+
 class EditCompositionAudioSegment: EditCompositionSegment {
     
     var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
@@ -27,11 +33,28 @@ class EditCompositionAudioSegment: EditCompositionSegment {
     
     var timeRange: CMTimeRange
     
+    var isPrepare: Bool = false
+    
+    /// 是否读取所有音频参数
+    var isReadAllAudioSamples = false
+    
+    /// 声音
+    var volume: Float = 1
+    
+    /// 声音样式
+    var style: EditCompositionAudioSegmentStyle = .none
+    
+    /// 声音样式持续时间，仅在style不为none时生效
+    var styleDuration: Double = 0
+    
+    private let sampleAnalyzer = EditAudioSampleAnalyzer()
+    
     required init(url: URL) {
         self.url = url
         asset = AVURLAsset(url: url)
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = (url.absoluteString + String.qe.timestamp()).hashValue
+        prepare(nil)
     }
     
     required init(asset: AVAsset) {
@@ -39,22 +62,37 @@ class EditCompositionAudioSegment: EditCompositionSegment {
         self.asset = asset
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = ("\(asset.duration.seconds)" + String.qe.timestamp()).hashValue
+        prepare(nil)
+    }
+    
+    func prepare(_ closure: (() -> Void)?) {
+        asset.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks, AVAssetKey.duration, AVAssetKey.metadata]) { [unowned self] in
+            let tracksStatus = self.asset.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
+            let durationStatus = self.asset.statusOfValue(forKey: AVAssetKey.duration, error: nil)
+            self.isPrepare = tracksStatus == .loaded && durationStatus == .loaded
+            closure?()
+        }
     }
     
     /// 加载音频样本
     /// - Parameters:
     ///   - size: 展示音频样本的视图size
-    ///   - boxCount: 音频分箱数量
-    ///   - width: 一箱对应的视图宽度
     ///   - closure: 数据回调
-    func loadAudioSamples(for size: CGSize, boxCount: Int, width: CGFloat, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
-        let key = "tracks"
+    func loadAudioSamples(for size: CGSize, closure: @escaping((_ samples: [CGFloat]) -> Void)) {
         DispatchQueue.global().async {
-            self.asset.loadValuesAsynchronously(forKeys: [key]) {
-                let status = self.asset.statusOfValue(forKey: key, error: nil)
+            self.asset.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks]) { [weak self] in
+                guard let strongSelf = self else {
+                    closure([])
+                    return
+                }
+                let status = strongSelf.asset.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
                 var simpleData: Data? = nil
                 if status == .loaded {
-                    simpleData = self.readAudioSamples()
+                    if strongSelf.isReadAllAudioSamples {
+                        simpleData = strongSelf.sampleAnalyzer.readAudioSamples(from: strongSelf.asset)
+                    } else {
+                        simpleData = strongSelf.sampleAnalyzer.readAudioSamples(from: strongSelf.asset, timeRange: strongSelf.timeRange)
+                    }
                 }
                 guard simpleData != nil else {
                     DispatchQueue.main.sync {
@@ -62,90 +100,12 @@ class EditCompositionAudioSegment: EditCompositionSegment {
                     }
                     return
                 }
-                let samples = self.filteredSamples(from: simpleData!, size: size, width: width)
-                var sampleBox: [[CGFloat]] = []
-                //1箱的宽度
-                let boxWidth = Int(samples.count / boxCount)
-                for i in 0..<boxCount {
-                    let box = Array(samples[i * boxWidth..<(i + 1) * boxWidth])
-                    sampleBox.append(box)
-                }
-
+                let samples = strongSelf.sampleAnalyzer.filteredSamples(from: simpleData!, size: size)
                 DispatchQueue.main.sync {
-                    closure(sampleBox)
+                    closure(samples)
                 }
             }
         }
-    }
-    
-    private func readAudioSamples() -> Data? {
-        let assetReader: AVAssetReader
-        do {
-            assetReader = try AVAssetReader(asset: asset)
-        } catch {
-            QELog(error)
-            return nil
-        }
-        let track = asset.tracks(withMediaType: .audio).first!
-        let settings: [String : Any] = [AVFormatIDKey: kAudioFormatLinearPCM,
-                                        AVLinearPCMIsBigEndianKey: false,
-                                        AVLinearPCMIsFloatKey: false,
-                                        AVLinearPCMBitDepthKey: 16]
-        let trackOutput = AVAssetReaderTrackOutput(track: track, outputSettings: settings)
-        assetReader.add(trackOutput)
-        assetReader.startReading()
-        
-        var sampleData = Data()
-        while assetReader.status == .reading {
-            let sampleBuffer = trackOutput.copyNextSampleBuffer()
-            if sampleBuffer != nil {
-                let blockBufferRef = CMSampleBufferGetDataBuffer(sampleBuffer!)
-                let length = CMBlockBufferGetDataLength(blockBufferRef!)
-                let sampleBytes = UnsafeMutablePointer<UInt8>.allocate(capacity: length)
-                CMBlockBufferCopyDataBytes(blockBufferRef!, atOffset: 0, dataLength: length, destination: sampleBytes)
-                let ptr = UnsafePointer(sampleBytes)
-                sampleData.append(ptr, count: length)
-                CMSampleBufferInvalidate(sampleBuffer!)
-            }
-        }
-        if assetReader.status == .completed {
-            return sampleData
-        } else {
-            QELog("Failed to read audio samples from asset.")
-            return nil
-        }
-    }
-    
-    /// 过滤音频样本
-    /// 数据分箱选出平均数
-    private func filteredSamples(from sampleData: Data, size: CGSize, width: CGFloat) -> [CGFloat] {
-        var array: [UInt16] = []
-        let sampleCount = sampleData.count / MemoryLayout<UInt16>.size
-        let binSize = sampleCount / Int(size.width * width)
-        let bytes: [UInt16] = sampleData.withUnsafeBytes( { bytes in
-            let buffer: UnsafePointer<UInt16> = bytes.baseAddress!.assumingMemoryBound(to: UInt16.self)
-            return Array(UnsafeBufferPointer(start: buffer, count: sampleData.count / MemoryLayout<UInt16>.size))
-        })
-        var maxSample: UInt16 = 0
-        var i = 0
-        while i < sampleCount - binSize {
-            var sum: Int = 0
-            //获取一箱的平均数，性能又好效果也好
-            for j in 0..<binSize {
-                sum += Int(bytes[i + j])
-            }
-            let value = sum / binSize
-            array.append(UInt16(value))
-            if value > maxSample {
-                maxSample = UInt16(value)
-            }
-            i += binSize
-        }
-        let scaleFactor = size.height / CGFloat(maxSample)
-        let res: [CGFloat] = array.map { (a) -> CGFloat in
-            return CGFloat(a) * scaleFactor
-        }
-        return res
     }
     
 }

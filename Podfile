@@ -1,5 +1,6 @@
+inhibit_all_warnings!
+
 target 'QEditor' do
-  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 
   pod "SnapKit"
@@ -7,9 +8,14 @@ target 'QEditor' do
   
   pod 'TableViewAdapter', :path => './LocalLib/TableViewAdapter'
   pod 'AudioCollection', :path => './LocalLib/AudioCollection'
+  pod 'DispatchQueuePool', :path => './LocalLib/DispatchQueuePool'
   
   pod 'NotificationBannerSwift', '~> 3.0.0'
   pod 'NVActivityIndicatorView'
+  
+  pod 'SwifterSwift/SwiftStdlib', '~> 5.1.0'
+  pod 'SwifterSwift/UIKit', '~> 5.1.0'
+  pod 'SwifterSwift/Foundation', '~> 5.1.0'
   
   pod 'FLEX', :configurations => ['Debug']
 

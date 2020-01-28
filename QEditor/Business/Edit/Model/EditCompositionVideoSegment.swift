@@ -30,11 +30,14 @@ class EditCompositionVideoSegment: EditCompositionSegment {
     
     var timeRange: CMTimeRange
     
+    var isPrepare: Bool = false
+    
     required init(url: URL) {
         self.url = url
         asset = AVURLAsset(url: url)
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = (url.absoluteString + String.qe.timestamp()).hashValue
+        prepare(nil)
     }
     
     required init(asset: AVAsset) {
@@ -42,6 +45,16 @@ class EditCompositionVideoSegment: EditCompositionSegment {
         self.asset = asset
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = ("\(asset.duration.seconds)" + String.qe.timestamp()).hashValue
+        prepare(nil)
+    }
+    
+    func prepare(_ closure: (() -> Void)?) {
+        asset.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks, AVAssetKey.duration, AVAssetKey.metadata]) { [unowned self] in
+            let tracksStatus = self.asset.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
+            let durationStatus = self.asset.statusOfValue(forKey: AVAssetKey.duration, error: nil)
+            self.isPrepare = tracksStatus == .loaded && durationStatus == .loaded
+            closure?()
+        }
     }
     
     /// 移除在time之后的用来插入composition的range

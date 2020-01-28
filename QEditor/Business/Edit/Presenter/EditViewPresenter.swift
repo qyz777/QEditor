@@ -43,7 +43,7 @@ class EditViewPresenter {
         toolView?.loadVideoModel(toolService.videoModel!)
         toolView?.loadAsset(toolService.imageSourceComposition!)
         //3.刷新工具栏
-        toolView?.reloadView(toolService.segments)
+        toolView?.reloadView(toolService.videoSegments)
     }
     
     func beginTaskRunning() {
