@@ -78,7 +78,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let range = CMTimeRange(start: beginTime, end: endTime)
         let context = [EditFilterBrightnessKey: (value: value, range: range)]
         toolService.adjustFilter(context)
         playerView?.loadVideoModel(toolService.videoModel!)
@@ -86,7 +86,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let range = CMTimeRange(start: beginTime, end: endTime)
         let context = [EditFilterSaturationKey: (value: value, range: range)]
         toolService.adjustFilter(context)
         playerView?.loadVideoModel(toolService.videoModel!)
@@ -94,7 +94,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let range = CMTimeRange(start: beginTime, end: endTime)
         let context = [EditFilterContrastKey: (value: value, range: range)]
         toolService.adjustFilter(context)
         playerView?.loadVideoModel(toolService.videoModel!)
@@ -102,7 +102,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(beginTime: beginTime, endTime: endTime)
+        let range = CMTimeRange(start: beginTime, end: endTime)
         let context = [EditFilterGaussianBlurKey: (value: value, range: range)]
         toolService.adjustFilter(context)
         playerView?.loadVideoModel(toolService.videoModel!)
@@ -134,11 +134,19 @@ extension EditViewPresenter: EditToolViewOutput {
         return toolService.videoSegments[index].transition
     }
     
-    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset) {
+    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?) {
         let currentTime = toolView.currentCursorTime()
         guard let segment = toolService.addMusic(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
+        segment.title = title
         playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
         toolView.addMusicAudioWaveformView(for: segment)
+    }
+    func toolView(_ toolView: EditToolViewInput, updateAudio segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        //view传来的timeRange是不可信的，在service里还需要校验
+        toolService.updateMusic(segment, timeRange: timeRange)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
     }
     
 }

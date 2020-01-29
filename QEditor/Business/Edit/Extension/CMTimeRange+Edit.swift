@@ -11,8 +11,8 @@ import AVFoundation
 
 extension CMTimeRange {
     
-    init(beginTime: Double, endTime: Double) {
-        self.init(start: CMTime(seconds: beginTime, preferredTimescale: 600), end: CMTime(seconds: endTime, preferredTimescale: 600))
+    init(start: Double, end: Double) {
+        self.init(start: CMTime(seconds: start, preferredTimescale: 600), end: CMTime(seconds: end, preferredTimescale: 600))
     }
     
     var description: String {

@@ -20,4 +20,20 @@ class MessageBanner {
         banner.show(queue: bannerQueueToDisplaySeveralBanners, on: UIViewController.qe.current()?.navigationController, cornerRadius: 8)
     }
     
+    static func success(content: String) {
+        show(title: "成功", subTitle: content, style: .success)
+    }
+    
+    static func warning(content: String) {
+        show(title: "警告", subTitle: content, style: .warning)
+    }
+    
+    static func info(content: String) {
+        show(title: "提示", subTitle: content, style: .info)
+    }
+    
+    static func error(content: String) {
+        show(title: "错误", subTitle: content, style: .danger)
+    }
+    
 }

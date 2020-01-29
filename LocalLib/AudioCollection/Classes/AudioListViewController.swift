@@ -14,7 +14,7 @@ import SnapKit
 
 class AudioListViewController: UIViewController {
     
-    public var selectedClosure: ((_ asset: AVAsset) -> Void)?
+    public var selectedClosure: ((_ model: AudioFileModel) -> Void)?
     
     private var cellModels: [AudioFileCellModel] = []
 
@@ -66,8 +66,7 @@ extension AudioListViewController: TableViewAdapterDelegate {
     func tableViewCell(_ cell: UITableViewCell, didDequeueRowAt indexPath: IndexPath) {
         if let cell = cell as? AudioFileCell {
             cell.clickClosure = { [unowned self] in
-                guard let url = self.cellModels[indexPath.row].model!.item.assetURL else { return }
-                self.selectedClosure?(AVURLAsset(url: url))
+                self.selectedClosure?(self.cellModels[indexPath.row].model!)
             }
         }
     }

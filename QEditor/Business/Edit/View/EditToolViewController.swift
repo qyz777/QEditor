@@ -92,7 +92,9 @@ class EditToolViewController: UIViewController {
         contentView.addSubview(thumbView)
         contentView.addSubview(originAudioWaveformView)
         contentView.addSubview(timeScaleView)
-        contentView.addSubview(addMusicButton)
+        contentView.addSubview(originVideoLabel)
+        contentView.addSubview(originAudioLabel)
+        contentView.addSubview(musicLabel)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -148,11 +150,19 @@ class EditToolViewController: UIViewController {
             make.top.equalTo(self.thumbView.snp.bottom).offset(5)
         }
         
-        addMusicButton.snp.makeConstraints { (make) in
-            make.height.equalTo(25)
-            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
-            make.right.equalTo(self.contentView).offset(-SCREEN_WIDTH / 2)
-            make.top.equalTo(self.originAudioWaveformView.snp.bottom).offset(5)
+        originVideoLabel.snp.makeConstraints { (make) in
+            make.right.equalTo(self.contentView.snp.left).offset(SCREEN_WIDTH / 2 - SCREEN_PADDING_X)
+            make.centerY.equalTo(self.thumbView)
+        }
+        
+        originAudioLabel.snp.makeConstraints { (make) in
+            make.right.equalTo(self.originVideoLabel)
+            make.centerY.equalTo(self.originAudioWaveformView)
+        }
+        
+        musicLabel.snp.makeConstraints { (make) in
+            make.right.equalTo(self.originAudioLabel)
+            make.centerY.equalTo(self.originAudioWaveformView.snp.bottom).offset(5 + EDIT_AUDIO_WAVEFORM_SIZE / 2)
         }
         
         addButton.snp.makeConstraints { (make) in
@@ -245,14 +255,7 @@ class EditToolViewController: UIViewController {
     }
     
     private func updateToolBar() {
-        switch tabSelectedType {
-        case .edit:
-            toolBarView.update(toolBarModels)
-            addMusicButton.isHidden = true
-        case .music:
-            addMusicButton.isHidden = false
-            break
-        }
+        toolBarView.update(toolBarModels)
     }
     
     private func pushChangeSpeedView() {
@@ -269,6 +272,39 @@ class EditToolViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    private func showMediaSelectedView() {
+        let vc = MediaViewController.buildView()
+        vc.completion = { [unowned self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
+            self.presenter.toolView(self, didSelected: videos, images: photos)
+        }
+        let nav = NavigationController(rootViewController: vc)
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
+    }
+    
+    private func showMusicSelectedView() {
+        //1.检查是否能够添加
+        let cursorX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
+        //只要有1s的间距就可以往里插
+        let minPoint = CGPoint(x: cursorX, y: originAudioWaveformView.frame.maxY + 5)
+        let maxPoint = CGPoint(x: cursorX + EDIT_THUMB_CELL_SIZE, y: originAudioWaveformView.frame.maxY + 5)
+        //遍历数组中的view是否包含这个point
+        for view in musicWaveformViews {
+            if view.frame.contains(maxPoint) || view.frame.contains(minPoint) {
+                MessageBanner.warning(content: "此位置无法添加音频")
+                return
+            }
+        }
+        //2.唤起媒体资料库
+        let vc = AudioCollectionViewController()
+        vc.selectedClosure = { [unowned self] (model) in
+            guard let url = model.assetURL else { return }
+            let asset = AVURLAsset(url: url)
+            self.presenter.toolView(self, addMusicFrom: asset, title: model.title)
+        }
+        let nav = NavigationController(rootViewController: vc)
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
+    }
+    
     //MARK: Action
     
     @objc
@@ -278,12 +314,12 @@ class EditToolViewController: UIViewController {
     
     @objc
     func didClickAddButton() {
-        let vc = MediaViewController.buildView()
-        vc.completion = { [unowned self] (_ videos: [MediaVideoModel], _ photos: [MediaImageModel]) in
-            self.presenter.toolView(self, didSelected: videos, images: photos)
+        switch tabSelectedType {
+        case .edit:
+            showMediaSelectedView()
+        case .music:
+            showMusicSelectedView()
         }
-        let nav = NavigationController(rootViewController: vc)
-        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
     @objc
@@ -294,16 +330,6 @@ class EditToolViewController: UIViewController {
             self.presenter.toolView(self, didSelectedSplit: button.index, withTransition: model)
         }
         navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    @objc
-    func addMusicButtonDidClick() {
-        let vc = AudioCollectionViewController()
-        vc.selectedClosure = { [unowned self] (asset) in
-            self.presenter.toolView(self, addMusicFrom: asset)
-        }
-        let nav = NavigationController(rootViewController: vc)
-        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
     //MARK: Notification
@@ -390,7 +416,6 @@ class EditToolViewController: UIViewController {
         let view = EditToolAudioWaveFormView(frame: CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: WAVEFORM_HEIGHT), collectionViewLayout: layout)
         view.layer.cornerRadius = 4
         view.isScrollEnabled = false
-        view.contentLabel.text = "原声"
         return view
     }()
     
@@ -464,12 +489,27 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
-    lazy var addMusicButton: EditToolAddMusicButton = {
-        let view = EditToolAddMusicButton(frame: .zero)
-        view.layer.cornerRadius = 4
-        view.backgroundColor = .darkGray
-        view.isHidden = true
-        view.addTarget(self, action: #selector(addMusicButtonDidClick), for: .touchUpInside)
+    private lazy var originVideoLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        view.text = "视频轨道"
+        return view
+    }()
+    
+    private lazy var originAudioLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        view.text = "原声轨道"
+        return view
+    }()
+    
+    private lazy var musicLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        view.text = "音乐轨道"
         return view
     }()
 
@@ -607,16 +647,25 @@ extension EditToolViewController: EditToolViewInput {
     }
     
     func addMusicAudioWaveformView(for segment: EditCompositionAudioSegment) {
-        addMusicButton.isHidden = true
-        let currentTime = currentCursorTime()
-        var offset = duration
+        //唤起媒体资料库的时候检查过添加合法性了，这里就不再检查了
+        let cursorX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
+        var offsetRight = videoContentWidth
+        var offsetLeft = videoContentWidth
         var nextWaveformView: EditAudioWaveformOperationView?
+        var preWaveformView: EditAudioWaveformOperationView?
         musicWaveformViews.forEach {
-            guard let s = $0.segment else { return }
-            let distance = s.rangeAtComposition.start.seconds - currentTime
-            if distance < offset {
-                nextWaveformView = $0
-                offset = distance
+            if $0.x > cursorX {
+                let distance = $0.x - cursorX
+                if distance < offsetRight {
+                    nextWaveformView = $0
+                    offsetRight = distance
+                }
+            } else {
+                let distance = cursorX - $0.frame.maxX
+                if distance < offsetLeft {
+                    preWaveformView = $0
+                    offsetLeft = distance
+                }
             }
         }
         let width: CGFloat
@@ -628,13 +677,87 @@ extension EditToolViewController: EditToolViewInput {
         }
         let waveformView = EditAudioWaveformOperationView(frame: CGRect(x: 0, y: 0, width: width, height: EDIT_AUDIO_WAVEFORM_SIZE))
         waveformView.segment = segment
+        waveformView.selectedClosure = { [unowned self, waveformView] (isSelected) in
+            for view in self.musicWaveformViews {
+                if !view.isEqual(waveformView) {
+                    view.hiddenOperationView()
+                }
+            }
+        }
+        var currentX = waveformView.x
+        var currentWidth = waveformView.width
+        waveformView.handleLeftPanClosure = { [unowned self, waveformView] (pan) in
+            switch pan.state {
+            case .began:
+                currentX = waveformView.x
+                currentWidth = waveformView.width
+            case .changed:
+                //1.检查条件
+                let offsetX = pan.translation(in: waveformView).x
+                let newLeft: CGFloat
+                if offsetX < 0 {
+                    //向左
+                    newLeft = max(preWaveformView != nil ? preWaveformView!.frame.maxX : CONTAINER_PADDING_LEFT, currentX + offsetX)
+                } else {
+                    //向右
+                    newLeft = min(waveformView.frame.maxX - EDIT_AUDIO_WAVEFORM_SIZE, currentX + offsetX)
+                }
+                var newWidth = currentWidth + currentX - newLeft
+                newWidth = min(newWidth, CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_SIZE)
+                //2.开始移动
+                waveformView.snp.updateConstraints { (make) in
+                    make.left.equalTo(self.contentView).offset(newLeft)
+                    make.width.equalTo(newWidth)
+                }
+                waveformView.layoutIfNeeded()
+            case .ended:
+                let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
+                let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
+                self.presenter.toolView(self, updateAudio: segment, timeRange: CMTimeRange(start: start, end: end))
+            default:
+                break
+            }
+        }
+        waveformView.handleRightPanClosure = { [unowned self, waveformView] (pan) in
+            switch pan.state {
+            case .began:
+                currentX = waveformView.frame.maxX
+                currentWidth = waveformView.width
+            case .changed:
+                //1.检查条件
+                let offsetX = pan.translation(in: waveformView).x
+                let newRight: CGFloat
+                if offsetX < 0 {
+                    //向左
+                    newRight = max(waveformView.x + EDIT_AUDIO_WAVEFORM_SIZE, currentX + offsetX)
+                } else {
+                    //向右
+                    newRight = min(nextWaveformView != nil ? nextWaveformView!.x : self.containerView.contentSize.width - CONTAINER_PADDING_LEFT, currentX + offsetX)
+                }
+                var newWidth = newRight - waveformView.x
+                newWidth = min(newWidth, CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_SIZE)
+                //2.开始移动
+                waveformView.snp.updateConstraints { (make) in
+                    make.width.equalTo(newWidth)
+                }
+                waveformView.layoutIfNeeded()
+            case .ended:
+                let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
+                let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
+                self.presenter.toolView(self, updateAudio: segment, timeRange: CMTimeRange(start: start, end: end))
+            default:
+                break
+            }
+        }
         contentView.addSubview(waveformView)
         waveformView.snp.makeConstraints { (make) in
             make.top.equalTo(originAudioWaveformView.snp.bottom).offset(5)
             make.left.equalTo(self.contentView).offset(cursorOffset)
-            make.size.equalTo(CGSize(width: width, height: EDIT_AUDIO_WAVEFORM_SIZE))
+            make.width.equalTo(width)
+            make.height.equalTo(EDIT_AUDIO_WAVEFORM_SIZE)
         }
         musicWaveformViews.append(waveformView)
+        MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
     }
     
 }
@@ -694,9 +817,6 @@ extension EditToolViewController: UIScrollViewDelegate {
             thumbView.contentOffset = .init(x: thumbView.contentSize.width - SCREEN_WIDTH, y: 0)
             timeScaleView.contentOffset = .init(x: timeScaleView.contentSize.width - SCREEN_WIDTH, y: 0)
             originAudioWaveformView.contentOffset = .init(x: originAudioWaveformView.contentSize.width - SCREEN_WIDTH, y: 0)
-        }
-        addMusicButton.snp.updateConstraints { (make) in
-            make.left.equalTo(self.contentView).offset(offsetX + CONTAINER_PADDING_LEFT)
         }
     }
     

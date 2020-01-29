@@ -10,12 +10,18 @@ import Foundation
 import TableViewAdapter
 import MediaPlayer
 
-class AudioFileModel: BaseModel {
+public class AudioFileModel: BaseModel {
     
-    let item: MPMediaItem
+    public let item: MPMediaItem
+    
+    public let assetURL: URL?
+    
+    public let title: String?
     
     init(item: MPMediaItem) {
         self.item = item
+        assetURL = item.assetURL
+        title = item.title
     }
     
 }

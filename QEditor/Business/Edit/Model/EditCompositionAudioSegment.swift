@@ -47,6 +47,12 @@ class EditCompositionAudioSegment: EditCompositionSegment {
     /// 声音样式持续时间，仅在style不为none时生效
     var styleDuration: Double = 0
     
+    var title: String?
+    
+    var assetDuration: Double {
+        return asset.duration.seconds
+    }
+    
     private let sampleAnalyzer = EditAudioSampleAnalyzer()
     
     required init(url: URL) {

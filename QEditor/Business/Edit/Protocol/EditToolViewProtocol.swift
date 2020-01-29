@@ -81,6 +81,8 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel
     
-    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset)
+    func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?)
+    
+    func toolView(_ toolView: EditToolViewInput, updateAudio segment: EditCompositionAudioSegment, timeRange: CMTimeRange)
     
 }

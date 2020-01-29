@@ -18,7 +18,7 @@ let AUDIO_COLLECTION_WIDTH: CGFloat = (SCREEN_WIDTH - SCREEN_PADDING_X * 2 - AUD
 
 public class AudioCollectionViewController: UIViewController {
     
-    public var selectedClosure: ((_ asset: AVAsset) -> Void)?
+    public var selectedClosure: ((_ model: AudioFileModel) -> Void)?
     
     private let service = AudioDataService()
     
@@ -26,6 +26,7 @@ public class AudioCollectionViewController: UIViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        title = "媒体资料库"
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { (make) in
             make.edges.equalTo(self.view)
@@ -94,9 +95,10 @@ extension AudioCollectionViewController: UICollectionViewDelegate, UICollectionV
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let vc = AudioListViewController()
-        vc.selectedClosure = { [unowned self] (asset) in
-            self.selectedClosure?(asset)
-            self.navigationController?.dismiss(animated: true, completion: nil)
+        vc.selectedClosure = { [unowned self] (model) in
+            self.navigationController?.dismiss(animated: true, completion: {
+                self.selectedClosure?(model)
+            })
         }
         vc.update(collections[indexPath.item].files)
         navigationController?.pushViewController(vc, animated: true)

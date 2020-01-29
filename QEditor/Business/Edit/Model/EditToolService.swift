@@ -117,6 +117,58 @@ class EditToolService {
         return segment
     }
     
+    /// 更新音乐片段数据源
+    /// - Parameters:
+    ///   - segment: 音乐片段数据源
+    ///   - timeRange: 拖动后片段在轨道中的timeRange
+    public func updateMusic(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        guard let composition = videoModel?.composition else { return }
+        //校验timeRange
+        var timeRange = timeRange
+        var preSegment: EditCompositionAudioSegment?
+        var nextSegment: EditCompositionAudioSegment?
+        for i in 0..<musicSegments.count {
+            let currentSegment = musicSegments[i]
+            if currentSegment.id == segment.id {
+                if i > 0 {
+                    preSegment = musicSegments[i - 1]
+                }
+                if i + 1 < musicSegments.count {
+                    nextSegment = musicSegments[i + 1]
+                }
+                break
+            }
+        }
+        if preSegment != nil && timeRange.start < preSegment!.rangeAtComposition.end {
+            timeRange = CMTimeRange(start: preSegment!.rangeAtComposition.end, end: timeRange.end)
+        } else if timeRange.start < .zero {
+            timeRange = CMTimeRange(start: .zero, end: timeRange.end)
+        }
+        if nextSegment != nil && timeRange.end > nextSegment!.rangeAtComposition.start {
+            timeRange = CMTimeRange(start: timeRange.start, end: nextSegment!.rangeAtComposition.start)
+        } else if timeRange.end > composition.duration {
+            timeRange = CMTimeRange(start: timeRange.start, end: composition.duration)
+        }
+        segment.rangeAtComposition = timeRange
+        //修改在asset的timeRange，方式为左右扩张
+        let halfSeconds = (segment.rangeAtComposition.duration - segment.timeRange.duration).seconds / 2
+        if segment.timeRange.end.seconds + halfSeconds > segment.asset.duration.seconds {
+            let offsetSeconds = segment.timeRange.end.seconds + halfSeconds - segment.asset.duration.seconds
+            let newEnd = CMTime(seconds: segment.asset.duration.seconds, preferredTimescale: 600)
+            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds - offsetSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: newStart, duration: newEnd)
+        } else if segment.timeRange.start.seconds - halfSeconds < 0 {
+            let offsetSeconds = -(segment.timeRange.start.seconds - halfSeconds)
+            let newEnd = CMTime(seconds: timeRange.start.seconds + halfSeconds + offsetSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: .zero, duration: newEnd)
+        } else {
+            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds, preferredTimescale: 600)
+            let newEnd = CMTime(seconds: segment.timeRange.end.seconds + halfSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: newStart, end: newEnd)
+        }
+        refreshComposition()
+    }
+    
     public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])

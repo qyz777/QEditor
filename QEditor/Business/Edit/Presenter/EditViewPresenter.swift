@@ -44,6 +44,8 @@ class EditViewPresenter {
         toolView?.loadAsset(toolService.imageSourceComposition!)
         //3.刷新工具栏
         toolView?.reloadView(toolService.videoSegments)
+        //4.恢复到刷新之前的seek
+        playerView?.seek(to: toolView?.currentCursorTime() ?? .zero)
     }
     
     func beginTaskRunning() {
