@@ -62,6 +62,7 @@
 		A09CF7E3234B0E0200139461 /* MediaCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A09CF7E2234B0E0200139461 /* MediaCell.swift */; };
 		A0ADD4BD23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ADD4BC23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift */; };
 		A0ADD4C023E005DA006BF4F5 /* QueueDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ADD4BF23E005DA006BF4F5 /* QueueDemo.swift */; };
+		A0ADD4C623E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0ADD4C523E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift */; };
 		A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */; };
 		A0C1A2A523AE16AA0075AD4F /* EditFilterOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */; };
 		A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */; };
@@ -147,6 +148,7 @@
 		A09CF7E2234B0E0200139461 /* MediaCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCell.swift; sourceTree = "<group>"; };
 		A0ADD4BC23DFF9FF006BF4F5 /* EditAudioSampleAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAudioSampleAnalyzer.swift; sourceTree = "<group>"; };
 		A0ADD4BF23E005DA006BF4F5 /* QueueDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueDemo.swift; sourceTree = "<group>"; };
+		A0ADD4C523E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAudioDetailSettingsViewController.swift; sourceTree = "<group>"; };
 		A0C1A29C23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustSettingsView.swift; sourceTree = "<group>"; };
 		A0C1A2A423AE16AA0075AD4F /* EditFilterOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFilterOperation.swift; sourceTree = "<group>"; };
 		A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAdjustProgressView.swift; sourceTree = "<group>"; };
@@ -486,6 +488,7 @@
 				A0DBD4EB23D9BDF700E26238 /* EditToolBaseSettingsViewController.swift */,
 				A0DBD4E823D9BD4D00E26238 /* EditToolChangeSpeedViewController.swift */,
 				A0C6DFB923DAAE8200A48181 /* EditToolTransformViewController.swift */,
+				A0ADD4C523E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift */,
 			);
 			path = SettingsViewController;
 			sourceTree = "<group>";
@@ -669,6 +672,7 @@
 				A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */,
 				A0C6DFBA23DAAE8200A48181 /* EditToolTransformViewController.swift in Sources */,
 				A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */,
+				A0ADD4C623E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift in Sources */,
 				A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */,
 				A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */,
 				A0C6DFBC23DAD2B700A48181 /* EditTransition.swift in Sources */,
@@ -854,6 +858,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = B9S5K8T3BY;
 				INFOPLIST_FILE = QEditor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

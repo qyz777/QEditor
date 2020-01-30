@@ -41,6 +41,9 @@ class EditAudioSampleAnalyzer {
                 CMBlockBufferCopyDataBytes(blockBufferRef!, atOffset: 0, dataLength: length, destination: sampleBytes)
                 let ptr = UnsafePointer(sampleBytes)
                 sampleData.append(ptr, count: length)
+                //用完指针要销毁，避免leaks
+                sampleBytes.deinitialize(count: length)
+                sampleBytes.deallocate()
                 CMSampleBufferInvalidate(sampleBuffer!)
             }
         }

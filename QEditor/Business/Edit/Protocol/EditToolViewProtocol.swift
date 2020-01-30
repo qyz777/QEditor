@@ -11,7 +11,7 @@ import AVFoundation
 
 protocol EditToolViewInput: EditViewPlayProtocol {
     
-    func refreshWaveFormView(with box: [[CGFloat]])
+    func refreshWaveFormView(with asset: AVAsset)
     
     func deletePart()
     
@@ -90,5 +90,13 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment)
     
     func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment)
+    
+    func toolView(_ toolView: EditToolViewInput, change volume: Float, of segment: EditCompositionAudioSegment)
+    
+    func toolView(_ toolView: EditToolViewInput, changeFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
+    
+    func toolView(_ toolView: EditToolViewInput, changeFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
+    
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double)
     
 }

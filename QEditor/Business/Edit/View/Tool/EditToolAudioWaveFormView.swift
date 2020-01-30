@@ -8,6 +8,7 @@
 
 import UIKit
 import DispatchQueuePool
+import AVFoundation
 
 public let WAVEFORM_HEIGHT: CGFloat = 25
 fileprivate let CELL_IDENTIFIER = "EditToolWaveformCell"
@@ -18,9 +19,15 @@ public let BOX_SAMPLE_WIDTH: Int = 2
 
 class EditToolAudioWaveFormView: UICollectionView {
     
-    private var box: [[CGFloat]] = []
+    public var scrollDidEndOffsetXClosure: ((_ offset: CGFloat) -> Void)?
     
     private let queuePool = DispatchQueuePool(name: "AudioWaveFormView.LoadSamples", queueCount: 6, qos: .userInteractive)
+    
+    private let sampleAnalyzer = EditAudioSampleAnalyzer()
+    
+    private var asset: AVAsset?
+    
+    private var count: Int = 0
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
@@ -33,15 +40,17 @@ class EditToolAudioWaveFormView: UICollectionView {
         super.init(coder: coder)
     }
     
-    public func update(_ box: [[CGFloat]]) {
-        self.box = box
+    public func update(_ asset: AVAsset) {
+        self.asset = asset
+        count = Int(ceil(asset.duration.seconds))
         reloadData()
     }
     
     private func drawImage(from samples: [CGFloat], closure: @escaping (_ image: UIImage?) -> Void) {
         let midY = bounds.size.height / 2
+        let height = self.height
         queuePool.queue.async {
-            UIGraphicsBeginImageContextWithOptions(CGSize(width: EDIT_THUMB_CELL_SIZE, height: WAVEFORM_HEIGHT), false, UIScreen.main.scale)
+            UIGraphicsBeginImageContextWithOptions(CGSize(width: EDIT_THUMB_CELL_SIZE, height: height), false, UIScreen.main.scale)
             let context = UIGraphicsGetCurrentContext()
             let topPath = CGMutablePath()
             let bottomPath = CGMutablePath()
@@ -76,7 +85,7 @@ class EditToolAudioWaveFormView: UICollectionView {
 extension EditToolAudioWaveFormView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return box.count
+        return count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -86,8 +95,34 @@ extension EditToolAudioWaveFormView: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         let c = cell as! EditToolWaveformCell
-        drawImage(from: box[indexPath.item]) { (image) in
-            c.imageView.image = image
+        let height = self.height
+        queuePool.queue.async { [weak self] in
+            guard let strongSelf = self else { return }
+            guard let asset = strongSelf.asset else { return }
+            let totalWidth = CGFloat(strongSelf.count) * EDIT_THUMB_CELL_SIZE
+            let duration = Double(EDIT_THUMB_CELL_SIZE / totalWidth) * asset.duration.seconds
+            let start = Double(EDIT_THUMB_CELL_SIZE * CGFloat(indexPath.item) / totalWidth)
+            let simpleData = strongSelf.sampleAnalyzer.readAudioSamples(from: asset, timeRange: CMTimeRange(start: start, end: duration))
+            guard simpleData != nil else {
+                return
+            }
+            let samples = strongSelf.sampleAnalyzer.filteredSamples(from: simpleData!, size: CGSize(width: EDIT_THUMB_CELL_SIZE, height: height))
+            DispatchQueue.main.async { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.drawImage(from: samples) { [weak c] (image) in
+                    c?.imageView.image = image
+                }
+            }
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        scrollDidEndOffsetXClosure?(scrollView.contentOffset.x)
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            scrollDidEndOffsetXClosure?(scrollView.contentOffset.x)
         }
     }
     

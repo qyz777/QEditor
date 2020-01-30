@@ -9,12 +9,6 @@
 import Foundation
 import AVFoundation
 
-enum EditCompositionAudioSegmentStyle {
-    case none
-    case fadeIn
-    case fadeOut
-}
-
 class EditCompositionAudioSegment: EditCompositionSegment {
     
     var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
@@ -41,11 +35,14 @@ class EditCompositionAudioSegment: EditCompositionSegment {
     /// 声音
     var volume: Float = 1
     
-    /// 声音样式
-    var style: EditCompositionAudioSegmentStyle = .none
+    /// 是否淡入
+    var isFadeIn: Bool = false
     
-    /// 声音样式持续时间，仅在style不为none时生效
-    var styleDuration: Double = 0
+    /// 是否淡出
+    var isFadeOut: Bool = true
+    
+    /// 声音样式持续时间，预留设置，暂时为1.5
+    var styleDuration: Double = 1.5
     
     var title: String?
     

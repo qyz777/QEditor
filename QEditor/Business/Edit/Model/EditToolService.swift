@@ -27,8 +27,6 @@ class EditToolService {
     public private(set) var videoSegments: [EditCompositionVideoSegment] = []
     
     public private(set) var musicSegments: [EditCompositionAudioSegment] = []
-    
-    private let sampleAnalyzer = EditAudioSampleAnalyzer()
 
     public func splitTime() -> [CMTime] {
         guard videoModel != nil else {
@@ -198,45 +196,54 @@ class EditToolService {
         refreshComposition()
     }
     
-    public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
-        guard videoModel != nil else {
-            closure([])
-            return
-        }
-        let composition = videoModel!.composition
-        DispatchQueue.global().async {
-            composition.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks]) { [weak self] in
-                let status = composition.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
-                guard let strongSelf = self else {
-                    closure([])
-                    return
-                }
-                var simpleData: Data? = nil
-                if status == .loaded {
-                    simpleData = strongSelf.sampleAnalyzer.readAudioSamples(from: composition)
-                }
-                guard simpleData != nil else {
-                    DispatchQueue.main.sync {
-                        closure([])
-                    }
-                    return
-                }
-                let samples = strongSelf.sampleAnalyzer.filteredSamples(from: simpleData!, size: size)
-                var sampleBox: [[CGFloat]] = []
-                //1箱的宽度
-                let boxWidth = Int(samples.count / boxCount)
-                for i in 0..<boxCount {
-                    let box = Array(samples[i * boxWidth..<(i + 1) * boxWidth])
-                    sampleBox.append(box)
-                }
-
-                DispatchQueue.main.sync {
-                    closure(sampleBox)
-                }
+    public func updateMusic(_ segment: EditCompositionAudioSegment, volume: Float) {
+        for s in musicSegments {
+            if s == segment {
+                s.volume = volume
+                break
             }
         }
+        refreshComposition()
     }
     
+    public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeIn: Bool) {
+        for s in musicSegments {
+            if s == segment {
+                s.isFadeIn = isFadeIn
+                break
+            }
+        }
+        refreshComposition()
+    }
+    
+    public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeOut: Bool) {
+        for s in musicSegments {
+            if s == segment {
+                s.isFadeOut = isFadeOut
+                break
+            }
+        }
+        refreshComposition()
+    }
+    
+    public func updateMusic(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
+        for s in musicSegments {
+            if s == segment {
+                if start + s.rangeAtComposition.duration <= s.asset.duration {
+                    s.timeRange = CMTimeRange(start: start, duration: s.rangeAtComposition.duration)
+                } else {
+                    s.timeRange = CMTimeRange(start: start, end: s.asset.duration)
+                    s.rangeAtComposition = CMTimeRange(start: s.rangeAtComposition.start, duration: s.timeRange.duration)
+                    segment.rangeAtComposition = s.rangeAtComposition
+                }
+                segment.timeRange = s.timeRange
+                break
+            }
+        }
+        refreshComposition()
+    }
+    
+    //MARK: Composition
     /// 生成composition
     /// 调用完此方法后所有视频model都使用videoModel
     public func refreshComposition() {
@@ -347,20 +354,19 @@ class EditToolService {
         //todo:原声的设置
         let param = AVMutableAudioMixInputParameters(track: mixAudioTrack)
         for segment in musicSegments {
-            switch segment.style {
-            case .none:
-                param.setVolume(segment.volume, at: segment.rangeAtComposition.start)
-            case .fadeIn:
+            var start = segment.rangeAtComposition.start
+            if segment.isFadeIn {
                 let duration = min(segment.styleDuration, segment.rangeAtComposition.duration.seconds)
                 let newEnd = segment.rangeAtComposition.start + CMTime(seconds: duration, preferredTimescale: 600)
                 let range = CMTimeRange(start: segment.rangeAtComposition.start, end: newEnd)
                 param.setVolumeRamp(fromStartVolume: 0, toEndVolume: segment.volume, timeRange: range)
-                param.setVolume(segment.volume, at: newEnd)
-            case .fadeOut:
+                start = newEnd
+            }
+            param.setVolume(segment.volume, at: start)
+            if segment.isFadeOut {
                 let duration = min(segment.styleDuration, segment.rangeAtComposition.duration.seconds)
                 let newStart = segment.rangeAtComposition.end - CMTime(seconds: duration, preferredTimescale: 600)
                 let range = CMTimeRange(start: newStart, end: segment.rangeAtComposition.end)
-                param.setVolume(segment.volume, at: segment.rangeAtComposition.start)
                 param.setVolumeRamp(fromStartVolume: segment.volume, toEndVolume: 0, timeRange: range)
             }
         }

@@ -52,9 +52,7 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
-        toolService.loadAudioSamples(for: size, boxCount: thumbModels.count) { (box) in
-            self.toolView?.refreshWaveFormView(with: box)
-        }
+        toolView.refreshWaveFormView(with: toolService.videoModel!.composition)
     }
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel]) {
@@ -161,6 +159,28 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
+    func toolView(_ toolView: EditToolViewInput, change volume: Float, of segment: EditCompositionAudioSegment) {
+        toolService.updateMusic(segment, volume: volume)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, changeFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
+        toolService.updateMusic(segment, isFadeIn: isOn)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, changeFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
+        toolService.updateMusic(segment, isFadeOut: isOn)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double) {
+        //todo:处理音乐的边界情况的选中问题
+        toolService.updateMusic(segment, atNew: CMTime(seconds: start, preferredTimescale: 600))
+        toolView.refreshMusicWaveformView(with: segment)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+    
 }
 
 extension EditViewPresenter {
@@ -180,6 +200,12 @@ extension EditViewPresenter {
             MessageBanner.show(title: "任务", subTitle: "反转视频任务成功", style: .success)
             self.endTaskRunning()
         }
+    }
+    
+    func refreshPlayerViewAndPlay(withAudio segment: EditCompositionAudioSegment) {
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: segment.rangeAtComposition.start.seconds)
+        playerView?.play()
     }
     
 }

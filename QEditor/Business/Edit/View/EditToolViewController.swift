@@ -371,6 +371,28 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
     }
     
+    private func pushToEditMusic() {
+        guard let segment = selectedMusicOperationView?.segment else {
+            MessageBanner.warning(content: "当前没有选中音乐片段")
+            return
+        }
+        let vc = EditToolAudioDetailSettingsViewController()
+        vc.volumeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, change: value, of: segment)
+        }
+        vc.fadeInClosure = { [unowned self] (on) in
+            self.presenter.toolView(self, changeFadeIn: on, of: segment)
+        }
+        vc.fadeOutClosure = { [unowned self] (on) in
+            self.presenter.toolView(self, changeFadeOut: on, of: segment)
+        }
+        vc.chooseClosure = { [unowned self] (start) in
+            self.presenter.toolView(self, updateMusic: segment, atNew: start)
+        }
+        vc.update(segment)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     //MARK: Action
     
     @objc
@@ -518,7 +540,7 @@ class EditToolViewController: UIViewController {
             case .musicReplace:
                 self.replaceSelectedMusic()
             case .musicEdit:
-                break
+                self.pushToEditMusic()
             case .musicDelete:
                 self.removeSelectedMusic()
             }
@@ -591,9 +613,8 @@ class EditToolViewController: UIViewController {
 //MARK: EditToolViewInput
 extension EditToolViewController: EditToolViewInput {
     
-    func refreshWaveFormView(with box: [[CGFloat]]) {
-        originAudioWaveformView.contentSize = .init(width: thumbView.contentSize.width, height: 0)
-        originAudioWaveformView.update(box)
+    func refreshWaveFormView(with asset: AVAsset) {
+        originAudioWaveformView.update(asset)
     }
     
     func currentCursorTime() -> Double {
@@ -753,6 +774,8 @@ extension EditToolViewController: EditToolViewInput {
         waveformView.selectedClosure = { [unowned self, waveformView] (isSelected) in
             if isSelected {
                 self.selectedMusicOperationView = waveformView
+            } else {
+                self.selectedMusicOperationView = nil
             }
             for view in self.musicWaveformViews {
                 if !view.isEqual(waveformView) {
