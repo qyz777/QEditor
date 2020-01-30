@@ -9,10 +9,13 @@
 import UIKit
 
 enum EditToolBarAction {
-    case split
-    case delete
-    case changeSpeed
-    case reverse
+    case videoSplit
+    case videoDelete
+    case videoChangeSpeed
+    case videoReverse
+    case musicReplace
+    case musicEdit
+    case musicDelete
 }
 
 struct EditToolBarModel {
@@ -89,7 +92,7 @@ class EditToolBar: UICollectionView {
 
 }
 
-extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
+extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return models.count
@@ -103,6 +106,11 @@ extension EditToolBar: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedClosure?(models[indexPath.item])
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (SCREEN_WIDTH - 60 - 30 * CGFloat(models.count - 1)) / CGFloat(models.count)
+        return CGSize(width: width, height: 60)
     }
     
 }

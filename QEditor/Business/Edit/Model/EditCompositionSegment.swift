@@ -47,3 +47,7 @@ protocol EditCompositionSegment {
     func prepare(_ closure: (() -> Void)?)
     
 }
+
+func == (lhs: EditCompositionSegment, rhs: EditCompositionSegment) -> Bool {
+    return lhs.id == rhs.id
+}

@@ -47,14 +47,23 @@ class EditToolViewController: UIViewController {
     /// 视频最大宽度，每次新增、删除视频需要重新设置这个属性
     private var videoContentWidth: CGFloat = 0
     
-    /// 当前锁定的选择框
-    private weak var forceChooseView: EditToolChooseBoxView?
+    /// 当前锁定的视频选择框
+    private weak var selectedChooseView: EditToolChooseBoxView?
     
-    private var toolBarModels: [EditToolBarModel] = [
-        EditToolBarModel(action: .split, imageName: "edit_split", text: "分割"),
-        EditToolBarModel(action: .delete, imageName: "edit_delete", text: "删除"),
-        EditToolBarModel(action: .changeSpeed, imageName: "edit_speed", text: "变速"),
-        EditToolBarModel(action: .reverse, imageName: "edit_reverse", text: "倒放"),
+    /// 当前锁定的音乐操作视图
+    private weak var selectedMusicOperationView: EditAudioWaveformOperationView?
+    
+    private var videoToolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .videoSplit, imageName: "edit_split", text: "分割"),
+        EditToolBarModel(action: .videoDelete, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .videoChangeSpeed, imageName: "edit_speed", text: "变速"),
+        EditToolBarModel(action: .videoReverse, imageName: "edit_reverse", text: "倒放"),
+    ]
+    
+    private var musicToolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .musicReplace, imageName: "edit_replace_music", text: "替换"),
+        EditToolBarModel(action: .musicDelete, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .musicEdit, imageName: "edit_edit_music", text: "编辑")
     ]
     
     private var tabSelectedType: EditToolTabSelectedType = .edit
@@ -66,7 +75,7 @@ class EditToolViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initView()
-        updateToolBar()
+        toolBarView.update(videoToolBarModels)
         
         NotificationCenter.default.addObserver(self, selector: #selector(shouldHiddenSplitViews(_:)), name: ChooseBoxDidShowNotification, object: nil)
         
@@ -204,7 +213,7 @@ class EditToolViewController: UIViewController {
             resetVideoContentWidth -= chooseWidth
             let view = EditToolChooseBoxView(with: chooseWidth)
             view.segment = segment
-            forceChooseView = view
+            selectedChooseView = view
             contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
             view.snp.makeConstraints { (make) in
                 make.left.equalTo(self.contentView).offset(left)
@@ -254,14 +263,14 @@ class EditToolViewController: UIViewController {
         return progressView
     }
     
-    private func updateToolBar() {
-        toolBarView.update(toolBarModels)
+    private func thumbViewLoadImagesIfScrollStop() {
+        thumbView.loadImages()
     }
     
     private func pushChangeSpeedView() {
         let vc = EditToolChangeSpeedViewController()
         vc.closure = { [unowned self] (progress) in
-            guard let forceChooseView = self.forceChooseView else {
+            guard let forceChooseView = self.selectedChooseView else {
                 return
             }
             guard let segment = forceChooseView.segment else {
@@ -305,12 +314,37 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
-    //MARK: Action
-    
-    @objc
-    func thumbViewLoadImagesIfScrollStop() {
-        thumbView.loadImages()
+    private func musicTrackBecomeOperation() {
+        guard musicWaveformViews.count > 0 else {
+            return
+        }
+        musicWaveformViews.first!.showOperationView()
+        selectedMusicOperationView = musicWaveformViews.first
     }
+    
+    private func musicTrackResignOperation() {
+        musicWaveformViews.forEach {
+            $0.hiddenOperationView()
+        }
+        selectedMusicOperationView = nil
+    }
+    
+    private func replaceSelectedMusic() {
+        guard let segment = selectedMusicOperationView?.segment else {
+            MessageBanner.warning(content: "当前没有选中音乐")
+            return
+        }
+        let vc = AudioCollectionViewController()
+        vc.selectedClosure = { [unowned self] (model) in
+            guard let url = model.assetURL else { return }
+            let newSegment = EditCompositionAudioSegment(url: url)
+            self.presenter.toolView(self, replaceMusic: segment, for: newSegment)
+        }
+        let nav = NavigationController(rootViewController: vc)
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
+    }
+    
+    //MARK: Action
     
     @objc
     func didClickAddButton() {
@@ -341,7 +375,7 @@ class EditToolViewController: UIViewController {
             }
         }
         let obj = notification.object as? EditToolChooseBoxView
-        forceChooseView = obj
+        selectedChooseView = obj
         contentView.subviews.forEach {
             guard let view = $0 as? EditToolChooseBoxView else {
                 return
@@ -354,7 +388,7 @@ class EditToolViewController: UIViewController {
     
     @objc
     func shouldShowSplitViews(_ notification: Notification) {
-        forceChooseView = nil
+        selectedChooseView = nil
         contentView.subviews.forEach {
             if $0.isKind(of: EditToolSplitButton.self) {
                 $0.isHidden = false
@@ -440,21 +474,26 @@ class EditToolViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         layout.minimumLineSpacing = 30
-        let width = (SCREEN_WIDTH - 60 - 30 * 3) / 4
-        layout.itemSize = .init(width: width, height: 60)
         let view = EditToolBar(frame: .zero, collectionViewLayout: layout)
         view.contentInset = .init(top: 0, left: 30, bottom: 0, right: 30)
         view.selectedClosure = { [unowned self] (model) in
             switch model.action {
-            case .split:
+            case .videoSplit:
                 self.presenter.toolViewShouldSplitVideo(self)
-            case .delete:
+            case .videoDelete:
                 self.deletePart()
-            case .changeSpeed:
+            case .videoChangeSpeed:
                 self.pushChangeSpeedView()
-            case .reverse:
+            case .videoReverse:
                 self.loadingView.show()
+                MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
                 self.presenter.toolViewShouldReverseVideo(self)
+            case .musicReplace:
+                self.replaceSelectedMusic()
+            case .musicEdit:
+                break
+            case .musicDelete:
+                break
             }
         }
         return view
@@ -478,7 +517,14 @@ class EditToolViewController: UIViewController {
         let view = EditToolTabView(frame: .zero)
         view.selectedClosure = { [unowned self] (type) in
             self.tabSelectedType = type
-            self.updateToolBar()
+            switch type {
+            case .edit:
+                self.musicTrackResignOperation()
+                self.toolBarView.update(self.videoToolBarModels)
+            case .music:
+                self.musicTrackBecomeOperation()
+                self.toolBarView.update(self.musicToolBarModels)
+            }
         }
         return view
     }()
@@ -538,7 +584,7 @@ extension EditToolViewController: EditToolViewInput {
             return
         }
         //2.删除选定视频
-        let deleteSegment = forceChooseView!.segment
+        let deleteSegment = selectedChooseView!.segment
         guard deleteSegment != nil else {
             return
         }
@@ -549,7 +595,7 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.forceChooseView else {
+                guard let forceChooseView = self.selectedChooseView else {
                     return
                 }
                 guard let segment = forceChooseView.segment else {
@@ -563,7 +609,7 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeSaturationView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.forceChooseView else {
+                guard let forceChooseView = self.selectedChooseView else {
                     return
                 }
                 guard let segment = forceChooseView.segment else {
@@ -577,7 +623,7 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeContrastView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.forceChooseView else {
+                guard let forceChooseView = self.selectedChooseView else {
                     return
                 }
                 guard let segment = forceChooseView.segment else {
@@ -591,7 +637,7 @@ extension EditToolViewController: EditToolViewInput {
     func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo) {
         if let progressView = showAdjustView(info) {
             progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.forceChooseView else {
+                guard let forceChooseView = self.selectedChooseView else {
                     return
                 }
                 guard let segment = forceChooseView.segment else {
@@ -602,8 +648,8 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
-    func forceSegment() -> EditCompositionVideoSegment? {
-        return forceChooseView?.segment
+    func selectedVideoSegment() -> EditCompositionVideoSegment? {
+        return selectedChooseView?.segment
     }
     
     func reloadView(_ segments: [EditCompositionVideoSegment]) {
@@ -678,6 +724,9 @@ extension EditToolViewController: EditToolViewInput {
         let waveformView = EditAudioWaveformOperationView(frame: CGRect(x: 0, y: 0, width: width, height: EDIT_AUDIO_WAVEFORM_SIZE))
         waveformView.segment = segment
         waveformView.selectedClosure = { [unowned self, waveformView] (isSelected) in
+            if isSelected {
+                self.selectedMusicOperationView = waveformView
+            }
             for view in self.musicWaveformViews {
                 if !view.isEqual(waveformView) {
                     view.hiddenOperationView()
@@ -713,7 +762,7 @@ extension EditToolViewController: EditToolViewInput {
             case .ended:
                 let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
                 let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                self.presenter.toolView(self, updateAudio: segment, timeRange: CMTimeRange(start: start, end: end))
+                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
             default:
                 break
             }
@@ -744,7 +793,7 @@ extension EditToolViewController: EditToolViewInput {
             case .ended:
                 let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
                 let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                self.presenter.toolView(self, updateAudio: segment, timeRange: CMTimeRange(start: start, end: end))
+                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
             default:
                 break
             }
@@ -758,6 +807,22 @@ extension EditToolViewController: EditToolViewInput {
         }
         musicWaveformViews.append(waveformView)
         MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
+    }
+    
+    func refreshMusicWaveformView(with segment: EditCompositionAudioSegment) {
+        guard let waveformView = selectedMusicOperationView else { return }
+        guard let asset = waveformView.segment?.asset else { return }
+        if asset.duration < segment.rangeAtComposition.duration {
+            //这个时候说明音乐view要变短，range则会取最大的range
+            //算一个百分比让他变短
+            let percent = asset.duration.seconds / segment.rangeAtComposition.duration.seconds
+            waveformView.snp.makeConstraints { (make) in
+                make.width.equalTo(waveformView.width * CGFloat(percent))
+            }
+            waveformView.layoutIfNeeded()
+        }
+        waveformView.segment = segment
+        MessageBanner.success(content: "替换成功")
     }
     
 }

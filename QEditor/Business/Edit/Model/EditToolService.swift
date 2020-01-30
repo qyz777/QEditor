@@ -122,11 +122,13 @@ class EditToolService {
     ///   - segment: 音乐片段数据源
     ///   - timeRange: 拖动后片段在轨道中的timeRange
     public func updateMusic(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        guard musicSegments.count > 0 else { return }
         guard let composition = videoModel?.composition else { return }
         //校验timeRange
         var timeRange = timeRange
         var preSegment: EditCompositionAudioSegment?
         var nextSegment: EditCompositionAudioSegment?
+        var index = 0
         for i in 0..<musicSegments.count {
             let currentSegment = musicSegments[i]
             if currentSegment.id == segment.id {
@@ -136,6 +138,7 @@ class EditToolService {
                 if i + 1 < musicSegments.count {
                     nextSegment = musicSegments[i + 1]
                 }
+                index = i
                 break
             }
         }
@@ -165,6 +168,25 @@ class EditToolService {
             let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds, preferredTimescale: 600)
             let newEnd = CMTime(seconds: segment.timeRange.end.seconds + halfSeconds, preferredTimescale: 600)
             segment.timeRange = CMTimeRange(start: newStart, end: newEnd)
+        }
+        musicSegments[index] = segment
+        refreshComposition()
+    }
+    
+    public func replaceMusic(oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment) {
+        if newSegment.timeRange.duration < oldSegment.rangeAtComposition.duration {
+            newSegment.rangeAtComposition = CMTimeRange(start: oldSegment.rangeAtComposition.start, duration: newSegment.timeRange.duration)
+        } else {
+            newSegment.rangeAtComposition = oldSegment.rangeAtComposition
+            newSegment.timeRange = oldSegment.timeRange
+        }
+        newSegment.title = oldSegment.title
+        for i in 0..<musicSegments.count {
+            let segment = musicSegments[i]
+            if segment.id == oldSegment.id {
+                musicSegments[i] = newSegment
+                break
+            }
         }
         refreshComposition()
     }

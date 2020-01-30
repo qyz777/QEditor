@@ -27,7 +27,7 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo)
     
-    func forceSegment() -> EditCompositionVideoSegment?
+    func selectedVideoSegment() -> EditCompositionVideoSegment?
     
     /// 当前标尺所指的视频位置
     func currentCursorTime() -> Double
@@ -35,6 +35,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     func loadAsset(_ asset: AVAsset)
     
     func addMusicAudioWaveformView(for segment: EditCompositionAudioSegment)
+    
+    func refreshMusicWaveformView(with segment: EditCompositionAudioSegment)
     
 }
 
@@ -83,6 +85,8 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?)
     
-    func toolView(_ toolView: EditToolViewInput, updateAudio segment: EditCompositionAudioSegment, timeRange: CMTimeRange)
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, timeRange: CMTimeRange)
+    
+    func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment)
     
 }

@@ -116,7 +116,6 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
-        MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
         shouldReverseVideo()
     }
     
@@ -142,11 +141,18 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.addMusicAudioWaveformView(for: segment)
     }
-    func toolView(_ toolView: EditToolViewInput, updateAudio segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
         //view传来的timeRange是不可信的，在service里还需要校验
         toolService.updateMusic(segment, timeRange: timeRange)
         playerView?.loadVideoModel(toolService.videoModel!)
         playerView?.seek(to: toolView.currentCursorTime())
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment) {
+        toolService.replaceMusic(oldSegment: oldSegment, for: newSegment)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
+        toolView.refreshMusicWaveformView(with: newSegment)
     }
     
 }
@@ -154,7 +160,7 @@ extension EditViewPresenter: EditToolViewOutput {
 extension EditViewPresenter {
     
     func shouldReverseVideo() {
-        guard let segment = toolView?.forceSegment() else {
+        guard let segment = toolView?.selectedVideoSegment() else {
             return
         }
         self.beginTaskRunning()
