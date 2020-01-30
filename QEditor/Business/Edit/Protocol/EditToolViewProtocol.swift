@@ -89,4 +89,6 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment)
     
+    func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment)
+    
 }

@@ -344,6 +344,33 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
+    private func removeSelectedMusic() {
+        guard let waveformView = selectedMusicOperationView else {
+            MessageBanner.warning(content: "当前没有选中音乐")
+            return
+        }
+        guard let segment = waveformView.segment else { return }
+        let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的音乐", preferredStyle: .actionSheet)
+        let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
+            self.presenter.toolView(self, removeMusic: segment)
+            self.musicWaveformViews.removeAll {
+                if $0.segment == nil {
+                    $0.removeFromSuperview()
+                    return true
+                }
+                return $0.segment! == segment
+            }
+            waveformView.removeFromSuperview()
+            MessageBanner.success(content: "删除成功")
+        }
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel) { (action) in
+            
+        }
+        actionSheet.addAction(okAction)
+        actionSheet.addAction(cancelAction)
+        UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
+    }
+    
     //MARK: Action
     
     @objc
@@ -493,7 +520,7 @@ class EditToolViewController: UIViewController {
             case .musicEdit:
                 break
             case .musicDelete:
-                break
+                self.removeSelectedMusic()
             }
         }
         return view

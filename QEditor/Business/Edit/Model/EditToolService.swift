@@ -191,6 +191,13 @@ class EditToolService {
         refreshComposition()
     }
     
+    public func removeMusic(_ segment: EditCompositionAudioSegment) {
+        musicSegments.removeAll {
+            return $0 == segment
+        }
+        refreshComposition()
+    }
+    
     public func loadAudioSamples(for size: CGSize, boxCount: Int, closure: @escaping((_ box: [[CGFloat]]) -> Void)) {
         guard videoModel != nil else {
             closure([])

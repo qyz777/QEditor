@@ -155,6 +155,12 @@ extension EditViewPresenter: EditToolViewOutput {
         toolView.refreshMusicWaveformView(with: newSegment)
     }
     
+    func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment) {
+        toolService.removeMusic(segment)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
+    }
+    
 }
 
 extension EditViewPresenter {
