@@ -8,15 +8,16 @@
 
 import UIKit
 
-let EDIT_AUDIO_WAVEFORM_SIZE: CGFloat = 40
+let EDIT_AUDIO_WAVEFORM_WIDTH: CGFloat = 40
+let EDIT_AUDIO_WAVEFORM_HEIGHT: CGFloat = 30
 
 class EditAudioWaveformOperationView: UIView {
     
     public var segment: EditCompositionAudioSegment? {
         willSet {
             guard let segment = newValue else { return }
-            let width = CGFloat(segment.duration) * EDIT_AUDIO_WAVEFORM_SIZE
-            let size = CGSize(width: width, height: EDIT_AUDIO_WAVEFORM_SIZE)
+            let width = CGFloat(segment.duration) * EDIT_AUDIO_WAVEFORM_WIDTH
+            let size = CGSize(width: width, height: EDIT_AUDIO_WAVEFORM_HEIGHT)
             segment.loadAudioSamples(for: size) { [weak self] (samples) in
                 guard let strongSelf = self else { return }
                 strongSelf.samples = samples
@@ -45,7 +46,7 @@ class EditAudioWaveformOperationView: UIView {
         addSubview(titleLabel)
         waveformView.snp.makeConstraints { (make) in
             make.left.right.top.equalTo(self)
-            make.height.equalTo(EDIT_AUDIO_WAVEFORM_SIZE)
+            make.height.equalTo(EDIT_AUDIO_WAVEFORM_WIDTH)
         }
         leftPanView.snp.makeConstraints { (make) in
             make.left.top.bottom.equalTo(self)
@@ -76,7 +77,7 @@ class EditAudioWaveformOperationView: UIView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        shapeLayer.frame = CGRect(x: 0, y: 0, width: width, height: EDIT_AUDIO_WAVEFORM_SIZE)
+        shapeLayer.frame = bounds
         if samples.count > 0 {
             drawAudioWaveform(from: samples)
         }
@@ -87,6 +88,7 @@ class EditAudioWaveformOperationView: UIView {
             self.leftPanView.alpha = 1
             self.rightPanView.alpha = 1
             self.coverView.alpha = 1
+            self.titleLabel.alpha = 1
         }) { (completed) in
             self.isShowing = true
         }
@@ -97,6 +99,7 @@ class EditAudioWaveformOperationView: UIView {
             self.leftPanView.alpha = 0
             self.rightPanView.alpha = 0
             self.coverView.alpha = 0
+            self.titleLabel.alpha = 0
         }) { (completed) in
             self.isShowing = false
         }
@@ -186,6 +189,7 @@ class EditAudioWaveformOperationView: UIView {
         let view = UILabel()
         view.textColor = UIColor.qe.hex(0xEEEEEE)
         view.font = UIFont.systemFont(ofSize: 11, weight: .light)
+        view.alpha = 0
         return view
     }()
     

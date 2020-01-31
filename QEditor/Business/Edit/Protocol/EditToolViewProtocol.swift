@@ -38,6 +38,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func refreshMusicWaveformView(with segment: EditCompositionAudioSegment)
     
+    func addRecordAudioWaveformView(for segment: EditCompositionAudioSegment)
+    
 }
 
 protocol EditToolViewOutput: class {
@@ -98,5 +100,7 @@ protocol EditToolViewOutput: class {
     func toolView(_ toolView: EditToolViewInput, changeFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
     
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double)
+    
+    func toolView(_ toolView: EditToolViewInput, addRecordAudioFrom asset: AVAsset)
     
 }

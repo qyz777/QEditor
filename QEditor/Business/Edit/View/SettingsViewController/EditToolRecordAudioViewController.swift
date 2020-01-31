@@ -42,7 +42,6 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
             guard let strongSelf = self else { return }
             if flag {
                 strongSelf.stopClosure?(url)
-                MessageBanner.success(content: "录音成功")
             } else {
                 MessageBanner.error(content: "录音失败")
             }

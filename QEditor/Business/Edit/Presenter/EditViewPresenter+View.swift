@@ -23,46 +23,4 @@ extension EditViewPresenter: EditViewOutput {
         refreshView()
     }
     
-//    func view(_ view: EditViewInput, didSelectedSetting action: EditSettingAction) {
-//        switch action {
-//        case .split:
-//            guard let time = toolView?.currentCursorTime() else {
-//                return
-//            }
-//            toolService.splitVideoAt(time: time)
-//            toolView?.refreshView(toolService.segments)
-//        case .delete:
-//            toolView?.deletePart()
-//        case .changeSpeed:
-//            toolView?.showChangeSpeedView()
-//        case .reverse:
-//            MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
-//            shouldReverseVideo()
-//        case .brightness:
-//            let info = AdjustProgressViewInfo(startValue: -1, endValue: 1, currentValue: toolService.filterService.brightness)
-//            toolView?.showChangeBrightnessView(info)
-//        case .saturation:
-//            let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: toolService.filterService.saturation)
-//            toolView?.showChangeSaturationView(info)
-//        case .contrast:
-//            let info = AdjustProgressViewInfo(startValue: -30, endValue: 30, currentValue: toolService.filterService.contrast)
-//            toolView?.showChangeContrastView(info)
-//        case .gaussianBlur:
-//            let info = AdjustProgressViewInfo(startValue: 0, endValue: 20, currentValue: toolService.filterService.gaussianBlur)
-//            toolView?.showChangeGaussianBlurView(info)
-//        case .rotateRight:
-//            let t = toolService.videoModel!.composition.duration
-//            let range = CMTimeRange(start: .zero, end: t)
-//            let context = EditRotateCommandContext(range: range, degress: 90)
-//            toolService.excute(command: .rotate, with: context)
-//            playerView?.loadVideoModel(toolService.videoModel!)
-//        case .mirror:
-//            let t = toolService.videoModel!.composition.duration
-//            let range = CMTimeRange(start: .zero, end: t)
-//            let context = EditMirrorCommandContext(range: range)
-//            toolService.excute(command: .mirror, with: context)
-//            playerView?.loadVideoModel(toolService.videoModel!)
-//        }
-//    }
-    
 }

@@ -181,6 +181,15 @@ extension EditViewPresenter: EditToolViewOutput {
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
+    func toolView(_ toolView: EditToolViewInput, addRecordAudioFrom asset: AVAsset) {
+        let currentTime = toolView.currentCursorTime()
+        guard let segment = toolService.addRecordAudio(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
+        segment.title = "语音录制音频"
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
+        toolView.addRecordAudioWaveformView(for: segment)
+    }
+    
 }
 
 extension EditViewPresenter {
