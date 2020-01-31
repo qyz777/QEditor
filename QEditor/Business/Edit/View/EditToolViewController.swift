@@ -66,6 +66,11 @@ class EditToolViewController: UIViewController {
         EditToolBarModel(action: .musicEdit, imageName: "edit_edit_music", text: "编辑")
     ]
     
+    private var recordToolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .recordDelete, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .recordEdit, imageName: "edit_edit_music", text: "编辑")
+    ]
+    
     private var tabSelectedType: EditToolTabSelectedType = .edit
     
     private var musicWaveformViews: [EditAudioWaveformOperationView] = []
@@ -104,6 +109,7 @@ class EditToolViewController: UIViewController {
         contentView.addSubview(originVideoLabel)
         contentView.addSubview(originAudioLabel)
         contentView.addSubview(musicLabel)
+        contentView.addSubview(recordAudioLabel)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -172,6 +178,11 @@ class EditToolViewController: UIViewController {
         musicLabel.snp.makeConstraints { (make) in
             make.right.equalTo(self.originAudioLabel)
             make.centerY.equalTo(self.originAudioWaveformView.snp.bottom).offset(5 + EDIT_AUDIO_WAVEFORM_SIZE / 2)
+        }
+        
+        recordAudioLabel.snp.makeConstraints { (make) in
+            make.right.equalTo(self.musicLabel)
+            make.centerY.equalTo(self.musicLabel.snp.bottom).offset(5 + EDIT_AUDIO_WAVEFORM_SIZE / 2)
         }
         
         addButton.snp.makeConstraints { (make) in
@@ -314,6 +325,11 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
+    private func pushToRecordAudio() {
+        let vc = EditToolRecordAudioViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func musicTrackBecomeOperation() {
         guard musicWaveformViews.count > 0 else {
             return
@@ -402,6 +418,8 @@ class EditToolViewController: UIViewController {
             showMediaSelectedView()
         case .music:
             showMusicSelectedView()
+        case .recordAudio:
+            pushToRecordAudio()
         }
     }
     
@@ -543,6 +561,10 @@ class EditToolViewController: UIViewController {
                 self.pushToEditMusic()
             case .musicDelete:
                 self.removeSelectedMusic()
+            case .recordEdit:
+                break
+            case .recordDelete:
+                break
             }
         }
         return view
@@ -563,7 +585,7 @@ class EditToolViewController: UIViewController {
     }()
     
     private lazy var tabView: EditToolTabView = {
-        let view = EditToolTabView(frame: .zero)
+        let view = EditToolTabView()
         view.selectedClosure = { [unowned self] (type) in
             self.tabSelectedType = type
             switch type {
@@ -573,6 +595,8 @@ class EditToolViewController: UIViewController {
             case .music:
                 self.musicTrackBecomeOperation()
                 self.toolBarView.update(self.musicToolBarModels)
+            case.recordAudio:
+                self.toolBarView.update(self.recordToolBarModels)
             }
         }
         return view
@@ -605,6 +629,14 @@ class EditToolViewController: UIViewController {
         view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
         view.textColor = UIColor.qe.hex(0xEEEEEE)
         view.text = "音乐轨道"
+        return view
+    }()
+    
+    private lazy var recordAudioLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        view.text = "录音轨道"
         return view
     }()
 

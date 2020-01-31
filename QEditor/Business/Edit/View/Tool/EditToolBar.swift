@@ -16,6 +16,8 @@ enum EditToolBarAction {
     case musicReplace
     case musicEdit
     case musicDelete
+    case recordEdit
+    case recordDelete
 }
 
 struct EditToolBarModel {

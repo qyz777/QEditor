@@ -11,33 +11,42 @@ import UIKit
 enum EditToolTabSelectedType {
     case edit
     case music
+    case recordAudio
 }
 
-class EditToolTabView: UIView {
-    
-    var selectedClosure: ((_ type: EditToolTabSelectedType) -> Void)?
+struct EditToolTabCellModel {
+    let text: String
+    let imageName: String
+    let type: EditToolTabSelectedType
+}
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        addSubview(clipButton)
-        addSubview(musicButton)
-        addSubview(sliderView)
-        
-        clipButton.snp.makeConstraints { (make) in
-            make.centerY.equalTo(self)
-            make.right.equalTo(self.snp.centerX).offset(-50)
-        }
-        
-        musicButton.snp.makeConstraints { (make) in
-            make.centerY.equalTo(self)
-            make.left.equalTo(self.snp.centerX).offset(50)
-        }
-        
-        sliderView.snp.makeConstraints { (make) in
-            make.centerX.equalTo(self.clipButton)
-            make.bottom.equalTo(self).offset(-2)
-            make.size.equalTo(CGSize(width: 30, height: 4))
+class EditToolTabView: UICollectionView {
+    
+    private let datas: [EditToolTabCellModel] = [
+        EditToolTabCellModel(text: "剪辑", imageName: "edit_clip", type: .edit),
+        EditToolTabCellModel(text: "音乐", imageName: "edit_music", type: .music),
+        EditToolTabCellModel(text: "录音", imageName: "edit_record_audio", type: .recordAudio)
+    ]
+    
+    public var selectedClosure: ((_ type: EditToolTabSelectedType) -> Void)?
+    
+    init() {
+        let frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: 40)
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 30
+        super.init(frame: frame, collectionViewLayout: layout)
+        register(cellWithClass: EditToolTabItemCell.self)
+        delegate = self
+        dataSource = self
+        reloadData()
+        layoutIfNeeded()
+        if datas.count > 0 {
+            addSubview(sliderView)
+            let cell = cellForItem(at: IndexPath(item: 0, section: 0))
+            let sliderCenterX = cell!.convert(cell!.center, to: self).x
+            sliderView.y = frame.maxY - sliderView.height - 2
+            sliderView.center.x = sliderCenterX
         }
     }
     
@@ -45,53 +54,78 @@ class EditToolTabView: UIView {
         super.init(coder: coder)
     }
     
-    @objc
-    func clipButtonTouchUpInside(_ button: UIButton) {
-        selectedClosure?(.edit)
-        UIView.animate(withDuration: 0.25) {
-            self.sliderView.snp.remakeConstraints { (make) in
-                make.centerX.equalTo(button)
-                make.bottom.equalTo(self).offset(-2)
-                make.size.equalTo(CGSize(width: 30, height: 4))
-            }
-            self.layoutIfNeeded()
-        }
-    }
-    
-    @objc
-    func musicButtonTouchUpInside(_ button: UIButton) {
-        selectedClosure?(.music)
-        UIView.animate(withDuration: 0.25) {
-            self.sliderView.snp.remakeConstraints { (make) in
-                make.centerX.equalTo(button)
-                make.bottom.equalTo(self).offset(-2)
-                make.size.equalTo(CGSize(width: 30, height: 4))
-            }
-            self.layoutIfNeeded()
-        }
-    }
-    
-    lazy var clipButton: UIButton = {
-        let view = UIButton(type: .custom)
-        view.setImage(UIImage(named: "edit_clip"), for: .normal)
-        view.setTitle("剪辑", for: .normal)
-        view.addTarget(self, action: #selector(clipButtonTouchUpInside(_:)), for: .touchUpInside)
-        return view
-    }()
-    
-    lazy var musicButton: UIButton = {
-        let view = UIButton(type: .custom)
-        view.setImage(UIImage(named: "edit_music"), for: .normal)
-        view.setTitle("音乐", for: .normal)
-        view.addTarget(self, action: #selector(musicButtonTouchUpInside(_:)), for: .touchUpInside)
-        return view
-    }()
-    
-    lazy var sliderView: UIView = {
-        let view = UIView()
+    private lazy var sliderView: UIView = {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 4))
         view.backgroundColor = UIColor.qe.hex(0xFA3E54)
         view.layer.cornerRadius = 2
         return view
     }()
+    
+}
 
+extension EditToolTabView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return datas.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EditToolTabItemCell", for: indexPath) as! EditToolTabItemCell
+        cell.update(datas[indexPath.item])
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        selectedClosure?(datas[indexPath.item].type)
+        let cell = cellForItem(at: indexPath)
+        UIView.animate(withDuration: 0.25) {
+            self.sliderView.center.x = cell!.center.x
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let width = (SCREEN_WIDTH - 30 * CGFloat(datas.count - 1)) / CGFloat(datas.count)
+        return CGSize(width: width, height: height)
+    }
+    
+}
+
+fileprivate class EditToolTabItemCell: UICollectionViewCell {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(label)
+        contentView.addSubview(imageView)
+        imageView.snp.makeConstraints { (make) in
+            make.right.equalTo(self.contentView.snp.centerX).offset(-5)
+            make.centerY.equalTo(self.contentView)
+        }
+        label.snp.makeConstraints { (make) in
+            make.left.equalTo(self.contentView.snp.centerX).offset(5)
+            make.centerY.equalTo(self.contentView)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    public func update(_ model: EditToolTabCellModel) {
+        label.text = model.text
+        imageView.image = UIImage(named: model.imageName)
+    }
+    
+    private lazy var label: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        return view
+    }()
+    
+    private lazy var imageView: UIImageView = {
+        let view = UIImageView()
+        return view
+    }()
+    
 }

@@ -59,6 +59,8 @@ class EditToolReverseTool {
         if !FileManager.default.fileExists(atPath: SAVE_PATH, isDirectory: point) {
             try FileManager.default.createDirectory(atPath: SAVE_PATH, withIntermediateDirectories: true, attributes: nil)
         }
+        point.deinitialize(count: 1)
+        point.deallocate()
     }
     
     public func reverse() {

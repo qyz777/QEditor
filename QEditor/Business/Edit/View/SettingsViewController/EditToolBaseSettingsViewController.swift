@@ -25,11 +25,13 @@ class EditToolBaseSettingsViewController: UIViewController {
         backButton.snp.makeConstraints { (make) in
             make.left.equalTo(self.topBar).offset(SCREEN_PADDING_X)
             make.centerY.equalTo(self.topBar)
+            make.size.equalTo(CGSize(width: 30, height: 30))
         }
         
         okButton.snp.makeConstraints { (make) in
             make.right.equalTo(self.topBar).offset(-SCREEN_PADDING_X)
             make.centerY.equalTo(self.topBar)
+            make.size.equalTo(CGSize(width: 30, height: 30))
         }
     }
     
