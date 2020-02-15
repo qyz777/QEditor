@@ -395,6 +395,33 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
     }
     
+    private func removeSelectedRecord() {
+        guard let waveformView = selectedRecordOperationView else {
+            MessageBanner.warning(content: "当前没有选中录音")
+            return
+        }
+        guard let segment = waveformView.segment else { return }
+        let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的录音", preferredStyle: .actionSheet)
+        let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
+            self.presenter.toolView(self, removeRecord: segment)
+            self.recordWaveformViews.removeAll {
+                if $0.segment == nil {
+                    $0.removeFromSuperview()
+                    return true
+                }
+                return $0.segment! == segment
+            }
+            waveformView.removeFromSuperview()
+            MessageBanner.success(content: "删除成功")
+        }
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel) { (action) in
+            
+        }
+        actionSheet.addAction(okAction)
+        actionSheet.addAction(cancelAction)
+        UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
+    }
+    
     private func pushToEditMusic() {
         guard let segment = selectedMusicOperationView?.segment else {
             MessageBanner.warning(content: "当前没有选中音乐片段")
@@ -402,16 +429,36 @@ class EditToolViewController: UIViewController {
         }
         let vc = EditToolAudioDetailSettingsViewController()
         vc.volumeClosure = { [unowned self] (value) in
-            self.presenter.toolView(self, change: value, of: segment)
+            self.presenter.toolView(self, changeMusic: value, of: segment)
         }
         vc.fadeInClosure = { [unowned self] (on) in
-            self.presenter.toolView(self, changeFadeIn: on, of: segment)
+            self.presenter.toolView(self, changeMusicFadeIn: on, of: segment)
         }
         vc.fadeOutClosure = { [unowned self] (on) in
-            self.presenter.toolView(self, changeFadeOut: on, of: segment)
+            self.presenter.toolView(self, changeMusicFadeOut: on, of: segment)
         }
         vc.chooseClosure = { [unowned self] (start) in
             self.presenter.toolView(self, updateMusic: segment, atNew: start)
+        }
+        vc.update(segment)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToEditRecord() {
+        guard let segment = selectedRecordOperationView?.segment else {
+            MessageBanner.warning(content: "当前没有选中录音片段")
+            return
+        }
+        let vc = EditToolAudioDetailSettingsViewController()
+        vc.isHiddenChoose = true
+        vc.volumeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, changeRecord: value, of: segment)
+        }
+        vc.fadeInClosure = { [unowned self] (on) in
+            self.presenter.toolView(self, changeRecordFadeIn: on, of: segment)
+        }
+        vc.fadeOutClosure = { [unowned self] (on) in
+            self.presenter.toolView(self, changeRecordFadeOut: on, of: segment)
         }
         vc.update(segment)
         navigationController?.pushViewController(vc, animated: true)
@@ -570,9 +617,9 @@ class EditToolViewController: UIViewController {
             case .musicDelete:
                 self.removeSelectedMusic()
             case .recordEdit:
-                break
+                self.pushToEditRecord()
             case .recordDelete:
-                break
+                self.removeSelectedRecord()
             }
         }
         return view
@@ -976,17 +1023,18 @@ extension EditToolViewController: EditToolViewInput {
                     newLeft = min(waveformView.frame.maxX - EDIT_AUDIO_WAVEFORM_WIDTH, currentX + offsetX)
                 }
                 var newWidth = currentWidth + currentX - newLeft
-                newWidth = min(newWidth, CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_WIDTH)
+                let maxWidth = CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_WIDTH
+                newWidth = min(newWidth, maxWidth)
                 //2.开始移动
                 waveformView.snp.updateConstraints { (make) in
-                    make.left.equalTo(self.contentView).offset(newLeft)
+                    make.left.equalTo(self.contentView).offset(newWidth == maxWidth ? currentX : newLeft)
                     make.width.equalTo(newWidth)
                 }
                 waveformView.layoutIfNeeded()
             case .ended:
                 let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
                 let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-//                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
+                self.presenter.toolView(self, updateRecord: segment, timeRange: CMTimeRange(start: start, end: end))
             default:
                 break
             }
@@ -1017,7 +1065,7 @@ extension EditToolViewController: EditToolViewInput {
             case .ended:
                 let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
                 let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-//                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
+                self.presenter.toolView(self, updateRecord: segment, timeRange: CMTimeRange(start: start, end: end))
             default:
                 break
             }

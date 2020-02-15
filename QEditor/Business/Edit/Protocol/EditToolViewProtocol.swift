@@ -85,6 +85,8 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel
     
+    //MARK: Music
+    
     func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?)
     
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, timeRange: CMTimeRange)
@@ -93,14 +95,26 @@ protocol EditToolViewOutput: class {
     
     func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment)
     
-    func toolView(_ toolView: EditToolViewInput, change volume: Float, of segment: EditCompositionAudioSegment)
+    func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: EditCompositionAudioSegment)
     
-    func toolView(_ toolView: EditToolViewInput, changeFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
     
-    func toolView(_ toolView: EditToolViewInput, changeFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
     
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double)
     
+    //MARK: Record
+    
     func toolView(_ toolView: EditToolViewInput, addRecordAudioFrom asset: AVAsset)
+    
+    func toolView(_ toolView: EditToolViewInput, updateRecord segment: EditCompositionAudioSegment, timeRange: CMTimeRange)
+    
+    func toolView(_ toolView: EditToolViewInput, removeRecord segment: EditCompositionAudioSegment)
+
+    func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: EditCompositionAudioSegment)
+
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
+
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
     
 }

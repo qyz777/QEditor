@@ -320,52 +320,11 @@ extension EditToolService {
     ///   - timeRange: 拖动后片段在轨道中的timeRange
     public func updateMusic(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
         guard musicSegments.count > 0 else { return }
-        guard let composition = videoModel?.composition else { return }
-        //校验timeRange
-        var timeRange = timeRange
-        var preSegment: EditCompositionAudioSegment?
-        var nextSegment: EditCompositionAudioSegment?
-        var index = 0
-        for i in 0..<musicSegments.count {
-            let currentSegment = musicSegments[i]
-            if currentSegment.id == segment.id {
-                if i > 0 {
-                    preSegment = musicSegments[i - 1]
-                }
-                if i + 1 < musicSegments.count {
-                    nextSegment = musicSegments[i + 1]
-                }
-                index = i
-                break
-            }
-        }
-        if preSegment != nil && timeRange.start < preSegment!.rangeAtComposition.end {
-            timeRange = CMTimeRange(start: preSegment!.rangeAtComposition.end, end: timeRange.end)
-        } else if timeRange.start < .zero {
-            timeRange = CMTimeRange(start: .zero, end: timeRange.end)
-        }
-        if nextSegment != nil && timeRange.end > nextSegment!.rangeAtComposition.start {
-            timeRange = CMTimeRange(start: timeRange.start, end: nextSegment!.rangeAtComposition.start)
-        } else if timeRange.end > composition.duration {
-            timeRange = CMTimeRange(start: timeRange.start, end: composition.duration)
-        }
-        segment.rangeAtComposition = timeRange
-        //修改在asset的timeRange，方式为左右扩张
-        let halfSeconds = (segment.rangeAtComposition.duration - segment.timeRange.duration).seconds / 2
-        if segment.timeRange.end.seconds + halfSeconds > segment.asset.duration.seconds {
-            let offsetSeconds = segment.timeRange.end.seconds + halfSeconds - segment.asset.duration.seconds
-            let newEnd = CMTime(seconds: segment.asset.duration.seconds, preferredTimescale: 600)
-            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds - offsetSeconds, preferredTimescale: 600)
-            segment.timeRange = CMTimeRange(start: newStart, duration: newEnd)
-        } else if segment.timeRange.start.seconds - halfSeconds < 0 {
-            let offsetSeconds = -(segment.timeRange.start.seconds - halfSeconds)
-            let newEnd = CMTime(seconds: timeRange.start.seconds + halfSeconds + offsetSeconds, preferredTimescale: 600)
-            segment.timeRange = CMTimeRange(start: .zero, duration: newEnd)
-        } else {
-            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds, preferredTimescale: 600)
-            let newEnd = CMTime(seconds: segment.timeRange.end.seconds + halfSeconds, preferredTimescale: 600)
-            segment.timeRange = CMTimeRange(start: newStart, end: newEnd)
-        }
+        let tuple = findPreAndNextSegments(from: segment, in: musicSegments)
+        let preSegment = tuple.pre
+        let nextSegment = tuple.next
+        let index = tuple.index
+        updateAudio(preSegment: preSegment, nextSegment: nextSegment, segment: segment, timeRange: timeRange)
         musicSegments[index] = segment
         refreshComposition()
     }
@@ -389,57 +348,24 @@ extension EditToolService {
     }
     
     public func removeMusic(_ segment: EditCompositionAudioSegment) {
-        musicSegments.removeAll {
-            return $0 == segment
-        }
+        removeAudio(segment, in: &musicSegments)
         refreshComposition()
     }
     
     public func updateMusic(_ segment: EditCompositionAudioSegment, volume: Float) {
-        for s in musicSegments {
-            if s == segment {
-                s.volume = volume
-                break
-            }
-        }
-        refreshComposition()
+        updateAudio(segment, in: musicSegments, volume: volume)
     }
     
     public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeIn: Bool) {
-        for s in musicSegments {
-            if s == segment {
-                s.isFadeIn = isFadeIn
-                break
-            }
-        }
-        refreshComposition()
+        updateAudio(segment, in: musicSegments, isFadeIn: isFadeIn)
     }
     
     public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeOut: Bool) {
-        for s in musicSegments {
-            if s == segment {
-                s.isFadeOut = isFadeOut
-                break
-            }
-        }
-        refreshComposition()
+        updateAudio(segment, in: musicSegments, isFadeOut: isFadeOut)
     }
     
     public func updateMusic(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
-        for s in musicSegments {
-            if s == segment {
-                if start + s.rangeAtComposition.duration <= s.asset.duration {
-                    s.timeRange = CMTimeRange(start: start, duration: s.rangeAtComposition.duration)
-                } else {
-                    s.timeRange = CMTimeRange(start: start, end: s.asset.duration)
-                    s.rangeAtComposition = CMTimeRange(start: s.rangeAtComposition.start, duration: s.timeRange.duration)
-                    segment.rangeAtComposition = s.rangeAtComposition
-                }
-                segment.timeRange = s.timeRange
-                break
-            }
-        }
-        refreshComposition()
+        updateAudio(segment, in: musicSegments, atNew: start)
     }
     
 }
@@ -491,6 +417,38 @@ extension EditToolService {
         //从新生成composition
         refreshComposition()
         return segment
+    }
+    
+    public func updateRecord(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        guard recordAudioSegments.count > 0 else { return }
+        let tuple = findPreAndNextSegments(from: segment, in: recordAudioSegments)
+        let preSegment = tuple.pre
+        let nextSegment = tuple.next
+        let index = tuple.index
+        updateAudio(preSegment: preSegment, nextSegment: nextSegment, segment: segment, timeRange: timeRange)
+        recordAudioSegments[index] = segment
+        refreshComposition()
+    }
+    
+    public func removeRecord(_ segment: EditCompositionAudioSegment) {
+        removeAudio(segment, in: &recordAudioSegments)
+        refreshComposition()
+    }
+    
+    public func updateRecord(_ segment: EditCompositionAudioSegment, volume: Float) {
+        updateAudio(segment, in: recordAudioSegments, volume: volume)
+    }
+    
+    public func updateRecord(_ segment: EditCompositionAudioSegment, isFadeIn: Bool) {
+        updateAudio(segment, in: recordAudioSegments, isFadeIn: isFadeIn)
+    }
+    
+    public func updateRecord(_ segment: EditCompositionAudioSegment, isFadeOut: Bool) {
+        updateAudio(segment, in: recordAudioSegments, isFadeOut: isFadeOut)
+    }
+    
+    public func updateRecord(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
+        updateAudio(segment, in: recordAudioSegments, atNew: start)
     }
     
 }
@@ -564,6 +522,111 @@ extension EditToolService {
         }
         videoSegments.remove(at: index)
         videoSegments.insert(newSegment, at: index)
+        refreshComposition()
+    }
+    
+    private func findPreAndNextSegments(from segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment]) -> (pre: EditCompositionAudioSegment?, next: EditCompositionAudioSegment?, index: Int) {
+        var preSegment: EditCompositionAudioSegment?
+        var nextSegment: EditCompositionAudioSegment?
+        var index = 0
+        for i in 0..<segments.count {
+            let currentSegment = segments[i]
+            if currentSegment.id == segment.id {
+                if i > 0 {
+                    preSegment = segments[i - 1]
+                }
+                if i + 1 < musicSegments.count {
+                    nextSegment = segments[i + 1]
+                }
+                index = i
+                break
+            }
+        }
+        return (pre: preSegment, next: nextSegment, index: index)
+    }
+    
+    private func updateAudio(preSegment: EditCompositionAudioSegment?, nextSegment: EditCompositionAudioSegment?, segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        guard let composition = videoModel?.composition else { return }
+        var timeRange = timeRange
+        if preSegment != nil && timeRange.start < preSegment!.rangeAtComposition.end {
+            timeRange = CMTimeRange(start: preSegment!.rangeAtComposition.end, end: timeRange.end)
+        } else if timeRange.start < .zero {
+            timeRange = CMTimeRange(start: .zero, end: timeRange.end)
+        }
+        if nextSegment != nil && timeRange.end > nextSegment!.rangeAtComposition.start {
+            timeRange = CMTimeRange(start: timeRange.start, end: nextSegment!.rangeAtComposition.start)
+        } else if timeRange.end > composition.duration {
+            timeRange = CMTimeRange(start: timeRange.start, end: composition.duration)
+        }
+        segment.rangeAtComposition = timeRange
+        //修改在asset的timeRange，方式为左右扩张
+        let halfSeconds = (segment.rangeAtComposition.duration - segment.timeRange.duration).seconds / 2
+        if segment.timeRange.end.seconds + halfSeconds > segment.asset.duration.seconds {
+            let offsetSeconds = segment.timeRange.end.seconds + halfSeconds - segment.asset.duration.seconds
+            let newEnd = CMTime(seconds: segment.asset.duration.seconds, preferredTimescale: 600)
+            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds - offsetSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: newStart, duration: newEnd)
+        } else if segment.timeRange.start.seconds - halfSeconds < 0 {
+            let offsetSeconds = -(segment.timeRange.start.seconds - halfSeconds)
+            let newEnd = CMTime(seconds: timeRange.start.seconds + halfSeconds + offsetSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: .zero, duration: newEnd)
+        } else {
+            let newStart = CMTime(seconds: segment.timeRange.start.seconds - halfSeconds, preferredTimescale: 600)
+            let newEnd = CMTime(seconds: segment.timeRange.end.seconds + halfSeconds, preferredTimescale: 600)
+            segment.timeRange = CMTimeRange(start: newStart, end: newEnd)
+        }
+    }
+    
+    private func removeAudio(_ segment: EditCompositionAudioSegment, in segments: inout [EditCompositionAudioSegment]) {
+        segments.removeAll {
+            return $0 == segment
+        }
+    }
+    
+    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], volume: Float) {
+        for s in segments {
+            if s == segment {
+                s.volume = volume
+                break
+            }
+        }
+        refreshComposition()
+    }
+
+    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], isFadeIn: Bool) {
+        for s in segments {
+            if s == segment {
+                s.isFadeIn = isFadeIn
+                break
+            }
+        }
+        refreshComposition()
+    }
+
+    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], isFadeOut: Bool) {
+        for s in segments {
+            if s == segment {
+                s.isFadeOut = isFadeOut
+                break
+            }
+        }
+        refreshComposition()
+    }
+
+    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], atNew start: CMTime) {
+        for s in segments {
+            if s == segment {
+                if start + s.rangeAtComposition.duration <= s.asset.duration {
+                    s.timeRange = CMTimeRange(start: start, duration: s.rangeAtComposition.duration)
+                } else {
+                    s.timeRange = CMTimeRange(start: start, end: s.asset.duration)
+                    s.rangeAtComposition = CMTimeRange(start: s.rangeAtComposition.start, duration: s.timeRange.duration)
+                    segment.rangeAtComposition = s.rangeAtComposition
+                }
+                segment.timeRange = s.timeRange
+                break
+            }
+        }
         refreshComposition()
     }
     

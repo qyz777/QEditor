@@ -71,7 +71,7 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
         view.addSubview(waverView)
         view.addSubview(recordBackgroundView)
         recordBackgroundView.addSubview(recordStopView)
-        recordBackgroundView.addSubview(recordImageView)
+        recordBackgroundView.addSubview(recordStartView)
         view.addSubview(timerLabel)
         waverView.snp.makeConstraints { (make) in
             make.top.equalTo(self.topBar.snp.bottom).offset(15)
@@ -87,8 +87,9 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
             make.center.equalTo(self.recordBackgroundView)
             make.size.equalTo(CGSize(width: 30, height: 30))
         }
-        recordImageView.snp.makeConstraints { (make) in
+        recordStartView.snp.makeConstraints { (make) in
             make.center.equalTo(self.recordBackgroundView)
+            make.size.equalTo(CGSize(width: 40, height: 40))
         }
         timerLabel.snp.makeConstraints { (make) in
             make.bottom.equalTo(self.view).offset(-15)
@@ -124,7 +125,7 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
     private func didTapRecordView() {
         isRecording = !isRecording
         if isRecording {
-            recordImageView.isHidden = true
+            recordStartView.isHidden = true
             recordStopView.isHidden = false
             audioRecorder?.record()
             timer = Timer(timeInterval: 0.1, repeats: true, block: { [weak self] (timer) in
@@ -134,7 +135,7 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
             })
             RunLoop.current.add(timer!, forMode: .common)
         } else {
-            recordImageView.isHidden = false
+            recordStartView.isHidden = false
             recordStopView.isHidden = true
             audioRecorder?.pause()
             timer?.invalidate()
@@ -158,9 +159,10 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
         return view
     }()
     
-    private lazy var recordImageView: UIImageView = {
-        let view = UIImageView()
-        view.image = UIImage(named: "edit_detail_record_audio")
+    private lazy var recordStartView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.qe.hex(0xFA3E54)
+        view.layer.cornerRadius = 20
         return view
     }()
     

@@ -159,17 +159,17 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, change volume: Float, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: EditCompositionAudioSegment) {
         toolService.updateMusic(segment, volume: volume)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, changeFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
         toolService.updateMusic(segment, isFadeIn: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, changeFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
         toolService.updateMusic(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
@@ -188,6 +188,33 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView?.loadVideoModel(toolService.videoModel!)
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.addRecordAudioWaveformView(for: segment)
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, updateRecord segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+        toolService.updateRecord(segment, timeRange: timeRange)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
+    }
+    
+    func toolView(_ toolView: EditToolViewInput, removeRecord segment: EditCompositionAudioSegment) {
+        toolService.removeRecord(segment)
+        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.seek(to: toolView.currentCursorTime())
+    }
+
+    func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: EditCompositionAudioSegment) {
+        toolService.updateRecord(segment, volume: volume)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
+        toolService.updateRecord(segment, isFadeIn: isOn)
+        refreshPlayerViewAndPlay(withAudio: segment)
+    }
+
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
+        toolService.updateRecord(segment, isFadeOut: isOn)
+        refreshPlayerViewAndPlay(withAudio: segment)
     }
     
 }

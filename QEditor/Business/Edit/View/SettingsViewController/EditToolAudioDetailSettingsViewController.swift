@@ -17,6 +17,13 @@ class EditToolAudioDetailSettingsViewController: EditToolBaseSettingsViewControl
     public var fadeOutClosure: ((_ selected: Bool) -> Void)?
     
     public var chooseClosure: ((_ start: Double) -> Void)?
+    
+    public var isHiddenChoose: Bool = false {
+        willSet {
+            waveformView.isHidden = newValue
+            audioChooseView.isHidden = newValue
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
