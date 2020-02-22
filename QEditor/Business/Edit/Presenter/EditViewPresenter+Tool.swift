@@ -12,7 +12,7 @@ import AVFoundation
 extension EditViewPresenter: EditToolViewOutput {
     
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool {
-        return toolService.videoSegments.count > 1
+        return project.videoSegments.count > 1
     }
     
     func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int {
@@ -46,13 +46,13 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment) {
-        toolService.removeVideo(for: segment)
+        project.removeVideo(for: segment)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
-        toolView.refreshWaveFormView(with: toolService.videoModel!.composition)
+        toolView.refreshWaveFormView(with: project.composition!)
     }
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel]) {
@@ -60,7 +60,7 @@ extension EditViewPresenter: EditToolViewOutput {
         guard videos.count > 0 else {
             return
         }
-        toolService.addVideos(from: videos.map({ (model) -> EditCompositionVideoSegment in
+        project.addVideos(from: videos.map({ (model) -> EditCompositionVideoSegment in
             return EditCompositionVideoSegment(url: model.url!)
         }))
         refreshView()
@@ -69,48 +69,32 @@ extension EditViewPresenter: EditToolViewOutput {
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionVideoSegment, of scale: Float) {
         beginTaskRunning()
-        toolService.changeSpeed(at: segment, scale: scale)
+        project.changeSpeed(at: segment, scale: scale)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "变速视频成功", style: .success)
         endTaskRunning()
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(start: beginTime, end: endTime)
-        let context = [EditFilterBrightnessKey: (value: value, range: range)]
-        toolService.adjustFilter(context)
-        playerView?.loadVideoModel(toolService.videoModel!)
-        MessageBanner.show(title: "任务", subTitle: "亮度调节成功", style: .success)
+        //todo:预留接口
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(start: beginTime, end: endTime)
-        let context = [EditFilterSaturationKey: (value: value, range: range)]
-        toolService.adjustFilter(context)
-        playerView?.loadVideoModel(toolService.videoModel!)
-        MessageBanner.show(title: "任务", subTitle: "饱和度调节成功", style: .success)
+        //todo:预留接口
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(start: beginTime, end: endTime)
-        let context = [EditFilterContrastKey: (value: value, range: range)]
-        toolService.adjustFilter(context)
-        playerView?.loadVideoModel(toolService.videoModel!)
-        MessageBanner.show(title: "任务", subTitle: "对比度调节成功", style: .success)
+        //todo:预留接口
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float) {
-        let range = CMTimeRange(start: beginTime, end: endTime)
-        let context = [EditFilterGaussianBlurKey: (value: value, range: range)]
-        toolService.adjustFilter(context)
-        playerView?.loadVideoModel(toolService.videoModel!)
-        MessageBanner.show(title: "任务", subTitle: "模糊调节成功", style: .success)
+        //todo:预留接口
     }
     
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
         let time = toolView.currentCursorTime()
-        toolService.splitVideoAt(time: time)
-        toolView.refreshView(toolService.videoSegments)
+        project.splitVideoAt(time: time)
+        toolView.refreshView(project.videoSegments)
     }
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
@@ -118,102 +102,102 @@ extension EditViewPresenter: EditToolViewOutput {
     }
     
     func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: EditTransitionModel) {
-        toolService.addTransition(model, at: index)
+        project.addTransition(model, at: index)
         refreshView()
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel {
-        guard index < toolService.videoSegments.count else {
+        guard index < project.videoSegments.count else {
             QELog("通过index获取transition失败")
             return EditTransitionModel(duration: 0, style: .none)
         }
-        return toolService.videoSegments[index].transition
+        return project.videoSegments[index].transition
     }
     
     func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?) {
         let currentTime = toolView.currentCursorTime()
-        guard let segment = toolService.addMusic(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
+        guard let segment = project.addMusic(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
         segment.title = title
-        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.addMusicAudioWaveformView(for: segment)
     }
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
         //view传来的timeRange是不可信的，在service里还需要校验
-        toolService.updateMusic(segment, timeRange: timeRange)
-        playerView?.loadVideoModel(toolService.videoModel!)
+        project.updateMusic(segment, timeRange: timeRange)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment) {
-        toolService.replaceMusic(oldSegment: oldSegment, for: newSegment)
-        playerView?.loadVideoModel(toolService.videoModel!)
+        project.replaceMusic(oldSegment: oldSegment, for: newSegment)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.refreshMusicWaveformView(with: newSegment)
     }
     
     func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment) {
-        toolService.removeMusic(segment)
-        playerView?.loadVideoModel(toolService.videoModel!)
+        project.removeMusic(segment)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: EditCompositionAudioSegment) {
-        toolService.updateMusic(segment, volume: volume)
+        project.updateMusic(segment, volume: volume)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, changeMusicFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
-        toolService.updateMusic(segment, isFadeIn: isOn)
+        project.updateMusic(segment, isFadeIn: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, changeMusicFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
-        toolService.updateMusic(segment, isFadeOut: isOn)
+        project.updateMusic(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double) {
         //todo:处理音乐的边界情况的选中问题
-        toolService.updateMusic(segment, atNew: CMTime(seconds: start, preferredTimescale: 600))
+        project.updateMusic(segment, atNew: CMTime(seconds: start, preferredTimescale: 600))
         toolView.refreshMusicWaveformView(with: segment)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, addRecordAudioFrom asset: AVAsset) {
         let currentTime = toolView.currentCursorTime()
-        guard let segment = toolService.addRecordAudio(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
+        guard let segment = project.addRecordAudio(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
         segment.title = "语音录制音频"
-        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.addRecordAudioWaveformView(for: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, updateRecord segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
-        toolService.updateRecord(segment, timeRange: timeRange)
-        playerView?.loadVideoModel(toolService.videoModel!)
+        project.updateRecord(segment, timeRange: timeRange)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, removeRecord segment: EditCompositionAudioSegment) {
-        toolService.removeRecord(segment)
-        playerView?.loadVideoModel(toolService.videoModel!)
+        project.removeRecord(segment)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
 
     func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: EditCompositionAudioSegment) {
-        toolService.updateRecord(segment, volume: volume)
+        project.updateRecord(segment, volume: volume)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
 
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
-        toolService.updateRecord(segment, isFadeIn: isOn)
+        project.updateRecord(segment, isFadeIn: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
 
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
-        toolService.updateRecord(segment, isFadeOut: isOn)
+        project.updateRecord(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
@@ -226,7 +210,7 @@ extension EditViewPresenter {
             return
         }
         self.beginTaskRunning()
-        toolService.reverseVideo(at: segment) { (error) in
+        project.reverseVideo(at: segment) { (error) in
             guard error == nil else {
                 MessageBanner.show(title: "任务", subTitle: "反转视频任务失败", style: .danger)
                 self.endTaskRunning()
@@ -239,7 +223,7 @@ extension EditViewPresenter {
     }
     
     func refreshPlayerViewAndPlay(withAudio segment: EditCompositionAudioSegment) {
-        playerView?.loadVideoModel(toolService.videoModel!)
+        playerView?.loadComposition(project.composition!)
         playerView?.seek(to: segment.rangeAtComposition.start.seconds)
         playerView?.play()
     }

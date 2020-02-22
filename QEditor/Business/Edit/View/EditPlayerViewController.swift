@@ -111,9 +111,9 @@ extension EditPlayerViewController: EditPlayerViewInput {
         playButton.setImage(UIImage(named: "edit_play"), for: .normal)
     }
     
-    func loadVideoModel(_ model: EditVideoModel) {
+    func loadComposition(_ composition: AVMutableComposition) {
         playerView.stop()
-        playerView.setupPlayer(asset: model.composition)
+        playerView.setupPlayer(asset: composition)
     }
     
     func updatePlayTime(_ time: Double) {

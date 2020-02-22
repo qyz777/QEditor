@@ -19,7 +19,7 @@ class EditViewPresenter {
     
     public internal(set) var isTaskRunning = false
     
-    let toolService = EditToolService()
+    let project = EditVideoCompositionProject()
     
     var thumbModels: [EditToolImageCellModel] = []
     
@@ -28,22 +28,22 @@ class EditViewPresenter {
     var isPlayingBeforeDragging = false
     
     func refreshView() {
-        guard toolService.videoModel != nil else {
-            QELog("EditVideoModel为空")
+        guard project.composition != nil else {
+            QELog("composition为空")
             return
         }
         //1.处理工具栏数据源
-        thumbModels = toolService.splitTime().map({ (time) -> EditToolImageCellModel in
+        thumbModels = project.splitTime().map({ (time) -> EditToolImageCellModel in
             let m = EditToolImageCellModel()
             m.time = time
             return m
         })
         //2.对外发送加载成功的消息
-        playerView?.loadVideoModel(toolService.videoModel!)
-        toolView?.loadVideoModel(toolService.videoModel!)
-        toolView?.loadAsset(toolService.imageSourceComposition!)
+        playerView?.loadComposition(project.composition!)
+        toolView?.loadComposition(project.composition!)
+        toolView?.loadAsset(project.imageSourceComposition!)
         //3.刷新工具栏
-        toolView?.reloadView(toolService.videoSegments)
+        toolView?.reloadView(project.videoSegments)
         //4.恢复到刷新之前的seek
         playerView?.seek(to: toolView?.currentCursorTime() ?? .zero)
     }

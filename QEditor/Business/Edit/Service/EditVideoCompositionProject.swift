@@ -1,17 +1,17 @@
 //
-//  EditToolService.swift
+//  EditVideoCompositionProject.swift
 //  QEditor
 //
-//  Created by Q YiZhong on 2019/10/19.
-//  Copyright © 2019 YiZhong Qi. All rights reserved.
-//
+//  Created by Q YiZhong on 2020/1/21.
+//  Copyright © 2020 YiZhong Qi. All rights reserved.
+//  剪辑Service层，提供各个剪辑功能接口
 
-import UIKit
+import Foundation
 import AVFoundation
 
-class EditToolService {
+public class EditVideoCompositionProject {
     
-    public private(set) var videoModel: EditVideoModel?
+    public private(set) var composition: AVMutableComposition?
     
     public private(set) var videoComposition: AVMutableVideoComposition?
     
@@ -22,8 +22,6 @@ class EditToolService {
     
     private var reverseTool: EditToolReverseTool?
     
-    public let filterService = EditFilterService()
-    
     public private(set) var videoSegments: [EditCompositionVideoSegment] = []
     
     public private(set) var musicSegments: [EditCompositionAudioSegment] = []
@@ -31,11 +29,7 @@ class EditToolService {
     public private(set) var recordAudioSegments: [EditCompositionAudioSegment] = []
 
     public func splitTime() -> [CMTime] {
-        guard videoModel != nil else {
-            return []
-        }
-
-        let asset = videoModel!.composition
+        guard let asset = composition else { return [] }
         let duration = Int(asset.duration.seconds)
         
         guard duration > 1 else {
@@ -44,40 +38,14 @@ class EditToolService {
 
         var times: [CMTime] = []
         for i in 1...duration {
-            let time = CMTime(seconds: Double(i), preferredTimescale: CMTimeScale(600))
+            let time = CMTime(seconds: Double(i), preferredTimescale: 600)
             times.append(time)
         }
         return times
     }
     
-    //MARK: Command
-    public func excute(command: EditCommandKey, with context: EditCommandContext) {
-        guard let type = registeredCommands[command] else {
-            QELog("command unregistered!")
-            return
-        }
-        guard let composition = videoModel?.composition else {
-            return
-        }
-        let com = type.init()
-        com.composition = composition
-        com.videoComposition = videoComposition
-        com.perform(context)
-        videoModel?.composition = com.composition!
-        videoComposition = com.videoComposition
-    }
-    
-    //MARK: Filter
-    public func adjustFilter(_ context: [String: (value: Float, range: CMTimeRange)]) {
-        guard let composition = videoModel?.composition else {
-            return
-        }
-        videoComposition = filterService.adjust(composition, with: context)
-    }
-    
     //MARK: Composition
-    /// 生成composition
-    /// 调用完此方法后所有视频model都使用videoModel
+    /// 刷新composition
     public func refreshComposition() {
         guard videoSegments.count > 0 else {
             return
@@ -163,19 +131,13 @@ class EditToolService {
         
         setupAudioMix()
         
-        let formatTime = String.qe.formatTime(Int(composition.duration.seconds))
-        videoModel = EditVideoModel(composition: composition, formatTime: formatTime)
+        self.composition = composition
     }
-    
-    private let registeredCommands: [EditCommandKey: EditCommand.Type] = [
-        .rotate: EditRotateCommand.self,
-        .mirror: EditMirrorCommand.self
-    ]
     
 }
 
 //MARK: VideoEdit
-extension EditToolService {
+extension EditVideoCompositionProject {
     
     public func addVideos(from segments: [EditCompositionVideoSegment]) {
         self.videoSegments.append(contentsOf: segments)
@@ -211,9 +173,7 @@ extension EditToolService {
     }
     
     public func changeSpeed(at segment: EditCompositionVideoSegment, scale: Float) {
-        guard let composition = videoModel?.composition else {
-            return
-        }
+        guard let composition = composition else { return }
         let scaleDuration = segment.duration * Double(scale)
         let timeRange = segment.rangeAtComposition
         let toDuration = CMTime(seconds: scaleDuration, preferredTimescale: 600)
@@ -232,9 +192,7 @@ extension EditToolService {
     
     //MARK: Reverse
     public func reverseVideo(at segment: EditCompositionVideoSegment, closure: @escaping (_ error: Error?) -> Void) {
-        guard let composition = videoModel?.composition else {
-            return
-        }
+        guard let composition = composition else { return }
         do {
             reverseTool = try EditToolReverseTool(with: composition.mutableCopy() as! AVMutableComposition, at: segment.rangeAtComposition)
         } catch {
@@ -266,10 +224,10 @@ extension EditToolService {
 }
 
 //MARK: Music
-extension EditToolService {
+extension EditVideoCompositionProject {
     
     public func addMusic(_ asset: AVAsset, at time: CMTime) -> EditCompositionAudioSegment? {
-        guard let composition = videoModel?.composition else { return nil }
+        guard let composition = composition else { return nil }
         let segment = EditCompositionAudioSegment(asset: asset)
         var nextSegment: EditCompositionAudioSegment?
         var index = 0
@@ -371,10 +329,10 @@ extension EditToolService {
 }
 
 //MARK: RecordAudio
-extension EditToolService {
+extension EditVideoCompositionProject {
     
     public func addRecordAudio(_ asset: AVAsset, at time: CMTime) -> EditCompositionAudioSegment? {
-        guard let composition = videoModel?.composition else { return nil }
+        guard let composition = composition else { return nil }
         let segment = EditCompositionAudioSegment(asset: asset)
         var nextSegment: EditCompositionAudioSegment?
         var index = 0
@@ -454,7 +412,7 @@ extension EditToolService {
 }
 
 //MARK: Private
-extension EditToolService {
+extension EditVideoCompositionProject {
     
     private func setupTransition(_ transitions: [EditTransitionModel]) {
         guard let videoComposition = videoComposition else {
@@ -479,7 +437,7 @@ extension EditToolService {
     
     private func setupAudioMix() {
         audioMix = AVMutableAudioMix()
-        guard let composition = videoModel?.composition else { return }
+        guard let composition = composition else { return }
         let mixAudioTrack = composition.tracks(withMediaType: .audio)[1]
         let recordTrack = composition.tracks(withMediaType: .audio)[2]
         //设置混音
@@ -546,7 +504,7 @@ extension EditToolService {
     }
     
     private func updateAudio(preSegment: EditCompositionAudioSegment?, nextSegment: EditCompositionAudioSegment?, segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
-        guard let composition = videoModel?.composition else { return }
+        guard let composition = composition else { return }
         var timeRange = timeRange
         if preSegment != nil && timeRange.start < preSegment!.rangeAtComposition.end {
             timeRange = CMTimeRange(start: preSegment!.rangeAtComposition.end, end: timeRange.end)

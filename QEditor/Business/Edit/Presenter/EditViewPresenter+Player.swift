@@ -35,11 +35,11 @@ extension EditViewPresenter: PlayerViewDelegate {
     }
     
     func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition? {
-        return toolService.videoComposition
+        return project.videoComposition
     }
     
     func playerAudioMix(_ player: PlayerView) -> AVAudioMix? {
-        return toolService.audioMix
+        return project.audioMix
     }
     
 }

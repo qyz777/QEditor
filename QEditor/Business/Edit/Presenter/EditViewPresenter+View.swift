@@ -16,9 +16,9 @@ extension EditViewPresenter: EditViewOutput {
         let segments = urls.map { (url) -> EditCompositionVideoSegment in
             return EditCompositionVideoSegment(url: url)
         }
-        toolService.addVideos(from: segments)
-        toolView?.updateDuration(toolService.videoModel!.composition.duration.seconds)
-        playerView?.updateDuration(toolService.videoModel!.composition.duration.seconds)
+        project.addVideos(from: segments)
+        toolView?.updateDuration(project.composition!.duration.seconds)
+        playerView?.updateDuration(project.composition!.duration.seconds)
         //刷新视图
         refreshView()
     }

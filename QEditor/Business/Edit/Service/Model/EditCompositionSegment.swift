@@ -15,7 +15,7 @@ struct AVAssetKey {
     static let metadata = "commonMetadata"
 }
 
-protocol EditCompositionSegment {
+public protocol EditCompositionSegment {
     
     /// 所在轨道的Id
     var trackId: CMPersistentTrackID { get set }

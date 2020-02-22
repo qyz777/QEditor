@@ -9,50 +9,50 @@
 import Foundation
 import AVFoundation
 
-class EditCompositionAudioSegment: EditCompositionSegment {
+public class EditCompositionAudioSegment: EditCompositionSegment {
     
-    var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
+    public var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
     
-    let id: Int
+    public let id: Int
     
-    let asset: AVAsset
+    public let asset: AVAsset
     
-    let url: URL?
+    public let url: URL?
     
-    var duration: Double {
+    public var duration: Double {
         return timeRange.duration.seconds
     }
     
-    var rangeAtComposition: CMTimeRange = .zero
+    public var rangeAtComposition: CMTimeRange = .zero
     
-    var timeRange: CMTimeRange
+    public var timeRange: CMTimeRange
     
-    var isPrepare: Bool = false
+    public var isPrepare: Bool = false
     
     /// 是否读取所有音频参数
-    var isReadAllAudioSamples = false
+    public var isReadAllAudioSamples = false
     
     /// 声音
-    var volume: Float = 1
+    public var volume: Float = 1
     
     /// 是否淡入
-    var isFadeIn: Bool = false
+    public var isFadeIn: Bool = false
     
     /// 是否淡出
-    var isFadeOut: Bool = true
+    public var isFadeOut: Bool = true
     
     /// 声音样式持续时间，预留设置，暂时为1.5
-    var styleDuration: Double = 1.5
+    public var styleDuration: Double = 1.5
     
-    var title: String?
+    public var title: String?
     
-    var assetDuration: Double {
+    public var assetDuration: Double {
         return asset.duration.seconds
     }
     
     private let sampleAnalyzer = EditAudioSampleAnalyzer()
     
-    required init(url: URL) {
+    required public init(url: URL) {
         self.url = url
         asset = AVURLAsset(url: url)
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
@@ -60,7 +60,7 @@ class EditCompositionAudioSegment: EditCompositionSegment {
         prepare(nil)
     }
     
-    required init(asset: AVAsset) {
+    required public init(asset: AVAsset) {
         url = nil
         self.asset = asset
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
@@ -68,7 +68,7 @@ class EditCompositionAudioSegment: EditCompositionSegment {
         prepare(nil)
     }
     
-    func prepare(_ closure: (() -> Void)?) {
+    public func prepare(_ closure: (() -> Void)?) {
         asset.loadValuesAsynchronously(forKeys: [AVAssetKey.tracks, AVAssetKey.duration, AVAssetKey.metadata]) { [unowned self] in
             let tracksStatus = self.asset.statusOfValue(forKey: AVAssetKey.tracks, error: nil)
             let durationStatus = self.asset.statusOfValue(forKey: AVAssetKey.duration, error: nil)

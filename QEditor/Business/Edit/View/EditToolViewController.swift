@@ -797,10 +797,6 @@ extension EditToolViewController: EditToolViewInput {
         refreshContainerView(segments)
     }
     
-    func loadVideoModel(_ model: EditVideoModel) {
-        
-    }
-    
     func loadAsset(_ asset: AVAsset) {
         thumbView.asset = asset
     }

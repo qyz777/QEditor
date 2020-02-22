@@ -15,7 +15,7 @@ enum EditTransitionStyle {
     case fadeOut
 }
 
-struct EditTransitionModel {
+public struct EditTransitionModel {
     let duration: Double
     let style: EditTransitionStyle
 }

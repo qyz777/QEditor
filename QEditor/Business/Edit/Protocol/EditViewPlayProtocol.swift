@@ -11,7 +11,7 @@ import AVFoundation
 
 protocol EditViewPlayProtocol {
     
-    func loadVideoModel(_ model: EditVideoModel)
+    func loadComposition(_ composition: AVMutableComposition)
     
     func updatePlayTime(_ time: Double)
     
@@ -25,7 +25,7 @@ protocol EditViewPlayProtocol {
 
 extension EditViewPlayProtocol {
     
-    func loadVideoModel(_ model: EditVideoModel) {}
+    func loadComposition(_ composition: AVMutableComposition) {}
     
     func updatePlayTime(_ time: Double) {}
     

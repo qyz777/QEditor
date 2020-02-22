@@ -11,6 +11,10 @@ import AVFoundation
 
 class EditAudioSampleAnalyzer {
     
+    /// 读取音频样本
+    /// - Parameters:
+    ///   - asset: 资源
+    ///   - timeRange: 需要采样的时间片段
     public func readAudioSamples(from asset: AVAsset, timeRange: CMTimeRange? = nil) -> Data? {
         let assetReader: AVAssetReader
         do {
@@ -55,9 +59,10 @@ class EditAudioSampleAnalyzer {
         }
     }
     
-    /// 过滤音频样本
-    /// 数据分箱选出平均数
-    /// 这里的粒度要控制好
+    /// 过滤音频样本，数据分箱选出平均数并进行min-max标准化
+    /// - Parameters:
+    ///   - sampleData: 音频样本
+    ///   - size: 需要展示样本的视图尺寸
     public func filteredSamples(from sampleData: Data, size: CGSize) -> [CGFloat] {
         var array: [UInt16] = []
         let sampleCount = sampleData.count / MemoryLayout<UInt16>.size
