@@ -17,6 +17,8 @@ class EditViewPresenter {
     
     public weak var toolView: (UIViewController & EditToolViewInput)?
     
+    public weak var addCaptionView: (UIViewController & EditViewPlayProtocol)?
+    
     public internal(set) var isTaskRunning = false
     
     let project = EditVideoCompositionProject()
@@ -26,6 +28,8 @@ class EditViewPresenter {
     var playerStatus: PlayerViewStatus = .stop
     
     var isPlayingBeforeDragging = false
+    
+    var duration: Double = 0
     
     func refreshView() {
         guard project.composition != nil else {

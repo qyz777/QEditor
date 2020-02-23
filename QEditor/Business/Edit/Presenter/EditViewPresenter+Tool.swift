@@ -15,36 +15,6 @@ extension EditViewPresenter: EditToolViewOutput {
         return project.videoSegments.count > 1
     }
     
-    func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int {
-        return thumbModels.count
-    }
-    
-    func toolView(_ toolView: EditToolViewInput, thumbModelAt index: Int) -> EditToolImageCellModel {
-        return thumbModels[index]
-    }
-    
-    func toolView(_ toolView: EditToolViewInput, isDraggingWith percent: Float) {
-        playerView?.seek(to: percent)
-    }
-    
-    func toolViewWillBeginDragging(_ toolView: EditToolViewInput) {
-        isPlayingBeforeDragging = playerStatus == .playing
-        //开始拖动时暂停播放器
-        playerView?.pause()
-    }
-    
-    func toolViewDidEndDecelerating(_ toolView: EditToolViewInput) {
-        if isPlayingBeforeDragging {
-            isPlayingBeforeDragging = false
-            playerView?.play()
-        }
-    }
-    
-    func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String {
-        let m = thumbModels[index]
-        return String.qe.formatTime(Int(m.time.seconds))
-    }
-    
     func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment) {
         project.removeVideo(for: segment)
         refreshView()

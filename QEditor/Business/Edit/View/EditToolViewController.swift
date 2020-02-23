@@ -14,10 +14,10 @@ import SwifterSwift
 fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
 
 /// 容器最小滑动宽度
-fileprivate let MIN_SCROLL_WIDTH = SCREEN_WIDTH + SCREEN_WIDTH / 2
+let MIN_SCROLL_WIDTH = SCREEN_WIDTH + SCREEN_WIDTH / 2
 
 /// 容器左边距
-fileprivate let CONTAINER_PADDING_LEFT = SCREEN_WIDTH / 2
+let CONTAINER_PADDING_LEFT = SCREEN_WIDTH / 2
 
 
 /// 视图层级枚举
@@ -57,21 +57,26 @@ class EditToolViewController: UIViewController {
     private weak var selectedRecordOperationView: EditAudioWaveformOperationView?
     
     private var videoToolBarModels: [EditToolBarModel] = [
-        EditToolBarModel(action: .videoSplit, imageName: "edit_split", text: "分割"),
-        EditToolBarModel(action: .videoDelete, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .splitVideo, imageName: "edit_split", text: "分割"),
+        EditToolBarModel(action: .deleteVideo, imageName: "edit_delete", text: "删除"),
         EditToolBarModel(action: .videoChangeSpeed, imageName: "edit_speed", text: "变速"),
         EditToolBarModel(action: .videoReverse, imageName: "edit_reverse", text: "倒放"),
     ]
     
     private var musicToolBarModels: [EditToolBarModel] = [
-        EditToolBarModel(action: .musicReplace, imageName: "edit_replace_music", text: "替换"),
-        EditToolBarModel(action: .musicDelete, imageName: "edit_delete", text: "删除"),
-        EditToolBarModel(action: .musicEdit, imageName: "edit_edit_music", text: "编辑")
+        EditToolBarModel(action: .replaceMusic, imageName: "edit_replace_music", text: "替换"),
+        EditToolBarModel(action: .deleteMusic, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .editMusic, imageName: "edit_edit_music", text: "编辑")
     ]
     
     private var recordToolBarModels: [EditToolBarModel] = [
-        EditToolBarModel(action: .recordDelete, imageName: "edit_delete", text: "删除"),
-        EditToolBarModel(action: .recordEdit, imageName: "edit_edit_music", text: "编辑")
+        EditToolBarModel(action: .deleteRecord, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .editRecord, imageName: "edit_edit_music", text: "编辑")
+    ]
+    
+    private var textToolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .deleteCaption, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .editCaption, imageName: "edit_edit_music", text: "编辑")
     ]
     
     private var tabSelectedType: EditToolTabSelectedType = .edit
@@ -206,7 +211,7 @@ class EditToolViewController: UIViewController {
         clearViewsAndInfos()
         loadingView.dismiss()
         //2.更新容器view的contentSize
-        let itemCount = presenter.toolImageThumbViewItemsCount(self)
+        let itemCount = presenter.frameCount()
         //视频最大滑动宽度
         let contentWidth = CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE
         //容器最大滑动宽度
@@ -335,6 +340,24 @@ class EditToolViewController: UIViewController {
         vc.stopClosure = { [unowned self] (url) in
             self.presenter.toolView(self, addRecordAudioFrom: AVURLAsset(url: url))
         }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToAddCaption() {
+        let vc = EditToolAddCaptionViewController()
+        //因为presenter已经实现了这些协议，所以强行赋值进去
+        vc.presenter = presenter as? (EditAddCaptionViewOutput & EditDataSourceProtocol & EditPlayerInteractionProtocol)
+        vc.playerStatus = playerStatus
+        let offsetX = containerView.contentOffset.x
+        let totalWidth = containerView.contentSize.width
+        let currentPercent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
+        vc.backClosure = { [unowned self] in
+            //退出时重制到当前的percent
+            self.containerView.contentOffset = CGPoint(x: offsetX, y: 0)
+            self.presenter.viewIsDraggingWith(with: currentPercent)
+        }
+        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth)
+        vc.model = model
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -475,6 +498,8 @@ class EditToolViewController: UIViewController {
             showMusicSelectedView()
         case .recordAudio:
             pushToRecordAudio()
+        case .text:
+            pushToAddCaption()
         }
     }
     
@@ -555,10 +580,10 @@ class EditToolViewController: UIViewController {
         view.isScrollEnabled = false
         view.layer.cornerRadius = 4
         view.itemCountClosure = { [unowned self] in
-            return self.presenter.toolImageThumbViewItemsCount(self)
+            return self.presenter.frameCount()
         }
         view.itemModelClosure = { [unowned self] (item: Int) -> EditToolImageCellModel in
-            return self.presenter.toolView(self, thumbModelAt: item)
+            return self.presenter.thumbModel(at: item)
         }
         return view
     }()
@@ -584,10 +609,10 @@ class EditToolViewController: UIViewController {
         view.isScrollEnabled = false
         view.showsHorizontalScrollIndicator = false
         view.itemCountClosure = { [unowned self] in
-            return self.presenter.toolImageThumbViewItemsCount(self)
+            return self.presenter.frameCount()
         }
         view.itemContentClosure = { [unowned self] (item: Int) -> String in
-            self.presenter.toolView(self, contentAt: item)
+            return self.presenter.timeContent(at: item)
         }
         return view
     }()
@@ -600,9 +625,9 @@ class EditToolViewController: UIViewController {
         view.contentInset = .init(top: 0, left: 30, bottom: 0, right: 30)
         view.selectedClosure = { [unowned self] (model) in
             switch model.action {
-            case .videoSplit:
+            case .splitVideo:
                 self.presenter.toolViewShouldSplitVideo(self)
-            case .videoDelete:
+            case .deleteVideo:
                 self.deletePart()
             case .videoChangeSpeed:
                 self.pushChangeSpeedView()
@@ -610,16 +635,20 @@ class EditToolViewController: UIViewController {
                 self.loadingView.show()
                 MessageBanner.show(title: "任务", subTitle: "开始执行反转视频任务", style: .info)
                 self.presenter.toolViewShouldReverseVideo(self)
-            case .musicReplace:
+            case .replaceMusic:
                 self.replaceSelectedMusic()
-            case .musicEdit:
+            case .editMusic:
                 self.pushToEditMusic()
-            case .musicDelete:
+            case .deleteMusic:
                 self.removeSelectedMusic()
-            case .recordEdit:
+            case .editRecord:
                 self.pushToEditRecord()
-            case .recordDelete:
+            case .deleteRecord:
                 self.removeSelectedRecord()
+            case .deleteCaption:
+                break
+            case .editCaption:
+                break
             }
         }
         return view
@@ -652,6 +681,8 @@ class EditToolViewController: UIViewController {
                 self.toolBarView.update(self.musicToolBarModels)
             case.recordAudio:
                 self.toolBarView.update(self.recordToolBarModels)
+            case .text:
+                self.toolBarView.update(self.textToolBarModels)
             }
         }
         return view
@@ -1088,7 +1119,7 @@ extension EditToolViewController: UIScrollViewDelegate {
         
         if totalWidth - SCREEN_WIDTH > 0 && playerStatus != .playing {
             let percent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
-            presenter.toolView(self, isDraggingWith: percent)
+            presenter.viewIsDraggingWith(with: percent)
         }
         
         if offsetX < SCREEN_WIDTH / 2 {
@@ -1142,10 +1173,10 @@ extension EditToolViewController: UIScrollViewDelegate {
         let totalWidth = scrollView.contentSize.width
         if totalWidth - SCREEN_WIDTH > 0 {
             let percent = Float(offsetX / (totalWidth - SCREEN_WIDTH))
-            presenter.toolView(self, isDraggingWith: percent)
+            presenter.viewIsDraggingWith(with: percent)
         }
         
-        presenter.toolViewDidEndDecelerating(self)
+        presenter.viewDidEndDecelerating()
         
         let scrollToScrollStop = !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating
         if isEnableOptimize {
@@ -1159,7 +1190,7 @@ extension EditToolViewController: UIScrollViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        presenter.toolViewWillBeginDragging(self)
+        presenter.viewWillBeginDragging()
     }
     
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {

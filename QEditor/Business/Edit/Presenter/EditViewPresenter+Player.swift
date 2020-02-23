@@ -18,9 +18,11 @@ extension EditViewPresenter: PlayerViewDelegate {
     func player(_ player: PlayerView, playAt time: Double) {
         toolView?.updatePlayTime(time)
         playerView?.updatePlayTime(time)
+        addCaptionView?.updatePlayTime(time)
     }
     
     public func player(_ player: PlayerView, didLoadVideoWith duration: Double) {
+        self.duration = duration
         toolView?.updateDuration(duration)
         playerView?.updateDuration(duration)
     }
@@ -47,5 +49,26 @@ extension EditViewPresenter: PlayerViewDelegate {
 extension EditViewPresenter: EditPlayerViewOutput {
     
     
+    
+}
+
+extension EditViewPresenter: EditPlayerInteractionProtocol {
+    
+    func viewIsDraggingWith(with percent: Float) {
+        playerView?.seek(to: percent)
+    }
+    
+    func viewWillBeginDragging() {
+        isPlayingBeforeDragging = playerStatus == .playing
+        //开始拖动时暂停播放器
+        playerView?.pause()
+    }
+    
+    func viewDidEndDecelerating() {
+        if isPlayingBeforeDragging {
+            isPlayingBeforeDragging = false
+            playerView?.play()
+        }
+    }
     
 }

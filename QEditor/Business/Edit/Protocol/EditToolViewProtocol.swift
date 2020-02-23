@@ -42,24 +42,9 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
 }
 
-protocol EditToolViewOutput: class {
+protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractionProtocol {
     
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
-    
-    func toolImageThumbViewItemsCount(_ toolView: EditToolViewInput) -> Int
-    
-    func toolView(_ toolView: EditToolViewInput, thumbModelAt index: Int) -> EditToolImageCellModel
-    
-    /// 工具栏正在被横向拖动
-    /// - Parameter toolView: 工具栏view
-    /// - Parameter percent: 拖动进度
-    func toolView(_ toolView: EditToolViewInput, isDraggingWith percent: Float)
-    
-    func toolViewWillBeginDragging(_ toolView: EditToolViewInput)
-    
-    func toolViewDidEndDecelerating(_ toolView: EditToolViewInput)
-    
-    func toolView(_ toolView: EditToolViewInput, contentAt index: Int) -> String
     
     func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment)
     

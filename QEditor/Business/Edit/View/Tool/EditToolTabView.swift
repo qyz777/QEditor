@@ -12,6 +12,7 @@ enum EditToolTabSelectedType {
     case edit
     case music
     case recordAudio
+    case text
 }
 
 struct EditToolTabCellModel {
@@ -25,7 +26,8 @@ class EditToolTabView: UICollectionView {
     private let datas: [EditToolTabCellModel] = [
         EditToolTabCellModel(text: "剪辑", imageName: "edit_clip", type: .edit),
         EditToolTabCellModel(text: "音乐", imageName: "edit_music", type: .music),
-        EditToolTabCellModel(text: "录音", imageName: "edit_record_audio", type: .recordAudio)
+        EditToolTabCellModel(text: "录音", imageName: "edit_record_audio", type: .recordAudio),
+        EditToolTabCellModel(text: "字幕", imageName: "edit_text", type: .text)
     ]
     
     public var selectedClosure: ((_ type: EditToolTabSelectedType) -> Void)?
@@ -98,11 +100,11 @@ fileprivate class EditToolTabItemCell: UICollectionViewCell {
         contentView.addSubview(label)
         contentView.addSubview(imageView)
         imageView.snp.makeConstraints { (make) in
-            make.right.equalTo(self.contentView.snp.centerX).offset(-5)
+            make.right.equalTo(self.contentView.snp.centerX).offset(-2)
             make.centerY.equalTo(self.contentView)
         }
         label.snp.makeConstraints { (make) in
-            make.left.equalTo(self.contentView.snp.centerX).offset(5)
+            make.left.equalTo(self.contentView.snp.centerX).offset(2)
             make.centerY.equalTo(self.contentView)
         }
     }

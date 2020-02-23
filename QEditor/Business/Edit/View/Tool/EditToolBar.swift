@@ -9,15 +9,17 @@
 import UIKit
 
 enum EditToolBarAction {
-    case videoSplit
-    case videoDelete
+    case splitVideo
+    case deleteVideo
     case videoChangeSpeed
     case videoReverse
-    case musicReplace
-    case musicEdit
-    case musicDelete
-    case recordEdit
-    case recordDelete
+    case replaceMusic
+    case editMusic
+    case deleteMusic
+    case editRecord
+    case deleteRecord
+    case deleteCaption
+    case editCaption
 }
 
 struct EditToolBarModel {
