@@ -356,7 +356,7 @@ class EditToolViewController: UIViewController {
             self.containerView.contentOffset = CGPoint(x: offsetX, y: 0)
             self.presenter.viewIsDraggingWith(with: currentPercent)
         }
-        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth)
+        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth, cellModels: [])
         vc.model = model
         navigationController?.pushViewController(vc, animated: true)
     }

@@ -14,6 +14,7 @@ struct EditToolAddCaptionUpdateModel {
     let totalWidth: CGFloat
     let currentOffset: CGFloat
     let contentWidth: CGFloat
+    let cellModels: [EditOperationCaptionCellModel]
 }
 
 class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
@@ -37,6 +38,9 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             guard let m = newValue else { return }
             thumbView.asset = m.asset
             thumbView.reloadData()
+            m.cellModels.forEach {
+                operationContainerView.appendCell(from: $0)
+            }
             view.layoutIfNeeded()
             containerView.contentSize = CGSize(width: m.totalWidth, height: 0)
             containerView.contentOffset = CGPoint(x: m.currentOffset, y: 0)
@@ -45,6 +49,8 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             }
         }
     }
+    
+    var cellModels: [EditOperationCaptionCellModel] = []
     
     private var beginLongPress = false
     private var startRecordX: CGFloat = 0
@@ -64,16 +70,49 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         switch gesture.state {
         case .began:
             startRecordX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
+            //判定违规区域
+            for model in cellModels {
+                let start = model.start + CONTAINER_PADDING_LEFT
+                if start <= startRecordX && startRecordX <= start + model.width {
+                    MessageBanner.warning(content: "不能在此区域添加字幕")
+                    return
+                }
+            }
             addView = UIView(frame: CGRect(x: startRecordX, y: thumbView.frame.maxY + 5, width: 1, height: EDIT_OPERATION_VIEW_HEIGHT))
-            addView?.backgroundColor = .red
+            addView?.backgroundColor = .darkGray
+            addView?.layer.cornerRadius = 4
             contentView.addSubview(addView!)
             beginLongPress = true
             presenter.beginAddCaption()
         case .ended, .failed, .cancelled:
-            addView?.removeFromSuperview()
-            addView = nil
+            guard let addView = addView else { return }
+            //设置字幕cellModel
+            let cellModel = EditOperationCaptionCellModel()
+            cellModel.start = addView.x - CONTAINER_PADDING_LEFT
+            cellModel.width = addView.width
+            cellModel.maxWidth = addView.width
+            
+            self.addView?.removeFromSuperview()
+            self.addView = nil
             beginLongPress = false
             presenter.endAddCaption()
+            
+            guard cellModel.width >= EDIT_OPERATION_VIEW_MIN_WIDTH else {
+                MessageBanner.error(content: "无法添加不足1s的字幕")
+                return
+            }
+            
+            //寻找插入位置
+            var i = 0
+            for model in cellModels {
+                if model.start + model.width <= cellModel.start {
+                    i += 1
+                } else {
+                    break
+                }
+            }
+            operationContainerView.insertCell(from: cellModel, at: i)
+            cellModels.insert(cellModel, at: i)
         default:
             break
         }
@@ -88,6 +127,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         containerView.addSubview(contentView)
         contentView.addSubview(thumbView)
         contentView.addSubview(timeScaleView)
+        contentView.addSubview(operationContainerView)
         
         containerView.snp.makeConstraints { (make) in
             make.top.equalTo(self.topBar.snp.bottom)
@@ -115,6 +155,12 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.width.equalTo(SCREEN_WIDTH)
             make.top.equalTo(self.timeScaleView.snp.bottom).offset(15)
+        }
+        operationContainerView.snp.makeConstraints { (make) in
+            make.top.equalTo(self.thumbView.snp.bottom).offset(5)
+            make.height.equalTo(EDIT_OPERATION_VIEW_HEIGHT)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
+            make.right.equalTo(self.contentView).offset(-CONTAINER_PADDING_LEFT)
         }
         addButton.snp.makeConstraints { (make) in
             make.bottom.equalTo(self.view).offset(-11)
@@ -180,6 +226,11 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         return view
     }()
     
+    private lazy var operationContainerView: EditOperationContainerView = {
+        let view = EditOperationContainerView()
+        return view
+    }()
+    
     private lazy var addButton: UIButton = {
         let view = UIButton(type: .custom)
         view.backgroundColor = UIColor.qe.hex(0xFA3E54)
@@ -234,8 +285,31 @@ extension EditToolAddCaptionViewController: UIScrollViewDelegate {
             }
         }
         
-        let currentX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
-        addView?.width = max(1, currentX - startRecordX)
+        if addView != nil {
+            let currentX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
+            let newWidth = max(1, currentX - startRecordX)
+            if cellModels.count > 0 {
+                var findFlag = false
+                for model in cellModels {
+                    //找到新增cell的后面一个判断长度添加是否合法
+                    if model.start > addView!.x {
+                        findFlag = true
+                        if addView!.x + newWidth <= model.start {
+                            addView?.width = newWidth
+                        } else {
+                            MessageBanner.info(content: "以达到当前可添加的最大长度")
+                            presenter.endAddCaption()
+                        }
+                        break
+                    }
+                }
+                if !findFlag {
+                    addView?.width = newWidth
+                }
+            } else {
+                addView?.width = newWidth
+            }
+        }
         
         if offsetX < SCREEN_WIDTH / 2 {
             //在左侧滚动

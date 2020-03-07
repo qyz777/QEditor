@@ -42,17 +42,14 @@ class EditOperationContainerView: UIView {
         let cellType = cellModel.cellClass as! UIView.Type
         let cell = cellType.init(frame: CGRect(x: 0, y: 0, width: cellModel.width, height: self.height)) as! EditOperationCell
         cells.append(cell)
-        setupCell(cell)
         cell.update(cellModel)
+        setupCell(cell)
         return true
     }
     
     @discardableResult
     public func insertCell(from cellModel: EditOperationCellModel, at index: Int) -> Bool {
         guard cellModel.cellClass.isSubclass(of: EditOperationCell.self) || cellModel.cellClass == EditOperationCell.self else {
-            return false
-        }
-        guard 0 <= index && index < cells.count else {
             return false
         }
         if index - 1 >= 0 {
@@ -70,8 +67,8 @@ class EditOperationContainerView: UIView {
         let cellType = cellModel.cellClass as! UIView.Type
         let cell = cellType.init(frame: CGRect(x: 0, y: 0, width: cellModel.width, height: self.height)) as! EditOperationCell
         cells.insert(cell, at: index)
-        setupCell(cell)
         cell.update(cellModel)
+        setupCell(cell)
         return true
     }
     
@@ -114,8 +111,8 @@ class EditOperationContainerView: UIView {
                     //向右
                     newLeft = min(cell.frame.maxX - EDIT_OPERATION_VIEW_MIN_WIDTH, currentX + offsetX)
                 }
-                var newWidth = currentWidth + currentX - newLeft
-                newWidth = min(newWidth, cell.model!.maxWidth)
+                let newWidth = currentWidth + currentX - newLeft
+                guard newWidth <= cell.model!.maxWidth else { return }
                 //2.开始移动
                 cell.snp.updateConstraints { (make) in
                     make.left.equalTo(self).offset(newLeft)
