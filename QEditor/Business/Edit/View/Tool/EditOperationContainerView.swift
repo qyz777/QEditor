@@ -31,6 +31,8 @@ class EditOperationContainerView: UIView {
     
     public var selectedCellClosure: ((_ cell: EditOperationCell) -> Void)?
     
+    //MARK: Public
+    
     @discardableResult
     public func appendCell(from cellModel: EditOperationCellModel) -> Bool {
         guard cellModel.cellClass.isSubclass(of: EditOperationCell.self) || cellModel.cellClass == EditOperationCell.self else {
@@ -71,6 +73,18 @@ class EditOperationContainerView: UIView {
         setupCell(cell)
         return true
     }
+    
+    public func update(_ cellModels: [EditOperationCellModel]) {
+        cells.forEach {
+            $0.removeFromSuperview()
+        }
+        cells.removeAll()
+        cellModels.forEach {
+            appendCell(from: $0)
+        }
+    }
+    
+    //MARK: Private
     
     private func setupCell(_ cell: EditOperationCell) {
         var preCell: EditOperationCell?
@@ -164,6 +178,8 @@ class EditOperationContainerView: UIView {
     }
 
 }
+
+//MARK: EditOperationCell
 
 class EditOperationCell: UIView {
     

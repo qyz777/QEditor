@@ -14,6 +14,14 @@ class EditPlayerViewController: UIViewController {
     
     public var presenter: (EditPlayerViewOutput & PlayerViewDelegate)!
     
+    public var okEditClosure: ((_ text: String) -> Void)?
+    
+    public var cancelEditClosure: (() -> Void)?
+    
+    var playbackTime: TimeInterval {
+        return playerView.playbackTime
+    }
+    
     private var duration: Double = 0
 
     override public func viewDidLoad() {
@@ -26,12 +34,18 @@ class EditPlayerViewController: UIViewController {
         view.backgroundColor = .black
         view.addSubview(playerView)
         view.addSubview(toolBar)
+        view.addSubview(editView)
         toolBar.addSubview(playButton)
         toolBar.addSubview(timeLabel)
         
         playerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
             make.bottom.equalTo(self.toolBar.snp.top)
+        }
+        
+        editView.snp.makeConstraints { (make) in
+            make.bottom.equalTo(self.playerView).offset(-10)
+            make.centerX.equalToSuperview()
         }
         
         toolBar.snp.makeConstraints { (make) in
@@ -85,6 +99,24 @@ class EditPlayerViewController: UIViewController {
         view.font = .systemFont(ofSize: 13)
         return view
     }()
+    
+    private lazy var editView: EditPlayerCaptionTextField = {
+        let view = EditPlayerCaptionTextField()
+        view.isHidden = true
+        view.okClosure = { [unowned self, view] in
+            view.resignFirstResponder()
+            view.isHidden = true
+            self.okEditClosure?(view.text ?? "")
+            self.okEditClosure = nil
+        }
+        view.cancelClosure = { [unowned self, view] in
+            view.resignFirstResponder()
+            view.isHidden = true
+            self.cancelEditClosure?()
+            self.cancelEditClosure = nil
+        }
+        return view
+    }()
 
 }
 
@@ -128,6 +160,12 @@ extension EditPlayerViewController: EditPlayerViewInput {
     
     func playToEndTime() {
         playButton.setImage(UIImage(named: "edit_play"), for: .normal)
+    }
+    
+    func showEditCaptionView(text: String?) {
+        editView.isHidden = false
+        editView.text = text
+        editView.becomeFirstResponder()
     }
     
 }

@@ -25,11 +25,13 @@ extension EditViewPresenter: PlayerViewDelegate {
         self.duration = duration
         toolView?.updateDuration(duration)
         playerView?.updateDuration(duration)
+        addCaptionView?.updateDuration(duration)
     }
     
     func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {
         playerStatus = status
         toolView?.updatePlayViewStatus(status)
+        addCaptionView?.updatePlayViewStatus(status)
     }
     
     func playerDidPlayToEndTime(_ player: PlayerView) {
@@ -42,6 +44,10 @@ extension EditViewPresenter: PlayerViewDelegate {
     
     func playerAudioMix(_ player: PlayerView) -> AVAudioMix? {
         return project.audioMix
+    }
+    
+    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer? {
+        return project.generateSyncLayer(for: playerItem, with: player.bounds)
     }
     
 }

@@ -10,6 +10,12 @@ import Foundation
 
 protocol EditPlayerViewInput: EditViewPlayProtocol {
     
+    var okEditClosure: ((_ text: String) -> Void)? { get set }
+    
+    var cancelEditClosure: (() -> Void)? { get set }
+    
+    var playbackTime: TimeInterval { get }
+    
     func seek(to percent: Float)
     
     func seek(to time: Double)
@@ -17,6 +23,8 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
     func play()
     
     func pause()
+    
+    func showEditCaptionView(text: String?)
     
 }
 

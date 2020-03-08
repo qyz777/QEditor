@@ -15,6 +15,10 @@ extension CMTimeRange {
         self.init(start: CMTime(seconds: start, preferredTimescale: 600), end: CMTime(seconds: end, preferredTimescale: 600))
     }
     
+    func overlapWith(_ range: CMTimeRange) -> Bool {
+        return (self.start < range.start && range.start < self.end) || (self.start < range.end && range.end < self.end) || (range.start <= self.start && self.end <= range.end)
+    }
+    
     var description: String {
         return "\(start.seconds) -> \(end.seconds)"
     }

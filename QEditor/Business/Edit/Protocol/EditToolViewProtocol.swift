@@ -15,9 +15,15 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func deletePart()
     
-    func reloadView(_ segments: [EditCompositionVideoSegment])
+    /// 视频相关view的重新加载，会重新reload视频片段以及原声音频片段
+    /// - Parameter segments: 视频segment
+    func reloadVideoViews(_ segments: [EditCompositionVideoSegment])
     
-    func refreshView(_ segments: [EditCompositionVideoSegment])
+    /// 视频相关view的刷新，不会reload视频片段以及原声音频片段
+    /// - Parameter segments: 视频segment
+    func refreshVideoViews(_ segments: [EditCompositionVideoSegment])
+    
+    func refreshCaptionViews(_ segments: [EditCompositionCaptionSegment])
     
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
     
@@ -101,5 +107,9 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
 
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
+    
+    //MARK: Caption
+    
+    func toolViewShouldRefreshCaption(_ toolView: EditToolViewInput)
     
 }

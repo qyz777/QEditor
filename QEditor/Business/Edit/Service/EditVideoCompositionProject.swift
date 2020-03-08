@@ -27,6 +27,8 @@ public class EditVideoCompositionProject {
     public private(set) var musicSegments: [EditCompositionAudioSegment] = []
     
     public private(set) var recordAudioSegments: [EditCompositionAudioSegment] = []
+    
+    public private(set) var captionSegments: [EditCompositionCaptionSegment] = []
 
     public func splitTime() -> [CMTime] {
         guard let asset = composition else { return [] }
@@ -42,6 +44,24 @@ public class EditVideoCompositionProject {
             times.append(time)
         }
         return times
+    }
+    
+    /// 生成播放器同步动画layer
+    /// - Parameters:
+    ///   - item: 资源item
+    ///   - bounds: layer的bounds
+    public func generateSyncLayer(for item: AVPlayerItem, with bounds: CGRect) -> AVSynchronizedLayer? {
+        guard captionSegments.count > 0 else {
+            return nil
+        }
+        let titleLayer = CALayer()
+        titleLayer.frame = bounds
+        captionSegments.forEach {
+            titleLayer.addSublayer($0.buildLayer(for: titleLayer.bounds))
+        }
+        let syncLayer = AVSynchronizedLayer(playerItem: item)
+        syncLayer.addSublayer(titleLayer)
+        return syncLayer
     }
     
     //MARK: Composition
@@ -407,6 +427,34 @@ extension EditVideoCompositionProject {
     
     public func updateRecord(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
         updateAudio(segment, in: recordAudioSegments, atNew: start)
+    }
+    
+}
+
+//MARK: Caption
+
+extension EditVideoCompositionProject {
+    
+    @discardableResult
+    public func addCaptionSegment(_ text: String, at range: CMTimeRange) -> EditCompositionCaptionSegment? {
+        //1.检查数据有效性并找到合适的插入位置
+        guard let composition = composition else { return nil }
+        guard range.end <= composition.duration else {
+            return nil
+        }
+        var i = 0
+        for segment in captionSegments {
+            if segment.rangeAtComposition.overlapWith(range) {
+                return nil
+            }
+            if segment.rangeAtComposition.end <= range.start {
+                i += 1
+            }
+        }
+        //2.插入字幕
+        let segment = EditCompositionCaptionSegment(text: text, at: range)
+        captionSegments.insert(segment, at: i)
+        return segment
     }
     
 }

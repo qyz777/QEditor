@@ -17,34 +17,14 @@ struct AVAssetKey {
 
 public protocol EditCompositionSegment {
     
-    /// 所在轨道的Id
-    var trackId: CMPersistentTrackID { get set }
-    
     /// segment的唯一标识符
     var id: Int { get }
-    
-    /// segment的媒体数据源
-    var asset: AVAsset { get }
-    
-    /// segment的数据源url
-    var url: URL? { get }
     
     /// segment的时长
     var duration: Double { get }
     
     /// segment在composition中的range
     var rangeAtComposition: CMTimeRange { get }
-    
-    /// 用来插入到composition的range
-    var timeRange: CMTimeRange { get }
-    
-    var isPrepare: Bool { get }
-    
-    init(url: URL)
-    
-    init(asset: AVAsset)
-    
-    func prepare(_ closure: (() -> Void)?)
     
 }
 

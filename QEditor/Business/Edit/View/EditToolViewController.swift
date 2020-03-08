@@ -85,6 +85,8 @@ class EditToolViewController: UIViewController {
     
     private var recordWaveformViews: [EditAudioWaveformOperationView] = []
     
+    private var captionCellModels: [EditOperationCaptionCellModel] = []
+    
     //MARK: Override
 
     override func viewDidLoad() {
@@ -116,10 +118,12 @@ class EditToolViewController: UIViewController {
         contentView.addSubview(thumbView)
         contentView.addSubview(originAudioWaveformView)
         contentView.addSubview(timeScaleView)
+        contentView.addSubview(captionContainerView)
         contentView.addSubview(originVideoLabel)
         contentView.addSubview(originAudioLabel)
         contentView.addSubview(musicLabel)
         contentView.addSubview(recordAudioLabel)
+        contentView.addSubview(captionLabel)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -175,6 +179,13 @@ class EditToolViewController: UIViewController {
             make.top.equalTo(self.thumbView.snp.bottom).offset(5)
         }
         
+        captionContainerView.snp.makeConstraints { (make) in
+            make.height.equalTo(EDIT_OPERATION_VIEW_MIN_WIDTH)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
+            make.right.equalTo(self.contentView).offset(-CONTAINER_PADDING_LEFT)
+            make.top.equalTo(originAudioWaveformView.snp.bottom).offset(15 + EDIT_AUDIO_WAVEFORM_HEIGHT * 2)
+        }
+        
         originVideoLabel.snp.makeConstraints { (make) in
             make.right.equalTo(self.contentView.snp.left).offset(SCREEN_WIDTH / 2 - SCREEN_PADDING_X)
             make.centerY.equalTo(self.thumbView)
@@ -195,6 +206,11 @@ class EditToolViewController: UIViewController {
             make.centerY.equalTo(self.originAudioWaveformView.snp.bottom).offset(10 + EDIT_AUDIO_WAVEFORM_HEIGHT * 1.5)
         }
         
+        captionLabel.snp.makeConstraints { (make) in
+            make.right.equalTo(self.musicLabel)
+            make.centerY.equalTo(self.originAudioWaveformView.snp.bottom).offset(15 + EDIT_AUDIO_WAVEFORM_HEIGHT * 2.5)
+        }
+        
         addButton.snp.makeConstraints { (make) in
             make.right.equalTo(self.view).offset(-SCREEN_PADDING_X)
             make.centerY.equalTo(self.containerView)
@@ -206,7 +222,7 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    private func refreshContainerView(_ segments: [EditCompositionVideoSegment]) {
+    private func refreshVideoViewsInContainer(_ segments: [EditCompositionVideoSegment]) {
         //1.清除
         clearViewsAndInfos()
         loadingView.dismiss()
@@ -345,6 +361,7 @@ class EditToolViewController: UIViewController {
     
     private func pushToAddCaption() {
         let vc = EditToolAddCaptionViewController()
+        vc.duration = duration
         //因为presenter已经实现了这些协议，所以强行赋值进去
         vc.presenter = presenter as? (EditAddCaptionViewOutput & EditDataSourceProtocol & EditPlayerInteractionProtocol)
         vc.playerStatus = playerStatus
@@ -352,11 +369,13 @@ class EditToolViewController: UIViewController {
         let totalWidth = containerView.contentSize.width
         let currentPercent = min(Float(offsetX / (totalWidth - SCREEN_WIDTH)), 1)
         vc.backClosure = { [unowned self] in
-            //退出时重制到当前的percent
+            //1.退出时重制到当前的percent
             self.containerView.contentOffset = CGPoint(x: offsetX, y: 0)
             self.presenter.viewIsDraggingWith(with: currentPercent)
+            //2.刷新字幕view
+            self.presenter.toolViewShouldRefreshCaption(self)
         }
-        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth, cellModels: [])
+        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth, cellModels: captionCellModels)
         vc.model = model
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -617,6 +636,14 @@ class EditToolViewController: UIViewController {
         return view
     }()
     
+    private lazy var captionContainerView: EditOperationContainerView = {
+        let view = EditOperationContainerView()
+        view.selectedCellClosure = { [unowned self, view] (cell) in
+            
+        }
+        return view
+    }()
+    
     private lazy var toolBarView: EditToolBar = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -725,6 +752,14 @@ class EditToolViewController: UIViewController {
         view.text = "录音轨道"
         return view
     }()
+    
+    private lazy var captionLabel: UILabel = {
+        let view = UILabel()
+        view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        view.textColor = UIColor.qe.hex(0xEEEEEE)
+        view.text = "字幕轨道"
+        return view
+    }()
 
 }
 
@@ -818,14 +853,27 @@ extension EditToolViewController: EditToolViewInput {
         return selectedChooseView?.segment
     }
     
-    func reloadView(_ segments: [EditCompositionVideoSegment]) {
-        refreshContainerView(segments)
+    func reloadVideoViews(_ segments: [EditCompositionVideoSegment]) {
+        refreshVideoViewsInContainer(segments)
         thumbView.reloadData()
         timeScaleView.reloadData()
     }
     
-    func refreshView(_ segments: [EditCompositionVideoSegment]) {
-        refreshContainerView(segments)
+    func refreshVideoViews(_ segments: [EditCompositionVideoSegment]) {
+        refreshVideoViewsInContainer(segments)
+    }
+    
+    func refreshCaptionViews(_ segments: [EditCompositionCaptionSegment]) {
+        captionCellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
+            let model = EditOperationCaptionCellModel()
+            model.width = CGFloat(Double(captionContainerView.width) * segment.duration / duration)
+            model.start = CGFloat(Double(captionContainerView.width) * segment.rangeAtComposition.start.seconds / duration)
+            model.maxWidth = model.width
+            model.content = segment.text
+            model.segment = segment
+            return model
+        })
+        captionContainerView.update(captionCellModels)
     }
     
     func loadAsset(_ asset: AVAsset) {

@@ -38,15 +38,15 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             guard let m = newValue else { return }
             thumbView.asset = m.asset
             thumbView.reloadData()
-            m.cellModels.forEach {
-                operationContainerView.appendCell(from: $0)
-            }
+            cellModels = m.cellModels
             view.layoutIfNeeded()
             containerView.contentSize = CGSize(width: m.totalWidth, height: 0)
             containerView.contentOffset = CGPoint(x: m.currentOffset, y: 0)
             contentView.snp.updateConstraints { (make) in
                 make.width.equalTo(m.totalWidth)
             }
+            view.layoutIfNeeded()
+            operationContainerView.update(cellModels)
         }
     }
     
@@ -65,8 +65,19 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         super.backButtonTouchUpIndside()
     }
     
+    override func operationDidFinish() {
+        backButtonTouchUpIndside()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        backClosure?()
+    }
+    
+    //MARK: Action
+    
     @objc
-    func longPress(_ gesture: UILongPressGestureRecognizer) {
+    private func longPress(_ gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
             startRecordX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
@@ -113,9 +124,19 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             }
             operationContainerView.insertCell(from: cellModel, at: i)
             cellModels.insert(cellModel, at: i)
+            
+            let startValue = Double(cellModel.start) / Double(operationContainerView.width) * duration
+            let endValue = Double(cellModel.start + cellModel.width) / Double(operationContainerView.width) * duration
+            presenter.shouldAddCaptionText(nil, start: startValue, end: endValue)
         default:
             break
         }
+    }
+    
+    @objc
+    private func cancelButtonTouchUpInside() {
+        cancelButton.removeFromSuperview()
+        toolView.removeFromSuperview()
     }
     
     //MARK: Private
@@ -228,6 +249,21 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     
     private lazy var operationContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
+        view.selectedCellClosure = { [unowned self, view] (cell) in
+            self.toolView.removeFromSuperview()
+            self.cancelButton.removeFromSuperview()
+            let center = view.convert(cell.center, to: self.contentView)
+            self.contentView.addSubview(self.toolView)
+            self.contentView.addSubview(self.cancelButton)
+            self.toolView.snp.makeConstraints { (make) in
+                make.top.equalTo(view.snp.bottom).offset(5)
+                make.centerX.equalTo(self.contentView.snp.left).offset(center.x)
+            }
+            self.cancelButton.snp.remakeConstraints { (make) in
+                make.left.equalTo(self.toolView.snp.right).offset(10)
+                make.centerY.equalTo(self.toolView)
+            }
+        }
         return view
     }()
     
@@ -241,12 +277,33 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         view.addGestureRecognizer(gesture)
         return view
     }()
+    
+    private lazy var cancelButton: UIButton = {
+        let view = UIButton(type: .custom)
+        view.setImage(UIImage(named: "edit_red_cancel"), for: .normal)
+        view.addTarget(self, action: #selector(cancelButtonTouchUpInside), for: .touchUpInside)
+        return view
+    }()
+    
+    private lazy var toolView: EditCaptionCellToolView = {
+        let view = EditCaptionCellToolView(frame: .zero)
+        view.deleteClosure = { [unowned self] in
+            
+        }
+        view.editClosure = { [unowned self] in
+            
+        }
+        view.updateClosure = { [unowned self] in
+            
+        }
+        return view
+    }()
 
 }
 
-//MARK: EditViewPlayProtocol
+//MARK: EditAddCaptionViewInput
 
-extension EditToolAddCaptionViewController: EditViewPlayProtocol {
+extension EditToolAddCaptionViewController: EditAddCaptionViewInput {
     
     func updatePlayViewStatus(_ status: PlayerViewStatus) {
         playerStatus = status
@@ -267,6 +324,19 @@ extension EditToolAddCaptionViewController: EditViewPlayProtocol {
         let totalWidth = model!.contentWidth
         let offsetX = totalWidth * percent
         containerView.contentOffset = .init(x: offsetX, y: 0)
+    }
+    
+    func update(with segments: [EditCompositionCaptionSegment]) {
+        cellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
+            let model = EditOperationCaptionCellModel()
+            model.width = CGFloat(Double(operationContainerView.width) * segment.duration / duration)
+            model.start = CGFloat(Double(operationContainerView.width) * segment.rangeAtComposition.start.seconds / duration)
+            model.maxWidth = model.width
+            model.content = segment.text
+            model.segment = segment
+            return model
+        })
+        operationContainerView.update(cellModels)
     }
     
 }

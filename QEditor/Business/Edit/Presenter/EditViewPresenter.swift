@@ -17,7 +17,7 @@ class EditViewPresenter {
     
     public weak var toolView: (UIViewController & EditToolViewInput)?
     
-    public weak var addCaptionView: (UIViewController & EditViewPlayProtocol)?
+    public weak var addCaptionView: (UIViewController & EditAddCaptionViewInput)?
     
     public internal(set) var isTaskRunning = false
     
@@ -47,7 +47,7 @@ class EditViewPresenter {
         toolView?.loadComposition(project.composition!)
         toolView?.loadAsset(project.imageSourceComposition!)
         //3.刷新工具栏
-        toolView?.reloadView(project.videoSegments)
+        toolView?.reloadVideoViews(project.videoSegments)
         //4.恢复到刷新之前的seek
         playerView?.seek(to: toolView?.currentCursorTime() ?? .zero)
     }

@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-public class EditCompositionVideoSegment: EditCompositionSegment {
+public class EditCompositionVideoSegment: EditCompositionMediaSegment {
     
     public var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
     

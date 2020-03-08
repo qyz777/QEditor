@@ -8,14 +8,22 @@
 
 import UIKit
 
+protocol EditAddCaptionViewInput: EditViewPlayProtocol {
+    
+    func update(with segments: [EditCompositionCaptionSegment])
+    
+}
+
 protocol EditAddCaptionViewOutput: class {
     
-    var addCaptionView: (UIViewController & EditViewPlayProtocol)? { get set }
+    var addCaptionView: (UIViewController & EditAddCaptionViewInput)? { get set }
     
-    func setupAddCaptionView(_ view: UIViewController & EditViewPlayProtocol)
+    func setupAddCaptionView(_ view: UIViewController & EditAddCaptionViewInput)
     
     func beginAddCaption()
     
     func endAddCaption()
+    
+    func shouldAddCaptionText(_ text: String?, start: Double, end: Double)
     
 }

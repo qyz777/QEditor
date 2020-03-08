@@ -35,6 +35,8 @@ public protocol PlayerViewDelegate: class {
     
     func playerAudioMix(_ player: PlayerView) -> AVAudioMix?
     
+    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer?
+    
 }
 
 extension PlayerViewDelegate {
@@ -49,13 +51,19 @@ extension PlayerViewDelegate {
         return nil
     }
     
+    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer? {
+        return nil
+    }
+    
 }
 
 public class PlayerView: UIView {
     
     public weak var delegate: PlayerViewDelegate?
     
-    public var status: PlayerViewStatus = .stop
+    public private(set) var status: PlayerViewStatus = .stop
+    
+    public private(set) var playbackTime: TimeInterval = 0
     
     private var timeObserver: Any?
     
@@ -97,6 +105,9 @@ public class PlayerView: UIView {
         currentItem = item
         currentItem?.videoComposition = delegate?.playerVideoComposition(self)
         currentItem?.audioMix = delegate?.playerAudioMix(self)
+        if let syncLayer = delegate?.playerSetupSyncLayer(self, playerItem: currentItem!) {
+            layer.addSublayer(syncLayer)
+        }
         //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
         currentItem?.audioTimePitchAlgorithm = .varispeed
         player.replaceCurrentItem(with: currentItem)
@@ -119,7 +130,7 @@ public class PlayerView: UIView {
     private func updatePlayerLayer() {
         playerLayer?.removeFromSuperlayer()
         playerLayer = AVPlayerLayer(player: player)
-        layer.addSublayer(playerLayer!)
+        layer.insertSublayer(playerLayer!, at: 0)
     }
     
     lazy var player: AVPlayer = {
@@ -128,6 +139,8 @@ public class PlayerView: UIView {
     }()
     
     var playerLayer: AVPlayerLayer?
+    
+    private var syncLayerView: UIView?
 
 }
 
@@ -193,6 +206,7 @@ public extension PlayerView {
                     guard strongSelf.status == .playing else {
                         return
                     }
+                    strongSelf.playbackTime = time.seconds
                     strongSelf.delegate?.player(strongSelf, playAt: time.seconds)
                 }
             }

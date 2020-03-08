@@ -64,7 +64,7 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
         let time = toolView.currentCursorTime()
         project.splitVideoAt(time: time)
-        toolView.refreshView(project.videoSegments)
+        toolView.refreshVideoViews(project.videoSegments)
     }
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
@@ -169,6 +169,10 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
         project.updateRecord(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
+    }
+    
+    func toolViewShouldRefreshCaption(_ toolView: EditToolViewInput) {
+        toolView.refreshCaptionViews(project.captionSegments)
     }
     
 }
