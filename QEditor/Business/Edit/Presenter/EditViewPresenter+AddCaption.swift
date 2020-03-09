@@ -24,6 +24,10 @@ extension EditViewPresenter: EditAddCaptionViewOutput {
         playerView?.pause()
     }
     
+}
+
+extension EditViewPresenter: EditCaptionInteractionProtocol {
+    
     func addCaptionText(_ text: String?, start: Double, end: Double) {
         playerView?.showEditCaptionView(text: text)
         playerView?.okEditClosure = { [unowned self] (text) in
@@ -42,6 +46,15 @@ extension EditViewPresenter: EditAddCaptionViewOutput {
     func deleteCaption(_ segment: EditCompositionCaptionSegment) {
         project.removeCaption(segment: segment)
         updatePlayerAfterEditCaption()
+    }
+    
+    func updateCaption(_ segment: EditCompositionCaptionSegment) {
+        playerView?.showEditCaptionView(text: segment.text)
+        playerView?.okEditClosure = { [unowned self] (text) in
+            self.project.updateCaption(text: text, for: segment)
+            self.addCaptionView?.update(with: self.project.captionSegments)
+            self.updatePlayerAfterEditCaption()
+        }
     }
     
 }

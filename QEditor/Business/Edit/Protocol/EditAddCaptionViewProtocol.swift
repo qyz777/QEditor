@@ -32,4 +32,6 @@ protocol EditCaptionInteractionProtocol {
     
     func deleteCaption(_ segment: EditCompositionCaptionSegment)
     
+    func updateCaption(_ segment: EditCompositionCaptionSegment)
+    
 }

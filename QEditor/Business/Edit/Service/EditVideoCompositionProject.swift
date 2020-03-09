@@ -463,6 +463,25 @@ extension EditVideoCompositionProject {
         }
     }
     
+    @discardableResult
+    public func updateCaption(text: String, for segment: EditCompositionCaptionSegment) -> Bool {
+        guard captionSegments.count > 0 else {
+            return false
+        }
+        var i = 0
+        for s in captionSegments {
+            if s == segment {
+                break
+            }
+            i += 1
+        }
+        if i < captionSegments.count {
+            captionSegments[i].text = text
+        }
+        //大于的话就是没找到
+        return false
+    }
+    
 }
 
 //MARK: Private

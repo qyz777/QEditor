@@ -302,7 +302,12 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             
         }
         view.updateClosure = { [unowned self] in
-            
+            guard let model = self.selectedCell?.model as? EditOperationCaptionCellModel else { return }
+            guard let segment = model.segment else { return }
+            self.presenter.updateCaption(segment)
+            self.operationContainerView.removeCell(for: model)
+            view.removeFromSuperview()
+            self.cancelButton.removeFromSuperview()
         }
         return view
     }()
