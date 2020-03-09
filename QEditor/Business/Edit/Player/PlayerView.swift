@@ -105,6 +105,11 @@ public class PlayerView: UIView {
         currentItem = item
         currentItem?.videoComposition = delegate?.playerVideoComposition(self)
         currentItem?.audioMix = delegate?.playerAudioMix(self)
+        layer.sublayers?.forEach {
+            if $0.isKind(of: AVSynchronizedLayer.self) {
+                $0.removeFromSuperlayer()
+            }
+        }
         if let syncLayer = delegate?.playerSetupSyncLayer(self, playerItem: currentItem!) {
             layer.addSublayer(syncLayer)
         }

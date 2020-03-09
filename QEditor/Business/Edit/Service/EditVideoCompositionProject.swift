@@ -436,7 +436,7 @@ extension EditVideoCompositionProject {
 extension EditVideoCompositionProject {
     
     @discardableResult
-    public func addCaptionSegment(_ text: String, at range: CMTimeRange) -> EditCompositionCaptionSegment? {
+    public func addCaption(_ text: String, at range: CMTimeRange) -> EditCompositionCaptionSegment? {
         //1.检查数据有效性并找到合适的插入位置
         guard let composition = composition else { return nil }
         guard range.end <= composition.duration else {
@@ -455,6 +455,12 @@ extension EditVideoCompositionProject {
         let segment = EditCompositionCaptionSegment(text: text, at: range)
         captionSegments.insert(segment, at: i)
         return segment
+    }
+    
+    public func removeCaption(segment: EditCompositionCaptionSegment) {
+        captionSegments.removeAll { (s) -> Bool in
+            return s == segment
+        }
     }
     
 }

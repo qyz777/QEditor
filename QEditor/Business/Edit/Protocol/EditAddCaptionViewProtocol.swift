@@ -14,7 +14,7 @@ protocol EditAddCaptionViewInput: EditViewPlayProtocol {
     
 }
 
-protocol EditAddCaptionViewOutput: class {
+protocol EditAddCaptionViewOutput: class, EditCaptionInteractionProtocol {
     
     var addCaptionView: (UIViewController & EditAddCaptionViewInput)? { get set }
     
@@ -24,6 +24,12 @@ protocol EditAddCaptionViewOutput: class {
     
     func endAddCaption()
     
-    func shouldAddCaptionText(_ text: String?, start: Double, end: Double)
+}
+
+protocol EditCaptionInteractionProtocol {
+    
+    func addCaptionText(_ text: String?, start: Double, end: Double)
+    
+    func deleteCaption(_ segment: EditCompositionCaptionSegment)
     
 }

@@ -54,6 +54,8 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     
     private var beginLongPress = false
     private var startRecordX: CGFloat = 0
+    
+    private weak var selectedCell: EditOperationCaptionCell?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -127,7 +129,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             
             let startValue = Double(cellModel.start) / Double(operationContainerView.width) * duration
             let endValue = Double(cellModel.start + cellModel.width) / Double(operationContainerView.width) * duration
-            presenter.shouldAddCaptionText(nil, start: startValue, end: endValue)
+            presenter.addCaptionText(nil, start: startValue, end: endValue)
         default:
             break
         }
@@ -250,6 +252,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private lazy var operationContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
         view.selectedCellClosure = { [unowned self, view] (cell) in
+            self.selectedCell = cell as? EditOperationCaptionCell
             self.toolView.removeFromSuperview()
             self.cancelButton.removeFromSuperview()
             let center = view.convert(cell.center, to: self.contentView)
@@ -287,8 +290,13 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     
     private lazy var toolView: EditCaptionCellToolView = {
         let view = EditCaptionCellToolView(frame: .zero)
-        view.deleteClosure = { [unowned self] in
-            
+        view.deleteClosure = { [unowned self, view] in
+            guard let model = self.selectedCell?.model as? EditOperationCaptionCellModel else { return }
+            guard let segment = model.segment else { return }
+            self.presenter.deleteCaption(segment)
+            self.operationContainerView.removeCell(for: model)
+            view.removeFromSuperview()
+            self.cancelButton.removeFromSuperview()
         }
         view.editClosure = { [unowned self] in
             

@@ -24,19 +24,24 @@ extension EditViewPresenter: EditAddCaptionViewOutput {
         playerView?.pause()
     }
     
-    func shouldAddCaptionText(_ text: String?, start: Double, end: Double) {
+    func addCaptionText(_ text: String?, start: Double, end: Double) {
         playerView?.showEditCaptionView(text: text)
         playerView?.okEditClosure = { [unowned self] (text) in
             let range = CMTimeRange(start: start, end: end)
-            self.project.addCaptionSegment(text, at: range)
+            self.project.addCaption(text, at: range)
             self.addCaptionView?.update(with: self.project.captionSegments)
             self.updatePlayerAfterEditCaption()
         }
         playerView?.cancelEditClosure = { [unowned self] in
             let range = CMTimeRange(start: start, end: end)
-            self.project.addCaptionSegment("", at: range)
+            self.project.addCaption("", at: range)
             self.updatePlayerAfterEditCaption()
         }
+    }
+    
+    func deleteCaption(_ segment: EditCompositionCaptionSegment) {
+        project.removeCaption(segment: segment)
+        updatePlayerAfterEditCaption()
     }
     
 }

@@ -56,6 +56,8 @@ class EditToolViewController: UIViewController {
     /// 当前锁定的录音操作视图
     private weak var selectedRecordOperationView: EditAudioWaveformOperationView?
     
+    private weak var selectedCaptionCell: EditOperationCaptionCell?
+    
     private var videoToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .splitVideo, imageName: "edit_split", text: "分割"),
         EditToolBarModel(action: .deleteVideo, imageName: "edit_delete", text: "删除"),
@@ -464,6 +466,23 @@ class EditToolViewController: UIViewController {
         UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
     }
     
+    private func removeSelectedCaption() {
+        let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的字幕", preferredStyle: .actionSheet)
+        let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
+            guard let model = self.selectedCaptionCell?.model as? EditOperationCaptionCellModel else { return }
+            guard let segment = model.segment else { return }
+            self.presenter.deleteCaption(segment)
+            self.captionContainerView.removeCell(for: model)
+            MessageBanner.success(content: "删除成功")
+        }
+        let cancelAction = UIAlertAction(title: "取消", style: .cancel) { (action) in
+            
+        }
+        actionSheet.addAction(okAction)
+        actionSheet.addAction(cancelAction)
+        UIViewController.qe.current()?.present(actionSheet, animated: true, completion: nil)
+    }
+    
     private func pushToEditMusic() {
         guard let segment = selectedMusicOperationView?.segment else {
             MessageBanner.warning(content: "当前没有选中音乐片段")
@@ -639,7 +658,8 @@ class EditToolViewController: UIViewController {
     private lazy var captionContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
         view.selectedCellClosure = { [unowned self, view] (cell) in
-            
+            guard let c = cell as? EditOperationCaptionCell else { return }
+            self.selectedCaptionCell = c
         }
         return view
     }()
@@ -673,7 +693,7 @@ class EditToolViewController: UIViewController {
             case .deleteRecord:
                 self.removeSelectedRecord()
             case .deleteCaption:
-                break
+                self.removeSelectedCaption()
             case .editCaption:
                 break
             }

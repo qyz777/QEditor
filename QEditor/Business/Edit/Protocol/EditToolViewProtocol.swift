@@ -48,7 +48,7 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
 }
 
-protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractionProtocol {
+protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractionProtocol, EditCaptionInteractionProtocol {
     
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
     

@@ -74,6 +74,23 @@ class EditOperationContainerView: UIView {
         return true
     }
     
+    @discardableResult
+    public func removeCell(for cellModel: EditOperationCellModel) -> Bool {
+        guard cells.count > 0 else {
+            return false
+        }
+        let preCount = cells.count
+        cells.removeAll { (c) -> Bool in
+            guard let m = c.model else { return false }
+            if m.start == cellModel.start && m.cellClass == cellModel.cellClass {
+                c.removeFromSuperview()
+                return true
+            }
+            return false
+        }
+        return preCount != cells.count
+    }
+    
     public func update(_ cellModels: [EditOperationCellModel]) {
         cells.forEach {
             $0.removeFromSuperview()
