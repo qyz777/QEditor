@@ -12,6 +12,7 @@ target 'QEditor' do
   
   pod 'NotificationBannerSwift', '~> 3.0.0'
   pod 'NVActivityIndicatorView'
+  pod 'EFColorPicker', '~> 5.2.0'
   
   pod 'SwifterSwift/SwiftStdlib', '~> 5.1.0'
   pod 'SwifterSwift/UIKit', '~> 5.1.0'

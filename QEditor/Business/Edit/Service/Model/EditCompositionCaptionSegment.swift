@@ -24,7 +24,13 @@ public class EditCompositionCaptionSegment: EditCompositionSegment {
     
     public var text: String = ""
     
-    public var font: UIFont = .systemFont(ofSize: 13)
+    public var fontSize: CompositionCaptionFontSize = .normal
+    
+    public var fontName: String = CompositionCaptionFontName.PingFangSC.regular.rawValue
+    
+    public var font: UIFont {
+        return UIFont(name: fontName, size: fontSize.size()) ?? .systemFont(ofSize: 13)
+    }
     
     public var textColor: UIColor = UIColor.qe.hex(0xEEEEEE)
     
@@ -71,4 +77,34 @@ public class EditCompositionCaptionSegment: EditCompositionSegment {
         return animation
     }
     
+}
+
+public enum CompositionCaptionFontSize {
+    case small
+    case normal
+    case large
+    case superLarge
+    
+    public func size() -> CGFloat {
+        switch self {
+        case .small:
+            return 13
+        case .normal:
+            return 15
+        case .large:
+            return 17
+        case .superLarge:
+            return 19
+        }
+    }
+}
+
+/// 字体有很多可以往这里补充加
+public enum CompositionCaptionFontName {
+    public enum PingFangSC: String {
+        case regular = "PingFangSC-Regular"
+        case medium = "PingFangSC-Medium"
+        case semibold = "PingFangSC-Semibold"
+        case light = "PingFangSC-Light"
+    }
 }

@@ -56,24 +56,46 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private var startRecordX: CGFloat = 0
     
     private weak var selectedCell: EditOperationCaptionCell?
+    
+    private var cannotPop: Bool {
+        return beginLongPress || presenter.isEditingCaption
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        okButton.isHidden = true
         initView()
     }
     
     override func backButtonTouchUpIndside() {
+        guard !cannotPop else {
+            return
+        }
         backClosure?()
         super.backButtonTouchUpIndside()
     }
     
     override func operationDidFinish() {
+        guard !cannotPop else {
+            return
+        }
         backButtonTouchUpIndside()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        backClosure?()
+        var isPop = true
+        var i = 0
+        let viewControllers = navigationController?.viewControllers ?? []
+        for vc in viewControllers {
+            if vc.self == self.self && i < viewControllers.count {
+                isPop = false
+            }
+            i += 1
+        }
+        if isPop {
+            backClosure?()
+        }
     }
     
     //MARK: Action
@@ -82,6 +104,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private func longPress(_ gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = false
             startRecordX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
             //判定违规区域
             for model in cellModels {
@@ -92,12 +115,13 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
                 }
             }
             addView = UIView(frame: CGRect(x: startRecordX, y: thumbView.frame.maxY + 5, width: 1, height: EDIT_OPERATION_VIEW_HEIGHT))
-            addView?.backgroundColor = .darkGray
+            addView?.backgroundColor = UIColor.qe.hex(0x222222)
             addView?.layer.cornerRadius = 4
             contentView.addSubview(addView!)
             beginLongPress = true
             presenter.beginAddCaption()
         case .ended, .failed, .cancelled:
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             guard let addView = addView else { return }
             //设置字幕cellModel
             let cellModel = EditOperationCaptionCellModel()
@@ -131,6 +155,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             let endValue = Double(cellModel.start + cellModel.width) / Double(operationContainerView.width) * duration
             presenter.addCaptionText(nil, start: startValue, end: endValue)
         default:
+            navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             break
         }
     }
@@ -293,18 +318,22 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         view.deleteClosure = { [unowned self, view] in
             guard let model = self.selectedCell?.model as? EditOperationCaptionCellModel else { return }
             guard let segment = model.segment else { return }
-            self.presenter.deleteCaption(segment)
+            self.presenter.deleteCaption(segment: segment)
             self.operationContainerView.removeCell(for: model)
             view.removeFromSuperview()
             self.cancelButton.removeFromSuperview()
         }
         view.editClosure = { [unowned self] in
-            
+            guard let segment = (self.selectedCell?.model as? EditOperationCaptionCellModel)?.segment else { return }
+            let vc = EditToolEditCaptionViewController()
+            vc.segment = segment
+            vc.presenter = self.presenter as? EditCaptionViewOutput
+            self.navigationController?.pushViewController(vc, animated: true)
         }
         view.updateClosure = { [unowned self] in
             guard let model = self.selectedCell?.model as? EditOperationCaptionCellModel else { return }
             guard let segment = model.segment else { return }
-            self.presenter.updateCaption(segment)
+            self.presenter.editCaptionText(for: segment)
             self.operationContainerView.removeCell(for: model)
             view.removeFromSuperview()
             self.cancelButton.removeFromSuperview()

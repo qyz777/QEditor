@@ -29,7 +29,7 @@ class EditOperationCaptionCell: EditOperationCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         layer.cornerRadius = 4
-        backgroundColor = .darkGray
+        backgroundColor = UIColor.qe.hex(0x222222)
         addSubview(contentLabel)
         contentLabel.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(5)

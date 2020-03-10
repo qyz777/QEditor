@@ -471,7 +471,7 @@ class EditToolViewController: UIViewController {
         let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
             guard let model = self.selectedCaptionCell?.model as? EditOperationCaptionCellModel else { return }
             guard let segment = model.segment else { return }
-            self.presenter.deleteCaption(segment)
+            self.presenter.deleteCaption(segment: segment)
             self.captionContainerView.removeCell(for: model)
             MessageBanner.success(content: "删除成功")
         }
@@ -522,6 +522,14 @@ class EditToolViewController: UIViewController {
             self.presenter.toolView(self, changeRecordFadeOut: on, of: segment)
         }
         vc.update(segment)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToEditCaption() {
+        guard let segment = (self.selectedCaptionCell?.model as? EditOperationCaptionCellModel)?.segment else { return }
+        let vc = EditToolEditCaptionViewController()
+        vc.segment = segment
+        vc.presenter = presenter as? EditCaptionViewOutput
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -695,7 +703,7 @@ class EditToolViewController: UIViewController {
             case .deleteCaption:
                 self.removeSelectedCaption()
             case .editCaption:
-                break
+                self.pushToEditCaption()
             }
         }
         return view

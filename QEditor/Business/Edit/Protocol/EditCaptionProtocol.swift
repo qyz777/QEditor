@@ -1,5 +1,5 @@
 //
-//  EditAddCaptionViewProtocol.swift
+//  EditCaptionProtocol.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/2/23.
@@ -18,6 +18,8 @@ protocol EditAddCaptionViewOutput: class, EditCaptionInteractionProtocol {
     
     var addCaptionView: (UIViewController & EditAddCaptionViewInput)? { get set }
     
+    var isEditingCaption: Bool { get }
+    
     func setupAddCaptionView(_ view: UIViewController & EditAddCaptionViewInput)
     
     func beginAddCaption()
@@ -30,8 +32,20 @@ protocol EditCaptionInteractionProtocol {
     
     func addCaptionText(_ text: String?, start: Double, end: Double)
     
-    func deleteCaption(_ segment: EditCompositionCaptionSegment)
+    func deleteCaption(segment: EditCompositionCaptionSegment)
     
-    func updateCaption(_ segment: EditCompositionCaptionSegment)
+    func updateCaption(segment: EditCompositionCaptionSegment)
+    
+    func editCaptionText(for segment: EditCompositionCaptionSegment)
+    
+}
+
+protocol EditCaptionViewInput {}
+
+protocol EditCaptionViewOutput: class, EditCaptionInteractionProtocol {
+    
+    var editCaptionView: (UIViewController & EditCaptionViewInput)? { get set }
+    
+    func setupEditCaptionView(_ view: UIViewController & EditCaptionViewInput)
     
 }

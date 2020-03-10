@@ -1,5 +1,5 @@
 //
-//  EditViewPresenter+AddCaption.swift
+//  EditViewPresenter+Caption.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/2/23.
@@ -29,32 +29,52 @@ extension EditViewPresenter: EditAddCaptionViewOutput {
 extension EditViewPresenter: EditCaptionInteractionProtocol {
     
     func addCaptionText(_ text: String?, start: Double, end: Double) {
+        isEditingCaption = true
         playerView?.showEditCaptionView(text: text)
         playerView?.okEditClosure = { [unowned self] (text) in
             let range = CMTimeRange(start: start, end: end)
             self.project.addCaption(text, at: range)
             self.addCaptionView?.update(with: self.project.captionSegments)
             self.updatePlayerAfterEditCaption()
+            self.isEditingCaption = false
         }
         playerView?.cancelEditClosure = { [unowned self] in
             let range = CMTimeRange(start: start, end: end)
             self.project.addCaption("", at: range)
             self.updatePlayerAfterEditCaption()
+            self.isEditingCaption = false
         }
     }
     
-    func deleteCaption(_ segment: EditCompositionCaptionSegment) {
+    func deleteCaption(segment: EditCompositionCaptionSegment) {
         project.removeCaption(segment: segment)
         updatePlayerAfterEditCaption()
     }
     
-    func updateCaption(_ segment: EditCompositionCaptionSegment) {
+    func editCaptionText(for segment: EditCompositionCaptionSegment) {
         playerView?.showEditCaptionView(text: segment.text)
         playerView?.okEditClosure = { [unowned self] (text) in
-            self.project.updateCaption(text: text, for: segment)
+            segment.text = text
+            self.project.updateCaption(segment: segment)
             self.addCaptionView?.update(with: self.project.captionSegments)
             self.updatePlayerAfterEditCaption()
         }
+        playerView?.cancelEditClosure = { [unowned self] in
+            self.isEditingCaption = false
+        }
+    }
+    
+    func updateCaption(segment: EditCompositionCaptionSegment) {
+        project.updateCaption(segment: segment)
+        updatePlayerAfterEditCaption()
+    }
+    
+}
+
+extension EditViewPresenter: EditCaptionViewOutput {
+    
+    func setupEditCaptionView(_ view: UIViewController & EditCaptionViewInput) {
+        editCaptionView = view
     }
     
 }

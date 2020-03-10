@@ -464,7 +464,7 @@ extension EditVideoCompositionProject {
     }
     
     @discardableResult
-    public func updateCaption(text: String, for segment: EditCompositionCaptionSegment) -> Bool {
+    public func updateCaption(segment: EditCompositionCaptionSegment) -> Bool {
         guard captionSegments.count > 0 else {
             return false
         }
@@ -476,7 +476,7 @@ extension EditVideoCompositionProject {
             i += 1
         }
         if i < captionSegments.count {
-            captionSegments[i].text = text
+            captionSegments[i] = segment
         }
         //大于的话就是没找到
         return false
