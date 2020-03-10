@@ -76,7 +76,7 @@ class EditCaptionCellToolView: UIView {
         let view = UIButton(type: .custom)
         view.layer.cornerRadius = 2
         view.layer.masksToBounds = true
-        view.setTitle("编辑", for: .normal)
+        view.setTitle("样式", for: .normal)
         view.setTitleColor(UIColor.qe.hex(0xEEEEEE), for: .normal)
         view.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         view.addTarget(self, action: #selector(editButtonTouchUpInside), for: .touchUpInside)

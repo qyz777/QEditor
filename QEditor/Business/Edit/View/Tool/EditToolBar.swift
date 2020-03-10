@@ -19,6 +19,7 @@ enum EditToolBarAction {
     case editRecord
     case deleteRecord
     case deleteCaption
+    case editCaptionStyle
     case editCaption
 }
 

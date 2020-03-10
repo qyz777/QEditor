@@ -164,6 +164,8 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private func cancelButtonTouchUpInside() {
         cancelButton.removeFromSuperview()
         toolView.removeFromSuperview()
+        self.selectedCell?.hiddenOperationView()
+        self.selectedCell = nil
     }
     
     //MARK: Private
@@ -277,9 +279,14 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private lazy var operationContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
         view.selectedCellClosure = { [unowned self, view] (cell) in
-            self.selectedCell = cell as? EditOperationCaptionCell
             self.toolView.removeFromSuperview()
             self.cancelButton.removeFromSuperview()
+            if cell.isSelected {
+                self.selectedCell = cell as? EditOperationCaptionCell
+            } else {
+                self.selectedCell = nil
+                return
+            }
             let center = view.convert(cell.center, to: self.contentView)
             self.contentView.addSubview(self.toolView)
             self.contentView.addSubview(self.cancelButton)
@@ -330,11 +337,10 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             vc.presenter = self.presenter as? EditCaptionViewOutput
             self.navigationController?.pushViewController(vc, animated: true)
         }
-        view.updateClosure = { [unowned self] in
+        view.updateClosure = { [unowned self, view] in
             guard let model = self.selectedCell?.model as? EditOperationCaptionCellModel else { return }
             guard let segment = model.segment else { return }
             self.presenter.editCaptionText(for: segment)
-            self.operationContainerView.removeCell(for: model)
             view.removeFromSuperview()
             self.cancelButton.removeFromSuperview()
         }

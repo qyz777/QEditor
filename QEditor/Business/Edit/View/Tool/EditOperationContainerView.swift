@@ -200,7 +200,7 @@ class EditOperationContainerView: UIView {
 
 class EditOperationCell: UIView {
     
-    public private(set) var isShowing = false
+    public private(set) var isSelected = false
     
     public var model: EditOperationCellModel?
     
@@ -242,23 +242,21 @@ class EditOperationCell: UIView {
     }
     
     public func showOperationView() {
+        isSelected = true
         UIView.animate(withDuration: 0.25, animations: {
             self.leftPanView.alpha = 1
             self.rightPanView.alpha = 1
             self.coverView.alpha = 1
-        }) { (completed) in
-            self.isShowing = true
-        }
+        })
     }
     
     public func hiddenOperationView() {
+        isSelected = false
         UIView.animate(withDuration: 0.25, animations: {
             self.leftPanView.alpha = 0
             self.rightPanView.alpha = 0
             self.coverView.alpha = 0
-        }) { (completed) in
-            self.isShowing = false
-        }
+        })
     }
     
     //MARK: Action
@@ -275,12 +273,12 @@ class EditOperationCell: UIView {
     
     @objc
     private func handleTap(_ tap: UITapGestureRecognizer) {
-        selectedClosure?(!isShowing)
-        if isShowing {
+        if isSelected {
             hiddenOperationView()
         } else {
             showOperationView()
         }
+        selectedClosure?(!isSelected)
     }
     
     //MARK: Getter

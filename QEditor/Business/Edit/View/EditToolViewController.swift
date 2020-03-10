@@ -78,6 +78,7 @@ class EditToolViewController: UIViewController {
     
     private var textToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .deleteCaption, imageName: "edit_delete", text: "删除"),
+        EditToolBarModel(action: .editCaptionStyle, imageName: "edit_style", text: "样式"),
         EditToolBarModel(action: .editCaption, imageName: "edit_edit_music", text: "编辑")
     ]
     
@@ -526,7 +527,10 @@ class EditToolViewController: UIViewController {
     }
     
     private func pushToEditCaption() {
-        guard let segment = (self.selectedCaptionCell?.model as? EditOperationCaptionCellModel)?.segment else { return }
+        guard let segment = (self.selectedCaptionCell?.model as? EditOperationCaptionCellModel)?.segment else {
+            MessageBanner.warning(content: "当前没有选中字幕片段")
+            return
+        }
         let vc = EditToolEditCaptionViewController()
         vc.segment = segment
         vc.presenter = presenter as? EditCaptionViewOutput
@@ -667,7 +671,11 @@ class EditToolViewController: UIViewController {
         let view = EditOperationContainerView()
         view.selectedCellClosure = { [unowned self, view] (cell) in
             guard let c = cell as? EditOperationCaptionCell else { return }
-            self.selectedCaptionCell = c
+            if c.isSelected {
+                self.selectedCaptionCell = c
+            } else {
+                self.selectedCaptionCell = nil
+            }
         }
         return view
     }()
@@ -702,8 +710,10 @@ class EditToolViewController: UIViewController {
                 self.removeSelectedRecord()
             case .deleteCaption:
                 self.removeSelectedCaption()
-            case .editCaption:
+            case .editCaptionStyle:
                 self.pushToEditCaption()
+            case .editCaption:
+                self.pushToAddCaption()
             }
         }
         return view
