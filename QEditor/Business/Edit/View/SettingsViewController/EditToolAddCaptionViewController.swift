@@ -127,7 +127,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             let cellModel = EditOperationCaptionCellModel()
             cellModel.start = addView.x - CONTAINER_PADDING_LEFT
             cellModel.width = addView.width
-            cellModel.maxWidth = addView.width
+            cellModel.maxWidth = operationContainerView.width
             
             self.addView?.removeFromSuperview()
             self.addView = nil
@@ -151,9 +151,8 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             operationContainerView.insertCell(from: cellModel, at: i)
             cellModels.insert(cellModel, at: i)
             
-            let startValue = Double(cellModel.start) / Double(operationContainerView.width) * duration
-            let endValue = Double(cellModel.start + cellModel.width) / Double(operationContainerView.width) * duration
-            presenter.addCaptionText(nil, start: startValue, end: endValue)
+            guard let t = operationContainerView.range(for: cellModel, in: duration) else { return }
+            presenter.addCaptionText(nil, start: t.start, end: t.end)
         default:
             navigationController?.interactivePopGestureRecognizer?.isEnabled = true
             break
@@ -299,6 +298,11 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
                 make.centerY.equalTo(self.toolView)
             }
         }
+        view.operationFinishClosure = { [unowned self] (cell) in
+            guard let segment = (cell.model as? EditOperationCaptionCellModel)?.segment else { return }
+            segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
+            self.presenter.updateCaption(segment: segment)
+        }
         return view
     }()
     
@@ -377,9 +381,9 @@ extension EditToolAddCaptionViewController: EditAddCaptionViewInput {
     func update(with segments: [EditCompositionCaptionSegment]) {
         cellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
             let model = EditOperationCaptionCellModel()
-            model.width = CGFloat(Double(operationContainerView.width) * segment.duration / duration)
-            model.start = CGFloat(Double(operationContainerView.width) * segment.rangeAtComposition.start.seconds / duration)
-            model.maxWidth = model.width
+            model.width = operationContainerView.offset(for: segment.duration, in: duration)
+            model.start = operationContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
+            model.maxWidth = operationContainerView.width
             model.content = segment.text
             model.segment = segment
             return model

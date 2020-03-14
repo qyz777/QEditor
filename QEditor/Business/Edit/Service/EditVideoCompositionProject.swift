@@ -477,6 +477,7 @@ extension EditVideoCompositionProject {
         }
         if i < captionSegments.count {
             captionSegments[i] = segment
+            return true
         }
         //大于的话就是没找到
         return false

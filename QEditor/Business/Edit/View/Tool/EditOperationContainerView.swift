@@ -101,6 +101,42 @@ class EditOperationContainerView: UIView {
         }
     }
     
+    public func range(for cellModel: EditOperationCellModel, in duration: Double) -> (start: Double, end: Double)? {
+        for cell in cells {
+            guard let model = cell.model else { continue }
+            if model.start == cellModel.start && model.width == cellModel.width {
+                let start = cell.startValue(for: duration)
+                let end = cell.endValue(for: duration)
+                guard start >= 0 && end > 0 else {
+                    return nil
+                }
+                return (start: start, end: end)
+            }
+        }
+        return nil
+    }
+    
+    
+    public func range(for cell: EditOperationCell, in duration: Double) -> (start: Double, end: Double)? {
+        guard let cellModel = cell.model else { return nil }
+        for cell in cells {
+            guard let model = cell.model else { continue }
+            if model.start == cellModel.start && model.width == cellModel.width {
+                let start = cell.startValue(for: duration)
+                let end = cell.endValue(for: duration)
+                guard start >= 0 && end > 0 else {
+                    return nil
+                }
+                return (start: start, end: end)
+            }
+        }
+        return nil
+    }
+    
+    public func offset(for time: Double, in duration: Double) -> CGFloat {
+        return CGFloat(Double(width) * time / duration)
+    }
+    
     //MARK: Private
     
     private func setupCell(_ cell: EditOperationCell) {
@@ -237,6 +273,12 @@ class EditOperationCell: UIView {
         super.init(coder: coder)
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        model?.start = x
+        model?.width = width
+    }
+    
     public func update(_ model: EditOperationCellModel) {
         self.model = model
     }
@@ -257,6 +299,18 @@ class EditOperationCell: UIView {
             self.rightPanView.alpha = 0
             self.coverView.alpha = 0
         })
+    }
+    
+    public func startValue(for duration: Double) -> Double {
+        guard let superView = superview else { return 0 }
+        guard let model = model else { return 0 }
+        return Double(model.start) / Double(superView.width) * duration
+    }
+    
+    public func endValue(for duration: Double) -> Double {
+        guard let superView = superview else { return 0 }
+        guard let model = model else { return 0 }
+        return Double(model.start + model.width) / Double(superView.width) * duration
     }
     
     //MARK: Action

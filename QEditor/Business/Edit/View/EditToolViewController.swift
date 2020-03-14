@@ -677,6 +677,11 @@ class EditToolViewController: UIViewController {
                 self.selectedCaptionCell = nil
             }
         }
+        view.operationFinishClosure = { [unowned self] (cell) in
+            guard let segment = (cell.model as? EditOperationCaptionCellModel)?.segment else { return }
+            segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
+            self.presenter.updateCaption(segment: segment)
+        }
         return view
     }()
     
@@ -904,9 +909,9 @@ extension EditToolViewController: EditToolViewInput {
     func refreshCaptionViews(_ segments: [EditCompositionCaptionSegment]) {
         captionCellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
             let model = EditOperationCaptionCellModel()
-            model.width = CGFloat(Double(captionContainerView.width) * segment.duration / duration)
-            model.start = CGFloat(Double(captionContainerView.width) * segment.rangeAtComposition.start.seconds / duration)
-            model.maxWidth = model.width
+            model.width = captionContainerView.offset(for: segment.duration, in: duration)
+            model.start = captionContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
+            model.maxWidth = captionContainerView.width
             model.content = segment.text
             model.segment = segment
             return model
