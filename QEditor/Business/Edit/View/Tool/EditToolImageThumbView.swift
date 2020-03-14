@@ -13,7 +13,6 @@ import DispatchQueuePool
 class EditToolImageCellModel {
     
     var time: CMTime = .zero
-    var image: UIImage?
     
 }
 
