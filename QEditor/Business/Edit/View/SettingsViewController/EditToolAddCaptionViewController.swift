@@ -14,7 +14,6 @@ struct EditToolAddCaptionUpdateModel {
     let totalWidth: CGFloat
     let currentOffset: CGFloat
     let contentWidth: CGFloat
-    let cellModels: [EditOperationCaptionCellModel]
 }
 
 class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
@@ -38,7 +37,6 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             guard let m = newValue else { return }
             thumbView.asset = m.asset
             thumbView.reloadData()
-            cellModels = m.cellModels
             view.layoutIfNeeded()
             containerView.contentSize = CGSize(width: m.totalWidth, height: 0)
             containerView.contentOffset = CGPoint(x: m.currentOffset, y: 0)
@@ -46,11 +44,9 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
                 make.width.equalTo(m.totalWidth)
             }
             view.layoutIfNeeded()
-            operationContainerView.update(cellModels)
+            operationContainerView.update(presenter.captionCellModels)
         }
     }
-    
-    var cellModels: [EditOperationCaptionCellModel] = []
     
     private var beginLongPress = false
     private var startRecordX: CGFloat = 0
@@ -107,7 +103,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             navigationController?.interactivePopGestureRecognizer?.isEnabled = false
             startRecordX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
             //判定违规区域
-            for model in cellModels {
+            for model in presenter.captionCellModels {
                 let start = model.start + CONTAINER_PADDING_LEFT
                 if start <= startRecordX && startRecordX <= start + model.width {
                     MessageBanner.warning(content: "不能在此区域添加字幕")
@@ -141,7 +137,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             
             //寻找插入位置
             var i = 0
-            for model in cellModels {
+            for model in presenter.captionCellModels {
                 if model.start + model.width <= cellModel.start {
                     i += 1
                 } else {
@@ -149,7 +145,6 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
                 }
             }
             operationContainerView.insertCell(from: cellModel, at: i)
-            cellModels.insert(cellModel, at: i)
             
             guard let t = operationContainerView.range(for: cellModel, in: duration) else { return }
             presenter.addCaptionText(nil, start: t.start, end: t.end)
@@ -303,6 +298,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
             self.presenter.updateCaption(segment: segment)
         }
+        presenter.captionContainerView = view
         return view
     }()
     
@@ -378,17 +374,8 @@ extension EditToolAddCaptionViewController: EditAddCaptionViewInput {
         containerView.contentOffset = .init(x: offsetX, y: 0)
     }
     
-    func update(with segments: [EditCompositionCaptionSegment]) {
-        cellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
-            let model = EditOperationCaptionCellModel()
-            model.width = operationContainerView.offset(for: segment.duration, in: duration)
-            model.start = operationContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
-            model.maxWidth = operationContainerView.width
-            model.content = segment.text
-            model.segment = segment
-            return model
-        })
-        operationContainerView.update(cellModels)
+    func refreshCaptionContainerView() {
+        operationContainerView.update(presenter.captionCellModels)
     }
     
 }
@@ -410,9 +397,9 @@ extension EditToolAddCaptionViewController: UIScrollViewDelegate {
         if addView != nil {
             let currentX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
             let newWidth = max(1, currentX - startRecordX)
-            if cellModels.count > 0 {
+            if presenter.captionCellModels.count > 0 {
                 var findFlag = false
-                for model in cellModels {
+                for model in presenter.captionCellModels {
                     //找到新增cell的后面一个判断长度添加是否合法
                     if model.start > addView!.x {
                         findFlag = true

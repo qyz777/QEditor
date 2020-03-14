@@ -171,10 +171,6 @@ extension EditViewPresenter: EditToolViewOutput {
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolViewShouldRefreshCaption(_ toolView: EditToolViewInput) {
-        toolView.refreshCaptionViews(project.captionSegments)
-    }
-    
 }
 
 extension EditViewPresenter {

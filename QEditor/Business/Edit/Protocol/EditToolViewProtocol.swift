@@ -23,8 +23,6 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     /// - Parameter segments: 视频segment
     func refreshVideoViews(_ segments: [EditCompositionVideoSegment])
     
-    func refreshCaptionViews(_ segments: [EditCompositionCaptionSegment])
-    
     func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
     
     func showChangeSaturationView(_ info: AdjustProgressViewInfo)
@@ -107,9 +105,5 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment)
 
     func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment)
-    
-    //MARK: Caption
-    
-    func toolViewShouldRefreshCaption(_ toolView: EditToolViewInput)
     
 }

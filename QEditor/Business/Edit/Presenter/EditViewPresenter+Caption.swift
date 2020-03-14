@@ -34,13 +34,15 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
         playerView?.okEditClosure = { [unowned self] (text) in
             let range = CMTimeRange(start: start, end: end)
             self.project.addCaption(text, at: range)
-            self.addCaptionView?.update(with: self.project.captionSegments)
+            self.updateCaptionCellModels()
+            self.addCaptionView?.refreshCaptionContainerView()
             self.updatePlayerAfterEditCaption()
             self.isEditingCaption = false
         }
         playerView?.cancelEditClosure = { [unowned self] in
             let range = CMTimeRange(start: start, end: end)
             self.project.addCaption("", at: range)
+            self.updateCaptionCellModels()
             self.updatePlayerAfterEditCaption()
             self.isEditingCaption = false
         }
@@ -48,6 +50,7 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
     
     func deleteCaption(segment: EditCompositionCaptionSegment) {
         project.removeCaption(segment: segment)
+        updateCaptionCellModels()
         updatePlayerAfterEditCaption()
     }
     
@@ -56,7 +59,8 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
         playerView?.okEditClosure = { [unowned self] (text) in
             segment.text = text
             self.project.updateCaption(segment: segment)
-            self.addCaptionView?.update(with: self.project.captionSegments)
+            self.updateCaptionCellModels()
+            self.addCaptionView?.refreshCaptionContainerView()
             self.updatePlayerAfterEditCaption()
         }
         playerView?.cancelEditClosure = { [unowned self] in
@@ -85,6 +89,19 @@ extension EditViewPresenter {
         let lastTime = self.playerView?.playbackTime ?? .zero
         self.playerView?.loadComposition(self.project.composition!)
         self.playerView?.seek(to: lastTime)
+    }
+    
+    func updateCaptionCellModels() {
+        guard let captionContainerView = captionContainerView else { return }
+        captionCellModels = project.captionSegments.map({ (segment) -> EditOperationCaptionCellModel in
+            let model = EditOperationCaptionCellModel()
+            model.width = captionContainerView.offset(for: segment.duration, in: duration)
+            model.start = captionContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
+            model.maxWidth = captionContainerView.width
+            model.content = segment.text
+            model.segment = segment
+            return model
+        })
     }
     
 }

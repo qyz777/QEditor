@@ -27,6 +27,10 @@ class EditViewPresenter {
     
     var thumbModels: [EditToolImageCellModel] = []
     
+    var captionCellModels: [EditOperationCaptionCellModel] = []
+    
+    var captionContainerView: EditOperationContainerView?
+    
     var playerStatus: PlayerViewStatus = .stop
     
     var isPlayingBeforeDragging = false

@@ -10,6 +10,10 @@ import Foundation
 
 protocol EditDataSourceProtocol {
     
+    var captionCellModels: [EditOperationCaptionCellModel] { get }
+    
+    var thumbModels: [EditToolImageCellModel] { get }
+    
     /// 获取帧数
     func frameCount() -> Int
     

@@ -10,7 +10,7 @@ import UIKit
 
 protocol EditAddCaptionViewInput: EditViewPlayProtocol {
     
-    func update(with segments: [EditCompositionCaptionSegment])
+    func refreshCaptionContainerView()
     
 }
 
@@ -29,6 +29,8 @@ protocol EditAddCaptionViewOutput: class, EditCaptionInteractionProtocol {
 }
 
 protocol EditCaptionInteractionProtocol {
+    
+    var captionContainerView: EditOperationContainerView? { get set }
     
     func addCaptionText(_ text: String?, start: Double, end: Double)
     

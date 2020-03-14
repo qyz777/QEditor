@@ -88,8 +88,6 @@ class EditToolViewController: UIViewController {
     
     private var recordWaveformViews: [EditAudioWaveformOperationView] = []
     
-    private var captionCellModels: [EditOperationCaptionCellModel] = []
-    
     //MARK: Override
 
     override func viewDidLoad() {
@@ -376,9 +374,9 @@ class EditToolViewController: UIViewController {
             self.containerView.contentOffset = CGPoint(x: offsetX, y: 0)
             self.presenter.viewIsDraggingWith(with: currentPercent)
             //2.刷新字幕view
-            self.presenter.toolViewShouldRefreshCaption(self)
+            self.captionContainerView.update(self.presenter.captionCellModels)
         }
-        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth, cellModels: captionCellModels)
+        let model = EditToolAddCaptionUpdateModel(asset: thumbView.asset, totalWidth: totalWidth, currentOffset: offsetX, contentWidth: videoContentWidth)
         vc.model = model
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -682,6 +680,7 @@ class EditToolViewController: UIViewController {
             segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
             self.presenter.updateCaption(segment: segment)
         }
+        presenter.captionContainerView = view
         return view
     }()
     
@@ -904,19 +903,6 @@ extension EditToolViewController: EditToolViewInput {
     
     func refreshVideoViews(_ segments: [EditCompositionVideoSegment]) {
         refreshVideoViewsInContainer(segments)
-    }
-    
-    func refreshCaptionViews(_ segments: [EditCompositionCaptionSegment]) {
-        captionCellModels = segments.map({ (segment) -> EditOperationCaptionCellModel in
-            let model = EditOperationCaptionCellModel()
-            model.width = captionContainerView.offset(for: segment.duration, in: duration)
-            model.start = captionContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
-            model.maxWidth = captionContainerView.width
-            model.content = segment.text
-            model.segment = segment
-            return model
-        })
-        captionContainerView.update(captionCellModels)
     }
     
     func loadAsset(_ asset: AVAsset) {
