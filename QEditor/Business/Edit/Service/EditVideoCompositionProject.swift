@@ -48,9 +48,8 @@ public class EditVideoCompositionProject {
     
     /// 生成播放器同步动画layer
     /// - Parameters:
-    ///   - item: 资源item
     ///   - bounds: layer的bounds
-    public func generateSyncLayer(for item: AVPlayerItem, with bounds: CGRect) -> AVSynchronizedLayer? {
+    public func generateSyncLayer(with bounds: CGRect) -> CALayer? {
         guard captionSegments.count > 0 else {
             return nil
         }
@@ -59,9 +58,9 @@ public class EditVideoCompositionProject {
         captionSegments.forEach {
             titleLayer.addSublayer($0.buildLayer(for: titleLayer.bounds))
         }
-        let syncLayer = AVSynchronizedLayer(playerItem: item)
-        syncLayer.addSublayer(titleLayer)
-        return syncLayer
+        let layer = CALayer()
+        layer.addSublayer(titleLayer)
+        return layer
     }
     
     //MARK: Composition

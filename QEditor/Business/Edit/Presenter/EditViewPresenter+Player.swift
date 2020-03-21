@@ -46,8 +46,8 @@ extension EditViewPresenter: PlayerViewDelegate {
         return project.audioMix
     }
     
-    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer? {
-        return project.generateSyncLayer(for: playerItem, with: player.bounds)
+    func playerSetupSyncLayer(_ player: PlayerView) -> CALayer? {
+        return project.generateSyncLayer(with: player.bounds)
     }
     
 }

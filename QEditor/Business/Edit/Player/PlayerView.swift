@@ -35,7 +35,7 @@ public protocol PlayerViewDelegate: class {
     
     func playerAudioMix(_ player: PlayerView) -> AVAudioMix?
     
-    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer?
+    func playerSetupSyncLayer(_ player: PlayerView) -> CALayer?
     
 }
 
@@ -65,6 +65,10 @@ public class PlayerView: UIView {
     
     public private(set) var playbackTime: TimeInterval = 0
     
+    public var animationLayer: CALayer?
+    
+    private var playerLayer: AVPlayerLayer?
+    
     private var timeObserver: Any?
     
     private var currentItem: AVPlayerItem?
@@ -85,6 +89,7 @@ public class PlayerView: UIView {
     override public func layoutSubviews() {
         super.layoutSubviews()
         playerLayer?.frame = bounds
+        animationLayer?.frame = bounds
     }
     
     public override var debugDescription: String {
@@ -105,14 +110,6 @@ public class PlayerView: UIView {
         currentItem = item
         currentItem?.videoComposition = delegate?.playerVideoComposition(self)
         currentItem?.audioMix = delegate?.playerAudioMix(self)
-        layer.sublayers?.forEach {
-            if $0.isKind(of: AVSynchronizedLayer.self) {
-                $0.removeFromSuperlayer()
-            }
-        }
-        if let syncLayer = delegate?.playerSetupSyncLayer(self, playerItem: currentItem!) {
-            layer.addSublayer(syncLayer)
-        }
         //变速时为了时player支持声音变速需要设置audioTimePitchAlgorithm
         currentItem?.audioTimePitchAlgorithm = .varispeed
         player.replaceCurrentItem(with: currentItem)
@@ -138,14 +135,20 @@ public class PlayerView: UIView {
         layer.insertSublayer(playerLayer!, at: 0)
     }
     
-    lazy var player: AVPlayer = {
-        let p = AVPlayer()
-        return p
+    private func updateAnimationLayer() {
+        animationLayer?.removeFromSuperlayer()
+        animationLayer = CALayer()
+        //设置speed为0，用timeOffset来控制动画
+        animationLayer?.speed = 0
+        if let syncLayer = delegate?.playerSetupSyncLayer(self) {
+            animationLayer?.addSublayer(syncLayer)
+        }
+        layer.addSublayer(animationLayer!)
+    }
+    
+    private lazy var player: AVPlayer = {
+        return AVPlayer()
     }()
-    
-    var playerLayer: AVPlayerLayer?
-    
-    private var syncLayerView: UIView?
 
 }
 
@@ -203,10 +206,12 @@ public extension PlayerView {
         let item = AVPlayerItem(asset: asset)
         updatePlayerItem(item)
         updatePlayerLayer()
+        updateAnimationLayer()
         if timeObserver == nil {
             let interval = CMTime(seconds: 0.05, preferredTimescale: CMTimeScale(600))
             timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] (time) in
                 if let strongSelf = self {
+                    strongSelf.animationLayer?.timeOffset = time.seconds
                     strongSelf.playbackTime = time.seconds
                     //seek的时候也会调这个，判断一下状态不要回调出去
                     guard strongSelf.status == .playing else {
