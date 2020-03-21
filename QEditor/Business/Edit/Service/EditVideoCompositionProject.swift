@@ -196,11 +196,7 @@ extension EditVideoCompositionProject {
         let scaleDuration = segment.duration * Double(scale)
         let timeRange = segment.rangeAtComposition
         let toDuration = CMTime(seconds: scaleDuration, preferredTimescale: 600)
-        //先拉伸track
-        let videoTrack = composition.track(withTrackID: segment.trackId)!
-        let audioTrack = composition.tracks(withMediaType: .audio).first!
-        videoTrack.scaleTimeRange(timeRange, toDuration: toDuration)
-        audioTrack.scaleTimeRange(timeRange, toDuration: toDuration)
+        composition.scaleTimeRange(timeRange, toDuration: toDuration)
         //直接拉伸图片数据源轨道
         imageSourceComposition!.scaleTimeRange(timeRange, toDuration: toDuration)
         //再把数据源的range也拉伸
