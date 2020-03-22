@@ -12,7 +12,7 @@ import AVFoundation
 
 class EditPlayerViewController: UIViewController {
     
-    public var presenter: (EditPlayerViewOutput & PlayerViewDelegate)!
+    public var presenter: (EditPlayerViewOutput & PlayerViewDelegate & EditPlayerViewDelegate)!
     
     public var okEditClosure: ((_ text: String) -> Void)?
     
@@ -75,8 +75,14 @@ class EditPlayerViewController: UIViewController {
         }
     }
     
-    lazy var playerView: PlayerView = {
-        let view = PlayerView()
+//    lazy var playerView: PlayerView = {
+//        let view = PlayerView()
+//        view.delegate = presenter
+//        return view
+//    }()
+    
+    lazy var playerView: EditPlayerView = {
+        let view = EditPlayerView()
         view.delegate = presenter
         return view
     }()
@@ -145,7 +151,7 @@ extension EditPlayerViewController: EditPlayerViewInput {
     
     func loadComposition(_ composition: AVMutableComposition) {
         playerView.stop()
-        playerView.setupPlayer(asset: composition)
+        playerView.setup(asset: composition)
     }
     
     func updatePlayTime(_ time: Double) {

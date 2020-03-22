@@ -11,10 +11,6 @@ import AVFoundation
 
 extension EditViewPresenter: PlayerViewDelegate {
     
-    public func player(_ player: PlayerView, didChange status: AVPlayerItem.Status) {
-        
-    }
-    
     func player(_ player: PlayerView, playAt time: Double) {
         toolView?.updatePlayTime(time)
         playerView?.updatePlayTime(time)
@@ -47,6 +43,45 @@ extension EditViewPresenter: PlayerViewDelegate {
     }
     
     func playerSetupSyncLayer(_ player: PlayerView) -> CALayer? {
+        return project.generateSyncLayer(with: player.bounds)
+    }
+    
+}
+
+extension EditViewPresenter: EditPlayerViewDelegate {
+    
+    func player(_ player: EditPlayerView, playAt time: Double) {
+        toolView?.updatePlayTime(time)
+        playerView?.updatePlayTime(time)
+        addCaptionView?.updatePlayTime(time)
+    }
+    
+    func player(_ player: EditPlayerView, didLoadVideoWith duration: Double) {
+        self.duration = duration
+        toolView?.updateDuration(duration)
+        playerView?.updateDuration(duration)
+        addCaptionView?.updateDuration(duration)
+    }
+    
+    func player(_ player: EditPlayerView, statusDidChange status: PlayerViewStatus) {
+        playerStatus = status
+        toolView?.updatePlayViewStatus(status)
+        addCaptionView?.updatePlayViewStatus(status)
+    }
+    
+    func playerDidPlayToEndTime(_ player: EditPlayerView) {
+        playerView?.playToEndTime()
+    }
+    
+    func playerVideoComposition(_ player: EditPlayerView) -> AVMutableVideoComposition? {
+        return project.videoComposition
+    }
+    
+    func playerAudioMix(_ player: EditPlayerView) -> AVAudioMix? {
+        return project.audioMix
+    }
+    
+    func playerSetupSyncLayer(_ player: EditPlayerView) -> CALayer? {
         return project.generateSyncLayer(with: player.bounds)
     }
     

@@ -35,6 +35,8 @@
 		A07B6A442413BF25008170F5 /* EditCompositionCaptionSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A432413BF25008170F5 /* EditCompositionCaptionSegment.swift */; };
 		A07B6A4624148A54008170F5 /* EditPlayerCaptionTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A4524148A54008170F5 /* EditPlayerCaptionTextField.swift */; };
 		A07B6A48241664C2008170F5 /* EditToolEditCaptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A47241664C2008170F5 /* EditToolEditCaptionViewController.swift */; };
+		A07F9A4E2425D3E200245E73 /* CompositionPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07F9A4D2425D3E200245E73 /* CompositionPlayer.swift */; };
+		A07F9A512425EB8500245E73 /* EditPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07F9A502425EB8500245E73 /* EditPlayerView.swift */; };
 		A080D70524010C300089B10B /* EditToolAddCaptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A080D70424010C300089B10B /* EditToolAddCaptionViewController.swift */; };
 		A080D70924024D7F0089B10B /* EditDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A080D70824024D7F0089B10B /* EditDataSourceProtocol.swift */; };
 		A080D70B24024E6C0089B10B /* EditViewPresenter+DataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A080D70A24024E6C0089B10B /* EditViewPresenter+DataSource.swift */; };
@@ -47,7 +49,6 @@
 		A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */; };
 		A0870A602352FB85006DC38D /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A5F2352FB85006DC38D /* EditViewController.swift */; };
 		A0870A632352FBEA006DC38D /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A622352FBEA006DC38D /* PlayerView.swift */; };
-		A0870A662352FDB7006DC38D /* PlayerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A652352FDB7006DC38D /* PlayerProtocol.swift */; };
 		A0870A692353210B006DC38D /* EditPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A682353210B006DC38D /* EditPlayerViewController.swift */; };
 		A0870A6B23532612006DC38D /* String+Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0870A6A23532612006DC38D /* String+Video.swift */; };
 		A0875AB1238A244200061394 /* EditToolAudioWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0875AB0238A244200061394 /* EditToolAudioWaveformView.swift */; };
@@ -125,6 +126,8 @@
 		A07B6A432413BF25008170F5 /* EditCompositionCaptionSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCompositionCaptionSegment.swift; sourceTree = "<group>"; };
 		A07B6A4524148A54008170F5 /* EditPlayerCaptionTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlayerCaptionTextField.swift; sourceTree = "<group>"; };
 		A07B6A47241664C2008170F5 /* EditToolEditCaptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolEditCaptionViewController.swift; sourceTree = "<group>"; };
+		A07F9A4D2425D3E200245E73 /* CompositionPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionPlayer.swift; sourceTree = "<group>"; };
+		A07F9A502425EB8500245E73 /* EditPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlayerView.swift; sourceTree = "<group>"; };
 		A080D70424010C300089B10B /* EditToolAddCaptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAddCaptionViewController.swift; sourceTree = "<group>"; };
 		A080D70824024D7F0089B10B /* EditDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDataSourceProtocol.swift; sourceTree = "<group>"; };
 		A080D70A24024E6C0089B10B /* EditViewPresenter+DataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+DataSource.swift"; sourceTree = "<group>"; };
@@ -137,7 +140,6 @@
 		A0870A5B2352F5A7006DC38D /* UIColor+RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+RGB.swift"; sourceTree = "<group>"; };
 		A0870A5F2352FB85006DC38D /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		A0870A622352FBEA006DC38D /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
-		A0870A652352FDB7006DC38D /* PlayerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProtocol.swift; sourceTree = "<group>"; };
 		A0870A682353210B006DC38D /* EditPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPlayerViewController.swift; sourceTree = "<group>"; };
 		A0870A6A23532612006DC38D /* String+Video.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Video.swift"; sourceTree = "<group>"; };
 		A0875AB0238A244200061394 /* EditToolAudioWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAudioWaveformView.swift; sourceTree = "<group>"; };
@@ -245,6 +247,14 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		A07F9A4C2425D3B100245E73 /* CompositionPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				A07F9A4D2425D3E200245E73 /* CompositionPlayer.swift */,
+			);
+			path = CompositionPlayer;
+			sourceTree = "<group>";
+		};
 		A0870A542351C7FA006DC38D /* QUIKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -305,18 +315,10 @@
 		A0870A612352FBCE006DC38D /* Player */ = {
 			isa = PBXGroup;
 			children = (
-				A0870A642352FDAC006DC38D /* Protocol */,
 				A0870A622352FBEA006DC38D /* PlayerView.swift */,
+				A07F9A502425EB8500245E73 /* EditPlayerView.swift */,
 			);
 			path = Player;
-			sourceTree = "<group>";
-		};
-		A0870A642352FDAC006DC38D /* Protocol */ = {
-			isa = PBXGroup;
-			children = (
-				A0870A652352FDB7006DC38D /* PlayerProtocol.swift */,
-			);
-			path = Protocol;
 			sourceTree = "<group>";
 		};
 		A09CF7A22349DFE500139461 = {
@@ -340,6 +342,7 @@
 		A09CF7AD2349DFE500139461 /* QEditor */ = {
 			isa = PBXGroup;
 			children = (
+				A07F9A4C2425D3B100245E73 /* CompositionPlayer */,
 				A02F7DD6239E8D8100398065 /* NotificationBanner */,
 				A021233723652E040073A125 /* Debug */,
 				A0870A542351C7FA006DC38D /* QUIKit */,
@@ -663,8 +666,8 @@
 				A07B6A3E24138E55008170F5 /* EditOperationCaptionCell.swift in Sources */,
 				A0DBD4E323D7360700E26238 /* EditCompositionSegment.swift in Sources */,
 				A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */,
+				A07F9A4E2425D3E200245E73 /* CompositionPlayer.swift in Sources */,
 				A0870A692353210B006DC38D /* EditPlayerViewController.swift in Sources */,
-				A0870A662352FDB7006DC38D /* PlayerProtocol.swift in Sources */,
 				A080D70924024D7F0089B10B /* EditDataSourceProtocol.swift in Sources */,
 				A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */,
 				A02F7DCD239B3A7600398065 /* EditViewPlayProtocol.swift in Sources */,
@@ -695,6 +698,7 @@
 				A021233923652E0C0073A125 /* Debug.swift in Sources */,
 				A02F7DDA23A472E200398065 /* EditToolSettingLoadingView.swift in Sources */,
 				A021233F2365401A0073A125 /* UIFont+Utility.swift in Sources */,
+				A07F9A512425EB8500245E73 /* EditPlayerView.swift in Sources */,
 				A09CF7D32349E31800139461 /* MediaViewController.swift in Sources */,
 				A0870A5C2352F5A7006DC38D /* UIColor+RGB.swift in Sources */,
 				A09CF7B32349DFE500139461 /* ViewController.swift in Sources */,
@@ -895,6 +899,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = B9S5K8T3BY;
 				INFOPLIST_FILE = QEditor/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

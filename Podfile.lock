@@ -5,6 +5,7 @@ PODS:
   - DispatchQueuePool (0.0.1)
   - EFColorPicker (5.2.0)
   - FLEX (3.0.0)
+  - GPUImage2-Pixel (3.0.0)
   - KVOController (1.2.0)
   - MarqueeLabel (4.0.0)
   - NotificationBannerSwift (3.0.2):
@@ -24,6 +25,7 @@ DEPENDENCIES:
   - DispatchQueuePool (from `./LocalLib/DispatchQueuePool`)
   - EFColorPicker (~> 5.2.0)
   - FLEX
+  - GPUImage2-Pixel (from `/Users/qyizhong/Desktop/GPUImage2`)
   - KVOController
   - NotificationBannerSwift (~> 3.0.0)
   - NVActivityIndicatorView
@@ -50,6 +52,8 @@ EXTERNAL SOURCES:
     :path: "./LocalLib/AudioCollection"
   DispatchQueuePool:
     :path: "./LocalLib/DispatchQueuePool"
+  GPUImage2-Pixel:
+    :path: "/Users/qyizhong/Desktop/GPUImage2"
   TableViewAdapter:
     :path: "./LocalLib/TableViewAdapter"
 
@@ -58,6 +62,7 @@ SPEC CHECKSUMS:
   DispatchQueuePool: 3f8efa6ee482e88b701498dce385c13fd6d8be60
   EFColorPicker: ac692380016b47ad0e61706a910fc1414214a760
   FLEX: d66c759bce0f6ebbbf472c742380874d846f2883
+  GPUImage2-Pixel: c6e6bf4fcf85e3151d879dcfd5f75146a9d7a606
   KVOController: d72ace34afea42468329623b3379ab3cd1d286b6
   MarqueeLabel: b55b26e690b6ad41faedd95cbf5eae6f1d1735b4
   NotificationBannerSwift: 713e20f21b6105f4a36a00e5d9fa414a930d3d8e
@@ -66,6 +71,6 @@ SPEC CHECKSUMS:
   SwifterSwift: a9e8e144832638c2850b43da5feaf9598c6ad65b
   TableViewAdapter: c2b204aae9927d66ae67d8c72c1df2118d309a00
 
-PODFILE CHECKSUM: 054d659b784ce8b39a689770f61328df8f79a554
+PODFILE CHECKSUM: 5443d04516ded782c7ceaa7d4042248e1cc93761
 
 COCOAPODS: 1.8.4

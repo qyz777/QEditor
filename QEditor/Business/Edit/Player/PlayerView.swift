@@ -15,11 +15,10 @@ public enum PlayerViewStatus {
     case pause
     case stop
     case error
+    case unknown
 }
 
 public protocol PlayerViewDelegate: class {
-    
-    func player(_ player: PlayerView, didChange status: AVPlayerItem.Status)
     
     func player(_ player: PlayerView, playAt time: Double)
     
@@ -51,7 +50,7 @@ extension PlayerViewDelegate {
         return nil
     }
     
-    func playerSetupSyncLayer(_ player: PlayerView, playerItem: AVPlayerItem) -> AVSynchronizedLayer? {
+    func playerSetupSyncLayer(_ player: PlayerView) -> CALayer? {
         return nil
     }
     
@@ -117,7 +116,6 @@ public class PlayerView: UIView {
             let status = AVPlayerItem.Status(rawValue: (change["new"] as! NSNumber).intValue)!
             if let strongSelf = self {
                 //转发播放器状态出去
-                strongSelf.delegate?.player(strongSelf, didChange: status)
                 if status == .readyToPlay {
                     //转发视频时间出去
                     let duration = strongSelf.currentItem!.asset.duration.seconds
@@ -197,12 +195,12 @@ public extension PlayerView {
         player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
     
-    func setupPlayer(url: URL) {
+    func setup(url: URL) {
         let asset = AVURLAsset(url: url)
-        setupPlayer(asset: asset)
+        setup(asset: asset)
     }
     
-    func setupPlayer(asset: AVAsset) {
+    func setup(asset: AVAsset) {
         let item = AVPlayerItem(asset: asset)
         updatePlayerItem(item)
         updatePlayerLayer()

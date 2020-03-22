@@ -71,84 +71,47 @@ public class EditVideoCompositionProject {
         }
         let composition = AVMutableComposition()
         imageSourceComposition = AVMutableComposition()
-        let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let mixAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let recordAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let videoTrackA = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
-        let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
         
-        //——  ——
-        //  ——  ——
-        //的方式插入到A B轨道中
-        let tracks = [videoTrackA, videoTrackB]
-        var cursorTime: CMTime = .zero
-        var imageCursorTime: CMTime = .zero
-
-        for i in 0..<videoSegments.count {
-            let trackIndex = i % 2
-            let currentTrack = tracks[trackIndex]
-            let asset = videoSegments[i].asset
-            let transitionDuration = CMTime(seconds: videoSegments[i].transition.duration, preferredTimescale: 600)
-            videoSegments[i].trackId = currentTrack.trackID
-            var imageSourceRange = videoSegments[i].timeRange
-            if i + 1 < videoSegments.count {
-                imageSourceRange.duration -= transitionDuration
-            }
-            
-            do {
-                try currentTrack.insertTimeRange(videoSegments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
-                if let sourceAudioTrack = asset.tracks(withMediaType: .audio).first {
-                    try audioTrack.insertTimeRange(videoSegments[i].timeRange, of: sourceAudioTrack, at: cursorTime)
+        if videoSegments.count > 1 {
+            setupMixVideoTrackComposition(composition)
+        } else {
+            setupSingleVideoTrackComposition(composition)
+        }
+        
+        if musicSegments.count > 0 {
+            let musicAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+            musicSegments.forEach {
+                let asset = $0.asset
+                guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
+                //这里跟插入视频不一样，这里是需要外面告诉segment插入在mixAudioTrack的哪个range里
+                do {
+                    try musicAudioTrack.insertTimeRange($0.timeRange, of: audioTrack, at: $0.rangeAtComposition.start)
+                } catch {
+                    QELog(error)
                 }
-                try imageSourceTrack.insertTimeRange(imageSourceRange, of: asset.tracks(withMediaType: .video).first!, at: imageCursorTime)
-            } catch {
-                QELog(error)
-            }
-            
-            var timeRange = CMTimeRange(start: cursorTime, duration: videoSegments[i].timeRange.duration)
-            if i > 0 {
-                timeRange.start += transitionDuration
-                timeRange.duration -= transitionDuration
-            }
-            if i + 1 < videoSegments.count {
-                timeRange.duration -= transitionDuration
-            }
-            videoSegments[i].rangeAtComposition = timeRange
-            
-            cursorTime += videoSegments[i].timeRange.duration
-            cursorTime -= transitionDuration
-            imageCursorTime += imageSourceRange.duration
-        }
-        
-        musicSegments.forEach {
-            let asset = $0.asset
-            guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
-            //这里跟插入视频不一样，这里是需要外面告诉segment插入在mixAudioTrack的哪个range里
-            do {
-                try mixAudioTrack.insertTimeRange($0.timeRange, of: audioTrack, at: $0.rangeAtComposition.start)
-            } catch {
-                QELog(error)
             }
         }
         
-        recordAudioSegments.forEach {
-            let asset = $0.asset
-            guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
-            do {
-                try recordAudioTrack.insertTimeRange($0.timeRange, of: audioTrack, at: $0.rangeAtComposition.start)
-            } catch {
-                QELog(error)
+        if recordAudioSegments.count > 0 {
+            let recordAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+            recordAudioSegments.forEach {
+                let asset = $0.asset
+                guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
+                do {
+                    try recordAudioTrack.insertTimeRange($0.timeRange, of: audioTrack, at: $0.rangeAtComposition.start)
+                } catch {
+                    QELog(error)
+                }
             }
         }
-
-        videoComposition = AVMutableVideoComposition(propertiesOf: composition)
         
-        setupTransition(videoSegments.map({ (segment) -> EditTransitionModel in
-            return segment.transition
-        }))
+        if composition.tracks(withMediaType: .video).count > 1 {
+            setupVideoComposition(from: composition)
+        }
         
-        setupAudioMix()
+        if composition.tracks(withMediaType: .audio).count > 1 {
+            setupAudioMix()
+        }
         
         self.composition = composition
     }
@@ -483,6 +446,79 @@ extension EditVideoCompositionProject {
 //MARK: Private
 extension EditVideoCompositionProject {
     
+    private func setupSingleVideoTrackComposition(_ composition: AVMutableComposition) {
+        let segment = videoSegments.first!
+        let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        
+        let asset = segment.asset
+        videoSegments.first!.trackId = videoTrack.trackID
+        
+        do {
+            try videoTrack.insertTimeRange(segment.timeRange, of: asset.tracks(withMediaType: .video).first!, at: .zero)
+            if let sourceAudioTrack = asset.tracks(withMediaType: .audio).first {
+                try audioTrack.insertTimeRange(segment.timeRange, of: sourceAudioTrack, at: .zero)
+            }
+            try imageSourceTrack.insertTimeRange(segment.timeRange, of: asset.tracks(withMediaType: .video).first!, at: .zero)
+        } catch {
+            QELog(error)
+        }
+        
+        segment.rangeAtComposition = CMTimeRange(start: .zero, duration: segment.timeRange.duration)
+    }
+    
+    private func setupMixVideoTrackComposition(_ composition: AVMutableComposition) {
+        let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let videoTrackA = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let videoTrackB = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        let imageSourceTrack = imageSourceComposition!.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)!
+        
+        //——  ——
+        //  ——  ——
+        //的方式插入到A B轨道中
+        let tracks = [videoTrackA, videoTrackB]
+        var cursorTime: CMTime = .zero
+        var imageCursorTime: CMTime = .zero
+
+        for i in 0..<videoSegments.count {
+            let trackIndex = i % 2
+            let currentTrack = tracks[trackIndex]
+            let asset = videoSegments[i].asset
+            let transitionDuration = CMTime(seconds: videoSegments[i].transition.duration, preferredTimescale: 600)
+            videoSegments[i].trackId = currentTrack.trackID
+            var imageSourceRange = videoSegments[i].timeRange
+            if i + 1 < videoSegments.count {
+                imageSourceRange.duration -= transitionDuration
+            }
+            
+            do {
+                try currentTrack.insertTimeRange(videoSegments[i].timeRange, of: asset.tracks(withMediaType: .video).first!, at: cursorTime)
+                if let sourceAudioTrack = asset.tracks(withMediaType: .audio).first {
+                    try audioTrack.insertTimeRange(videoSegments[i].timeRange, of: sourceAudioTrack, at: cursorTime)
+                }
+                try imageSourceTrack.insertTimeRange(imageSourceRange, of: asset.tracks(withMediaType: .video).first!, at: imageCursorTime)
+            } catch {
+                QELog(error)
+            }
+            
+            var timeRange = CMTimeRange(start: cursorTime, duration: videoSegments[i].timeRange.duration)
+            if i > 0 {
+                timeRange.start += transitionDuration
+                timeRange.duration -= transitionDuration
+            }
+            if i + 1 < videoSegments.count {
+                timeRange.duration -= transitionDuration
+            }
+            videoSegments[i].rangeAtComposition = timeRange
+            
+            cursorTime += videoSegments[i].timeRange.duration
+            cursorTime -= transitionDuration
+            imageCursorTime += imageSourceRange.duration
+        }
+        
+    }
+    
     private func setupTransition(_ transitions: [EditTransitionModel]) {
         guard let videoComposition = videoComposition else {
             return
@@ -516,6 +552,13 @@ extension EditVideoCompositionProject {
         let recordParam = AVMutableAudioMixInputParameters(track: recordTrack)
         setupInputParameters(recordParam, for: recordAudioSegments)
         audioMix!.inputParameters = [mixParam, recordParam]
+    }
+    
+    private func setupVideoComposition(from composition: AVMutableComposition) {
+        videoComposition = AVMutableVideoComposition(propertiesOf: composition)
+        setupTransition(videoSegments.map({ (segment) -> EditTransitionModel in
+            return segment.transition
+        }))
     }
     
     private func setupInputParameters(_ param: AVMutableAudioMixInputParameters, for segments: [EditCompositionAudioSegment]) {
