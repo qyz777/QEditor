@@ -64,9 +64,9 @@ public class EditPlayerView: UIView {
     /// 承接字幕的动画layer，在播放器的playView上
     public var animationLayer: CALayer?
     
-    private var player = CompositionPlayer()
+    public private(set) var player = CompositionPlayer()
     
-    private var playerView: CompositionPlayerView {
+    public var playerView: CompositionPlayerView {
         return player.playerView
     }
 
@@ -82,7 +82,7 @@ public class EditPlayerView: UIView {
     override public func layoutSubviews() {
         super.layoutSubviews()
         playerView.frame = bounds
-        animationLayer?.frame = playerView.bounds
+        animationLayer?.frame = playerView.frame
     }
     
     deinit {
@@ -92,12 +92,13 @@ public class EditPlayerView: UIView {
     private func updateAnimationLayer() {
         animationLayer?.removeFromSuperlayer()
         animationLayer = CALayer()
+        animationLayer?.frame = playerView.frame
         //设置speed为0，用timeOffset来控制动画
         animationLayer?.speed = 0
         if let syncLayer = delegate?.playerSetupSyncLayer(self) {
             animationLayer?.addSublayer(syncLayer)
         }
-        playerView.layer.addSublayer(animationLayer!)
+        layer.addSublayer(animationLayer!)
     }
 
 }
@@ -147,8 +148,6 @@ extension EditPlayerView {
     public func setup(asset: AVAsset) {
         let videoComposition = delegate?.playerVideoComposition(self)
         let audioMix = delegate?.playerAudioMix(self)
-        updateAnimationLayer()
-        player.updateAsset(asset, videoComposition: videoComposition, audioMix: audioMix)
         player.assetLoadClosure = { [weak self] (isReadyToPlay) in
             guard let strongSelf = self else { return }
             if isReadyToPlay {
@@ -175,38 +174,23 @@ extension EditPlayerView {
             case .stop:
                 strongSelf.status = .stop
             }
-            if Thread.isMainThread {
-                strongSelf.delegate?.player(strongSelf, statusDidChange: strongSelf.status)
-            } else {
-                DispatchQueue.main.async {
-                    strongSelf.delegate?.player(strongSelf, statusDidChange: strongSelf.status)
-                }
-            }
+            strongSelf.delegate?.player(strongSelf, statusDidChange: strongSelf.status)
         }
         player.playbackTimeChangeClosure = { [weak self] (time) in
             guard let strongSelf = self else { return }
+            //非主线程改此属性无效
             strongSelf.animationLayer?.timeOffset = time
             guard strongSelf.status == .playing else {
                 return
             }
-            if Thread.isMainThread {
-                strongSelf.delegate?.player(strongSelf, playAt: time)
-            } else {
-                DispatchQueue.main.sync {
-                    strongSelf.delegate?.player(strongSelf, playAt: time)
-                }
-            }
+            strongSelf.delegate?.player(strongSelf, playAt: time)
         }
         player.finishedClosure = { [weak self] in
             guard let strongSelf = self else { return }
-            if Thread.isMainThread {
-                strongSelf.delegate?.playerDidPlayToEndTime(strongSelf)
-            } else {
-                DispatchQueue.main.async {
-                    strongSelf.delegate?.playerDidPlayToEndTime(strongSelf)
-                }
-            }
+            strongSelf.delegate?.playerDidPlayToEndTime(strongSelf)
         }
+        updateAnimationLayer()
+        player.updateAsset(asset, videoComposition: videoComposition, audioMix: audioMix)
     }
     
 }

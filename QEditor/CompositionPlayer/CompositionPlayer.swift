@@ -73,7 +73,7 @@ public class CompositionPlayer {
     }
     
     /// Add filters to this array and call updateAsset(_:) method
-    public var filters: [BasicOperation] = []
+    public var filters: [ImageProcessingOperation] = []
     
     private var movie: MovieInput?
     
@@ -117,16 +117,35 @@ public class CompositionPlayer {
         guard let movie = movie else { return }
         movie.progress = { [weak self, movie] (p) in
             guard let strongSelf = self else { return }
-            strongSelf.playbackTime = (movie.currentTime?.seconds) ?? 0
+            DispatchQueue.main.async {
+                strongSelf.playbackTime = (movie.currentTime?.seconds) ?? 0
+            }
         }
         movie.completion = { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.status = .stop
+            DispatchQueue.main.async {
+                strongSelf.status = .stop
+                strongSelf.finishedClosure?()
+            }
         }
         speaker = SpeakerOutput()
         movie.audioEncodingTarget = speaker
         
-        applyFilters(filters)
+        applyFilters()
+    }
+    
+    private func applyFilters() {
+        guard let movie = movie else { return }
+        filters.forEach {
+            $0.removeAllTargets()
+        }
+        movie.removeAllTargets()
+        var currentTarget: ImageSource = movie
+        filters.forEach {
+            currentTarget.addTarget($0, atTargetIndex: 0)
+            currentTarget = $0
+        }
+        currentTarget.addTarget(renderView, atTargetIndex: 0)
     }
     
     private lazy var renderView: RenderView = {
@@ -176,29 +195,12 @@ extension CompositionPlayer {
 //MARK: Filter
 extension CompositionPlayer {
     
-    public func appendFilter(_ filter: BasicOperation) {
+    public func appendFilter(_ filter: ImageProcessingOperation) {
         filters.append(filter)
     }
     
     public func removeAllFilters() {
         filters.removeAll()
-    }
-    
-    public func applyFilter(_ filter: BasicOperation) {
-        guard movie != nil else { return }
-        applyFilters([filter])
-    }
-    
-    public func applyFilters(_ filters: [BasicOperation]) {
-        guard let movie = movie else { return }
-        self.filters = filters
-        movie.removeAllTargets()
-        var currentTarget: ImageSource = movie
-        filters.forEach {
-            currentTarget.addTarget($0)
-            currentTarget = $0
-        }
-        currentTarget.addTarget(renderView)
     }
     
 }
