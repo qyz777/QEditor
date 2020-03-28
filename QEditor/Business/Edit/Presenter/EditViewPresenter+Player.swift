@@ -42,10 +42,6 @@ extension EditViewPresenter: PlayerViewDelegate {
         return project.audioMix
     }
     
-    func playerSetupSyncLayer(_ player: PlayerView) -> CALayer? {
-        return project.generateSyncLayer(with: player.bounds)
-    }
-    
 }
 
 extension EditViewPresenter: EditPlayerViewDelegate {
@@ -79,10 +75,6 @@ extension EditViewPresenter: EditPlayerViewDelegate {
     
     func playerAudioMix(_ player: EditPlayerView) -> AVAudioMix? {
         return project.audioMix
-    }
-    
-    func playerSetupSyncLayer(_ player: EditPlayerView) -> CALayer? {
-        return project.generateSyncLayer(with: player.bounds)
     }
     
 }

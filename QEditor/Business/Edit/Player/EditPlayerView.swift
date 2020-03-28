@@ -23,8 +23,6 @@ public protocol EditPlayerViewDelegate: class {
     
     func playerAudioMix(_ player: EditPlayerView) -> AVAudioMix?
     
-    func playerSetupSyncLayer(_ player: EditPlayerView) -> CALayer?
-    
 }
 
 extension EditPlayerViewDelegate {
@@ -38,10 +36,6 @@ extension EditPlayerViewDelegate {
     }
     
     func playerAudioMix(_ player: EditPlayerView) -> AVAudioMix? {
-        return nil
-    }
-    
-    func playerSetupSyncLayer(_ player: EditPlayerView) -> CALayer? {
         return nil
     }
     
@@ -85,14 +79,6 @@ public class EditPlayerView: UIView {
     
     deinit {
         stop()
-    }
-    
-    private func updateAnimationLayer() {
-        player.animationLayer?.removeFromSuperlayer()
-        player.animationLayer = CALayer()
-        if let syncLayer = delegate?.playerSetupSyncLayer(self) {
-            player.animationLayer?.addSublayer(syncLayer)
-        }
     }
 
 }
@@ -163,7 +149,6 @@ extension EditPlayerView {
             guard let strongSelf = self else { return }
             strongSelf.delegate?.playerDidPlayToEndTime(strongSelf)
         }
-        updateAnimationLayer()
         player.updateAsset(asset, videoComposition: videoComposition, audioMix: audioMix)
     }
     

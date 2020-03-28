@@ -79,6 +79,7 @@ public class CompositionPlayer {
             //Set speed to 0, use timeOffset to control the animation
             newValue?.speed = 0
             playerView.animationLayer = newValue
+            newValue?.timeOffset = playbackTime
         }
         didSet {
             oldValue?.removeFromSuperlayer()

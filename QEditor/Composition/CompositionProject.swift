@@ -39,21 +39,6 @@ public class CompositionProject {
     /// Output player of project
     public let player = CompositionPlayer()
     
-    /// 生成播放器同步动画layer
-    /// - Parameters:
-    ///   - bounds: layer的bounds
-    public func generateSyncLayer(with bounds: CGRect) -> CALayer? {
-        guard captionSegments.count > 0 else {
-            return nil
-        }
-        let layer = CALayer()
-        layer.frame = bounds
-        captionSegments.forEach {
-            layer.addSublayer($0.buildLayer(for: layer.bounds))
-        }
-        return layer
-    }
-    
     //MARK: Composition
     /// 刷新composition
     public func refreshComposition() {
@@ -403,6 +388,7 @@ extension CompositionProject {
         //2.插入字幕
         let segment = CompositionCaptionSegment(text: text, at: range)
         captionSegments.insert(segment, at: i)
+        generateSyncLayer()
         return segment
     }
     
@@ -410,6 +396,7 @@ extension CompositionProject {
         captionSegments.removeAll { (s) -> Bool in
             return s == segment
         }
+        generateSyncLayer()
     }
     
     @discardableResult
@@ -426,6 +413,7 @@ extension CompositionProject {
         }
         if i < captionSegments.count {
             captionSegments[i] = segment
+            generateSyncLayer()
             return true
         }
         //大于的话就是没找到
@@ -689,6 +677,17 @@ extension CompositionProject {
             }
         }
         refreshComposition()
+    }
+    
+    /// Build player sync animation layer
+    private func generateSyncLayer() {
+        guard captionSegments.count > 0 else { return }
+        let layer = CALayer()
+        layer.frame = player.playerView.bounds
+        captionSegments.forEach {
+            layer.addSublayer($0.buildLayer(for: layer.bounds))
+        }
+        player.animationLayer = layer
     }
     
 }
