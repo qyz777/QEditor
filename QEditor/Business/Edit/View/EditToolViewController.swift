@@ -67,6 +67,7 @@ class EditToolViewController: UIViewController {
     
     private var adjustToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .filters, imageName: "edit_effect_filters", text: "滤镜"),
+//        EditToolBarModel(action: .brightnessAdjust, imageName: "edit_brightness_adjust", text: "亮度"),
     ]
     
     private var musicToolBarModels: [EditToolBarModel] = [
@@ -389,6 +390,10 @@ class EditToolViewController: UIViewController {
         guard let presenter = presenter as? EditAdjustOutput else { return }
         let vc = EditToolFiltersViewController(presenter: presenter)
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToBrightnessAdjust() {
+        
     }
     
     private func musicTrackBecomeOperation() {
@@ -732,6 +737,8 @@ class EditToolViewController: UIViewController {
                 self.pushToAddCaption()
             case .filters:
                 self.pushToApplyFilters()
+            case .brightnessAdjust:
+                self.pushToBrightnessAdjust()
             }
         }
         return view

@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import GPUImage
 
 struct EditToolFiltersCellModel {
     let image: UIImage
-    let filter: ImageProcessingOperation
+    let filter: CompositionFilter
     var selected: Bool
 }
 
@@ -29,8 +28,10 @@ protocol EditAdjustOutput: class {
     
     func adjustViewDidLoad()
     
-    func apply(filter: ImageProcessingOperation)
+    func apply(filter: CompositionFilter)
     
     func removeSelectedFilter()
+    
+    func completeSelected()
     
 }

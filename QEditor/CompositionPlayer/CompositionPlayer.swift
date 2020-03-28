@@ -73,7 +73,7 @@ public class CompositionPlayer {
     }
     
     /// Add filters to this array and call updateAsset(_:) method
-    public var filters: [ImageProcessingOperation] = []
+    public var filters: [CompositionFilter] = []
     
     private var movie: MovieInput?
     
@@ -136,14 +136,12 @@ public class CompositionPlayer {
     
     private func applyFilters() {
         guard let movie = movie else { return }
-        filters.forEach {
-            $0.removeAllTargets()
-        }
         movie.removeAllTargets()
         var currentTarget: ImageSource = movie
         filters.forEach {
-            currentTarget.addTarget($0, atTargetIndex: 0)
-            currentTarget = $0
+            guard let f = $0.instance() else { return }
+            currentTarget.addTarget(f, atTargetIndex: 0)
+            currentTarget = f
         }
         currentTarget.addTarget(renderView, atTargetIndex: 0)
     }
@@ -195,7 +193,7 @@ extension CompositionPlayer {
 //MARK: Filter
 extension CompositionPlayer {
     
-    public func appendFilter(_ filter: ImageProcessingOperation) {
+    public func appendFilter(_ filter: CompositionFilter) {
         filters.append(filter)
     }
     

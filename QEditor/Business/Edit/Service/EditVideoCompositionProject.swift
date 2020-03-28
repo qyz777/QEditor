@@ -31,7 +31,7 @@ public class EditVideoCompositionProject {
     
     public private(set) var captionSegments: [EditCompositionCaptionSegment] = []
     
-    public var selectedFilter: ImageProcessingOperation?
+    public var selectedFilter: CompositionFilter = .none
 
     public func splitTime() -> [CMTime] {
         guard let asset = composition else { return [] }

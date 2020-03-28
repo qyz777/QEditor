@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import GPUImage
 
 let FILTER_CELL_SIZE = (SCREEN_WIDTH - SCREEN_PADDING_X * 2 - 5 * 3) / 4
 
@@ -52,6 +51,7 @@ class EditToolFiltersViewController: EditToolBaseSettingsViewController {
     }
     
     override func operationDidFinish() {
+        presenter?.completeSelected()
         navigationController?.popViewController(animated: true)
     }
     
@@ -129,22 +129,16 @@ fileprivate class EditToolFilterCell: UICollectionViewCell {
             layer.borderWidth = 0
         }
         
-        let filter = model.filter
-        filter.removeAllTargets()
-        
-        imageView.image = try? model.image.filterWithPipeline { (input, output) in
-            input.removeAllTargets()
-            input.addTarget(filter, atTargetIndex: 0)
-            filter.addTarget(output, atTargetIndex: 0)
-        }
+        imageView.image = model.image
+        imageView.filter = model.filter
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    lazy var imageView: UIImageView = {
-        let view = UIImageView()
+    lazy var imageView: CompositionImageView = {
+        let view = CompositionImageView()
         view.layer.cornerRadius = 2
         view.layer.masksToBounds = true
         return view

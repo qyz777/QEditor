@@ -8,7 +8,6 @@
 
 import UIKit
 import AVFoundation
-import GPUImage
 
 class EditViewPresenter {
     
@@ -43,6 +42,8 @@ class EditViewPresenter {
     var duration: Double = 0
     
     var isEditingCaption: Bool = false
+    
+    var selectedFilter: CompositionFilter = .none
     
     func refreshView() {
         guard project.composition != nil else {
