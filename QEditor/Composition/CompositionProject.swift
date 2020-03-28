@@ -35,22 +35,9 @@ public class CompositionProject {
     public private(set) var captionSegments: [CompositionCaptionSegment] = []
     
     public var selectedFilter: CompositionFilter = .none
-
-    public func splitTime() -> [CMTime] {
-        guard let asset = composition else { return [] }
-        let duration = Int(asset.duration.seconds)
-        
-        guard duration > 1 else {
-            return []
-        }
-
-        var times: [CMTime] = []
-        for i in 1...duration {
-            let time = CMTime(seconds: Double(i), preferredTimescale: 600)
-            times.append(time)
-        }
-        return times
-    }
+    
+    /// Output player of project
+    public let player = CompositionPlayer()
     
     /// 生成播放器同步动画layer
     /// - Parameters:

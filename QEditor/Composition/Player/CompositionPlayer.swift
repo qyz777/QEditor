@@ -72,6 +72,19 @@ public class CompositionPlayer {
         }
     }
     
+    /// The player will control the animationLayer of animation with the property `timeOffset`
+    /// You can set up some animations in this layer like caption
+    public var animationLayer: CALayer? {
+        willSet {
+            //Set speed to 0, use timeOffset to control the animation
+            newValue?.speed = 0
+            playerView.animationLayer = newValue
+        }
+        didSet {
+            oldValue?.removeFromSuperlayer()
+        }
+    }
+    
     /// Add filters to this array and call updateAsset(_:) method
     public var filters: [CompositionFilter] = []
     
@@ -79,9 +92,9 @@ public class CompositionPlayer {
     
     private var speaker: SpeakerOutput?
     
-    public init(asset: AVAsset, videoComposition: AVVideoComposition? = nil) {
+    public init(asset: AVAsset, videoComposition: AVVideoComposition? = nil, audioMix: AVAudioMix? = nil) {
         playerView.renderView = renderView
-        updateAsset(asset, videoComposition: videoComposition)
+        updateAsset(asset, videoComposition: videoComposition, audioMix: audioMix)
     }
     
     public init() {
@@ -119,6 +132,8 @@ public class CompositionPlayer {
             guard let strongSelf = self else { return }
             DispatchQueue.main.async {
                 strongSelf.playbackTime = (movie.currentTime?.seconds) ?? 0
+                //Non-main thread change this property is not valid
+                strongSelf.animationLayer?.timeOffset = strongSelf.playbackTime
             }
         }
         movie.completion = { [weak self] in
@@ -213,9 +228,18 @@ public class CompositionPlayerView: UIView {
         }
     }
     
+    public var animationLayer: CALayer? {
+        willSet {
+            guard let animationLayer = newValue else { return }
+            animationLayer.frame = bounds
+            layer.insertSublayer(animationLayer, at: 99)
+        }
+    }
+    
     public override func layoutSubviews() {
         super.layoutSubviews()
         renderView?.frame = bounds
+        animationLayer?.frame = bounds
     }
     
 }

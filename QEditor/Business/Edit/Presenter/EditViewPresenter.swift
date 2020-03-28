@@ -51,7 +51,7 @@ class EditViewPresenter {
             return
         }
         //1.处理工具栏数据源
-        thumbModels = project.splitTime().map({ (time) -> EditToolImageCellModel in
+        thumbModels = splitTime().map({ (time) -> EditToolImageCellModel in
             let m = EditToolImageCellModel()
             m.time = time
             return m
@@ -81,9 +81,25 @@ class EditViewPresenter {
     
     func updatePlayerAfterEdit() {
         guard let composition = project.composition else { return }
-        let lastTime = playerView?.playbackTime ?? .zero
+        let lastTime = project.player.playbackTime
         playerView?.loadComposition(composition)
         playerView?.seek(to: lastTime)
+    }
+    
+    func splitTime() -> [CMTime] {
+        guard let asset = project.composition else { return [] }
+        let duration = Int(asset.duration.seconds)
+        
+        guard duration > 1 else {
+            return []
+        }
+
+        var times: [CMTime] = []
+        for i in 1...duration {
+            let time = CMTime(seconds: Double(i), preferredTimescale: 600)
+            times.append(time)
+        }
+        return times
     }
     
 }

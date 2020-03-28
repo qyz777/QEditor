@@ -10,10 +10,6 @@ import Foundation
 
 extension EditViewPresenter: EditAdjustOutput {
     
-    var compositionPlayer: CompositionPlayer? {
-        return playerView?.playerView.player
-    }
-    
     func adjustViewDidLoad() {
         filterCellModels.removeAll()
         guard let image = project.videoSegments.first?.thumbnail else { return }
@@ -29,21 +25,19 @@ extension EditViewPresenter: EditAdjustOutput {
     }
     
     func apply(filter: CompositionFilter) {
-        guard let player = compositionPlayer else { return }
-        player.filters.removeAll {
+        project.player.filters.removeAll {
             return $0 == project.selectedFilter
         }
         selectedFilter = filter
-        player.appendFilter(filter)
+        project.player.appendFilter(filter)
         updatePlayerAfterEdit()
     }
     
     func removeSelectedFilter() {
-        guard let player = compositionPlayer else { return }
-        player.filters.removeAll {
+        project.player.filters.removeAll {
             return $0 == selectedFilter
         }
-        player.appendFilter(project.selectedFilter)
+        project.player.appendFilter(project.selectedFilter)
         selectedFilter = .none
         updatePlayerAfterEdit()
     }

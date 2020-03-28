@@ -220,13 +220,13 @@
 		A01C77C3242F32AA00777695 /* Composition */ = {
 			isa = PBXGroup;
 			children = (
-				A053206C242F37BA0009AD24 /* CompositionProject.swift */,
-				A01C77C1242F2DCE00777695 /* CompositionFiltersDefine.swift */,
 				A053206E242F381E0009AD24 /* Extension */,
 				A0E0E88C242F370800E72415 /* Tool */,
 				A0E0E88B242F35C300E72415 /* Segment */,
 				A01C77C7242F34F400777695 /* Player */,
 				A01C77C4242F32B900777695 /* Views */,
+				A01C77C1242F2DCE00777695 /* CompositionFiltersDefine.swift */,
+				A053206C242F37BA0009AD24 /* CompositionProject.swift */,
 			);
 			path = Composition;
 			sourceTree = "<group>";

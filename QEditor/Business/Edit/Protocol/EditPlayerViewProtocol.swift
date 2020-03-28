@@ -14,10 +14,6 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
     
     var cancelEditClosure: (() -> Void)? { get set }
     
-    var playbackTime: TimeInterval { get }
-    
-    var playerView: EditPlayerView { get }
-    
     func seek(to percent: Float)
     
     func seek(to time: Double)
@@ -31,5 +27,7 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
 }
 
 protocol EditPlayerViewOutput: class {
+    
+    func getAttachPlayer() -> CompositionPlayer
     
 }

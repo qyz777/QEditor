@@ -18,10 +18,6 @@ class EditPlayerViewController: UIViewController {
     
     public var cancelEditClosure: (() -> Void)?
     
-    var playbackTime: TimeInterval {
-        return playerView.playbackTime
-    }
-    
     private var duration: Double = 0
 
     override public func viewDidLoad() {
@@ -82,7 +78,7 @@ class EditPlayerViewController: UIViewController {
 //    }()
     
     lazy var playerView: EditPlayerView = {
-        let view = EditPlayerView()
+        let view = EditPlayerView(player: presenter.getAttachPlayer())
         view.delegate = presenter
         return view
     }()

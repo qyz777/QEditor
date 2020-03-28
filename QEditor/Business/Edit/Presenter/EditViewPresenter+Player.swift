@@ -89,7 +89,9 @@ extension EditViewPresenter: EditPlayerViewDelegate {
 
 extension EditViewPresenter: EditPlayerViewOutput {
     
-    
+    func getAttachPlayer() -> CompositionPlayer {
+        return project.player
+    }
     
 }
 
