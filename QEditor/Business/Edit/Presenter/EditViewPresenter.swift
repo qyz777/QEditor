@@ -25,7 +25,7 @@ class EditViewPresenter {
     
     public internal(set) var isTaskRunning = false
     
-    let project = EditVideoCompositionProject()
+    let project = CompositionProject()
     
     var thumbModels: [EditToolImageCellModel] = []
     

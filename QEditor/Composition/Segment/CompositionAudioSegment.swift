@@ -1,5 +1,5 @@
 //
-//  EditCompositionAudioSegment.swift
+//  CompositionAudioSegment.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/26.
@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-public class EditCompositionAudioSegment: EditCompositionMediaSegment {
+public class CompositionAudioSegment: CompositionMediaSegment {
     
     public var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
     
@@ -50,7 +50,7 @@ public class EditCompositionAudioSegment: EditCompositionMediaSegment {
         return asset.duration.seconds
     }
     
-    private let sampleAnalyzer = EditAudioSampleAnalyzer()
+    private let sampleAnalyzer = AudioSampleAnalyzer()
     
     required public init(url: URL) {
         self.url = url

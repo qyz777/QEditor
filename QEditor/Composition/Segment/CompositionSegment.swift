@@ -1,5 +1,5 @@
 //
-//  EditCompositionSegment.swift
+//  CompositionSegment.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/21.
@@ -15,7 +15,7 @@ struct AVAssetKey {
     static let metadata = "commonMetadata"
 }
 
-public protocol EditCompositionSegment {
+public protocol CompositionSegment {
     
     /// segment的唯一标识符
     var id: Int { get }
@@ -28,6 +28,6 @@ public protocol EditCompositionSegment {
     
 }
 
-func == (lhs: EditCompositionSegment, rhs: EditCompositionSegment) -> Bool {
+func == (lhs: CompositionSegment, rhs: CompositionSegment) -> Bool {
     return lhs.id == rhs.id
 }

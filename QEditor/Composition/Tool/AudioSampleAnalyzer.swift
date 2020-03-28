@@ -1,5 +1,5 @@
 //
-//  EditAudioSampleAnalyzer.swift
+//  AudioSampleAnalyzer.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/28.
@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-class EditAudioSampleAnalyzer {
+public class AudioSampleAnalyzer {
     
     /// 读取音频样本
     /// - Parameters:

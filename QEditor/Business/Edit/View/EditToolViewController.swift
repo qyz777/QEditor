@@ -228,7 +228,7 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    private func refreshVideoViewsInContainer(_ segments: [EditCompositionVideoSegment]) {
+    private func refreshVideoViewsInContainer(_ segments: [CompositionVideoSegment]) {
         //1.清除
         clearViewsAndInfos()
         loadingView.dismiss()
@@ -419,7 +419,7 @@ class EditToolViewController: UIViewController {
         let vc = AudioCollectionViewController()
         vc.selectedClosure = { [unowned self] (model) in
             guard let url = model.assetURL else { return }
-            let newSegment = EditCompositionAudioSegment(url: url)
+            let newSegment = CompositionAudioSegment(url: url)
             self.presenter.toolView(self, replaceMusic: segment, for: newSegment)
         }
         let nav = NavigationController(rootViewController: vc)
@@ -914,17 +914,17 @@ extension EditToolViewController: EditToolViewInput {
         }
     }
     
-    func selectedVideoSegment() -> EditCompositionVideoSegment? {
+    func selectedVideoSegment() -> CompositionVideoSegment? {
         return selectedChooseView?.segment
     }
     
-    func reloadVideoViews(_ segments: [EditCompositionVideoSegment]) {
+    func reloadVideoViews(_ segments: [CompositionVideoSegment]) {
         refreshVideoViewsInContainer(segments)
         thumbView.reloadData()
         timeScaleView.reloadData()
     }
     
-    func refreshVideoViews(_ segments: [EditCompositionVideoSegment]) {
+    func refreshVideoViews(_ segments: [CompositionVideoSegment]) {
         refreshVideoViewsInContainer(segments)
     }
     
@@ -954,7 +954,7 @@ extension EditToolViewController: EditToolViewInput {
         playerStatus = status
     }
     
-    func addMusicAudioWaveformView(for segment: EditCompositionAudioSegment) {
+    func addMusicAudioWaveformView(for segment: CompositionAudioSegment) {
         //唤起媒体资料库的时候检查过添加合法性了，这里就不再检查了
         let cursorX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
         var offsetRight = videoContentWidth
@@ -1073,7 +1073,7 @@ extension EditToolViewController: EditToolViewInput {
         MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
     }
     
-    func refreshMusicWaveformView(with segment: EditCompositionAudioSegment) {
+    func refreshMusicWaveformView(with segment: CompositionAudioSegment) {
         guard let waveformView = selectedMusicOperationView else { return }
         guard let asset = waveformView.segment?.asset else { return }
         if asset.duration < segment.rangeAtComposition.duration {
@@ -1089,7 +1089,7 @@ extension EditToolViewController: EditToolViewInput {
         MessageBanner.success(content: "替换成功")
     }
     
-    func addRecordAudioWaveformView(for segment: EditCompositionAudioSegment) {
+    func addRecordAudioWaveformView(for segment: CompositionAudioSegment) {
         let cursorX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
         var offsetRight = videoContentWidth
         var offsetLeft = videoContentWidth

@@ -1,5 +1,5 @@
 //
-//  EditCompositionVideoSegment.swift
+//  CompositionVideoSegment.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/26.
@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-public class EditCompositionVideoSegment: EditCompositionMediaSegment {
+public class CompositionVideoSegment: CompositionMediaSegment {
     
     public var trackId: CMPersistentTrackID = kCMPersistentTrackID_Invalid
     
@@ -24,7 +24,7 @@ public class EditCompositionVideoSegment: EditCompositionMediaSegment {
     }
     
     /// segment的转场动画模型
-    public var transition: EditTransitionModel = EditTransitionModel(duration: 0, style: .none)
+    public var transition: CompositionTransitionModel = CompositionTransitionModel(duration: 0, style: .none)
     
     public var rangeAtComposition: CMTimeRange = .zero
     

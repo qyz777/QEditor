@@ -15,7 +15,7 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
     
     private var isRecording = false
     
-    private var audioRecorder: EditAudioRecorder?
+    private var audioRecorder: AudioRecorder?
     
     private var timer: Timer?
     
@@ -28,7 +28,7 @@ class EditToolRecordAudioViewController: EditToolBaseSettingsViewController {
         checkStatus()
         
         do {
-            try audioRecorder = EditAudioRecorder()
+            try audioRecorder = AudioRecorder()
         } catch {
             MessageBanner.error(content: "录音准备失败，当前无法录音")
             QELog(error)

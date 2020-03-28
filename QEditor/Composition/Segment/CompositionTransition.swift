@@ -1,26 +1,26 @@
 //
-//  EditTransition.swift
+//  CompositionTransition.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/24.
 //  Copyright © 2020 YiZhong Qi. All rights reserved.
-//  Edit层的指令封装
+//  视频指令的封装
 
 import Foundation
 import AVFoundation
 
-enum EditTransitionStyle {
+enum CompositionTransitionStyle {
     case none
     case fadeIn
     case fadeOut
 }
 
-public struct EditTransitionModel {
+public struct CompositionTransitionModel {
     let duration: Double
-    let style: EditTransitionStyle
+    let style: CompositionTransitionStyle
 }
 
-class EditTransitionInstruction {
+class CompositionTransitionInstruction {
     
     let compositionInstruction: AVMutableVideoCompositionInstruction
     
@@ -28,19 +28,19 @@ class EditTransitionInstruction {
     
     var toLayerInstruction: AVMutableVideoCompositionLayerInstruction?
     
-    let transition: EditTransitionModel
+    let transition: CompositionTransitionModel
     
-    init(instruction: AVMutableVideoCompositionInstruction, transition: EditTransitionModel) {
+    init(instruction: AVMutableVideoCompositionInstruction, transition: CompositionTransitionModel) {
         compositionInstruction = instruction
         self.transition = transition
     }
     
 }
 
-class EditTransitionInstructionBulder {
+class CompositionTransitionInstructionBulder {
     
-    static func buildInstructions(videoComposition: AVMutableVideoComposition, transitions: [EditTransitionModel]) -> [EditTransitionInstruction] {
-        var array: [EditTransitionInstruction] = []
+    static func buildInstructions(videoComposition: AVMutableVideoComposition, transitions: [CompositionTransitionModel]) -> [CompositionTransitionInstruction] {
+        var array: [CompositionTransitionInstruction] = []
         var layerInstructionIndex = 1
         let compositionInstructions = videoComposition.instructions
         var i = 0
@@ -48,7 +48,7 @@ class EditTransitionInstructionBulder {
             if let vci = vci as? AVMutableVideoCompositionInstruction {
                 if vci.layerInstructions.count == 2 {
                     assert(i < transitions.count, "transition数量与instruction数量不匹配")
-                    let instruction = EditTransitionInstruction(instruction: vci, transition: transitions[i])
+                    let instruction = CompositionTransitionInstruction(instruction: vci, transition: transitions[i])
                     instruction.fromLayerInstruction = vci.layerInstructions[1 - layerInstructionIndex] as? AVMutableVideoCompositionLayerInstruction
                     instruction.toLayerInstruction = vci.layerInstructions[layerInstructionIndex] as? AVMutableVideoCompositionLayerInstruction
                     array.append(instruction)

@@ -20,7 +20,7 @@ class EditOperationCaptionCellModel: EditOperationCellModel {
     
     var content: String = ""
     
-    var segment: EditCompositionCaptionSegment?
+    var segment: CompositionCaptionSegment?
     
 }
 

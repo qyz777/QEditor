@@ -34,11 +34,11 @@ protocol EditCaptionInteractionProtocol {
     
     func addCaptionText(_ text: String?, start: Double, end: Double)
     
-    func deleteCaption(segment: EditCompositionCaptionSegment)
+    func deleteCaption(segment: CompositionCaptionSegment)
     
-    func updateCaption(segment: EditCompositionCaptionSegment)
+    func updateCaption(segment: CompositionCaptionSegment)
     
-    func editCaptionText(for segment: EditCompositionCaptionSegment)
+    func editCaptionText(for segment: CompositionCaptionSegment)
     
 }
 

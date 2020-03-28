@@ -34,7 +34,7 @@ class EditToolAudioDetailSettingsViewController: EditToolBaseSettingsViewControl
         navigationController?.popViewController(animated: true)
     }
     
-    public func update(_ segment: EditCompositionAudioSegment) {
+    public func update(_ segment: CompositionAudioSegment) {
         waveformView.update(segment.asset)
         waveformView.layoutIfNeeded()
         let offsetX = CGFloat(segment.timeRange.start.seconds) * EDIT_THUMB_CELL_SIZE

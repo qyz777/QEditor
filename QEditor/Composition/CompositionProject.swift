@@ -1,16 +1,19 @@
 //
-//  EditVideoCompositionProject.swift
+//  CompositionProject.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/21.
 //  Copyright © 2020 YiZhong Qi. All rights reserved.
+//  
 //  剪辑Service层，提供各个剪辑功能接口
+//  fps -> 帧率 每秒的帧数
+//  总帧数 = 总时间 * fps
 
 import Foundation
 import AVFoundation
 import GPUImage
 
-public class EditVideoCompositionProject {
+public class CompositionProject {
     
     public private(set) var composition: AVMutableComposition?
     
@@ -21,15 +24,15 @@ public class EditVideoCompositionProject {
     
     public private(set) var audioMix: AVMutableAudioMix?
     
-    private var reverseTool: EditToolReverseTool?
+    private var reverseTool: ReverseVideoTool?
     
-    public private(set) var videoSegments: [EditCompositionVideoSegment] = []
+    public private(set) var videoSegments: [CompositionVideoSegment] = []
     
-    public private(set) var musicSegments: [EditCompositionAudioSegment] = []
+    public private(set) var musicSegments: [CompositionAudioSegment] = []
     
-    public private(set) var recordAudioSegments: [EditCompositionAudioSegment] = []
+    public private(set) var recordAudioSegments: [CompositionAudioSegment] = []
     
-    public private(set) var captionSegments: [EditCompositionCaptionSegment] = []
+    public private(set) var captionSegments: [CompositionCaptionSegment] = []
     
     public var selectedFilter: CompositionFilter = .none
 
@@ -120,14 +123,14 @@ public class EditVideoCompositionProject {
 }
 
 //MARK: VideoEdit
-extension EditVideoCompositionProject {
+extension CompositionProject {
     
-    public func addVideos(from segments: [EditCompositionVideoSegment]) {
+    public func addVideos(from segments: [CompositionVideoSegment]) {
         self.videoSegments.append(contentsOf: segments)
         refreshComposition()
     }
     
-    public func removeVideo(for segment: EditCompositionVideoSegment) {
+    public func removeVideo(for segment: CompositionVideoSegment) {
         videoSegments.removeAll { (s) -> Bool in
             return s.id == segment.id
         }
@@ -145,7 +148,7 @@ extension EditVideoCompositionProject {
                     QELog("没找到合适的segment进行分割")
                     return
                 }
-                let newSegment = EditCompositionVideoSegment(url: url)
+                let newSegment = CompositionVideoSegment(url: url)
                 newSegment.timeRange = CMTimeRange(start: time, duration: segment.asset.duration - time)
                 segment.removeAfterRangeAt(time: time)
                 videoSegments.insert(newSegment, at: i + 1)
@@ -155,7 +158,7 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
     
-    public func changeSpeed(at segment: EditCompositionVideoSegment, scale: Float) {
+    public func changeSpeed(at segment: CompositionVideoSegment, scale: Float) {
         guard let composition = composition else { return }
         let scaleDuration = segment.duration * Double(scale)
         let timeRange = segment.rangeAtComposition
@@ -170,10 +173,10 @@ extension EditVideoCompositionProject {
     }
     
     //MARK: Reverse
-    public func reverseVideo(at segment: EditCompositionVideoSegment, closure: @escaping (_ error: Error?) -> Void) {
+    public func reverseVideo(at segment: CompositionVideoSegment, closure: @escaping (_ error: Error?) -> Void) {
         guard let composition = composition else { return }
         do {
-            reverseTool = try EditToolReverseTool(with: composition.mutableCopy() as! AVMutableComposition, at: segment.rangeAtComposition)
+            reverseTool = try ReverseVideoTool(with: composition.mutableCopy() as! AVMutableComposition, at: segment.rangeAtComposition)
         } catch {
             closure(error)
             return
@@ -191,7 +194,7 @@ extension EditVideoCompositionProject {
     }
     
     //MARK: Transition
-    public func addTransition(_ transition: EditTransitionModel, at index: Int) {
+    public func addTransition(_ transition: CompositionTransitionModel, at index: Int) {
         guard 0 <= index && index < videoSegments.count else {
             QELog("转场特效添加错误!")
             return
@@ -203,12 +206,12 @@ extension EditVideoCompositionProject {
 }
 
 //MARK: Music
-extension EditVideoCompositionProject {
+extension CompositionProject {
     
-    public func addMusic(_ asset: AVAsset, at time: CMTime) -> EditCompositionAudioSegment? {
+    public func addMusic(_ asset: AVAsset, at time: CMTime) -> CompositionAudioSegment? {
         guard let composition = composition else { return nil }
-        let segment = EditCompositionAudioSegment(asset: asset)
-        var nextSegment: EditCompositionAudioSegment?
+        let segment = CompositionAudioSegment(asset: asset)
+        var nextSegment: CompositionAudioSegment?
         var index = 0
         var offset = composition.duration.seconds
         for i in 0..<musicSegments.count {
@@ -255,7 +258,7 @@ extension EditVideoCompositionProject {
     /// - Parameters:
     ///   - segment: 音乐片段数据源
     ///   - timeRange: 拖动后片段在轨道中的timeRange
-    public func updateMusic(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    public func updateMusic(_ segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         guard musicSegments.count > 0 else { return }
         let tuple = findPreAndNextSegments(from: segment, in: musicSegments)
         let preSegment = tuple.pre
@@ -266,7 +269,7 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
     
-    public func replaceMusic(oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment) {
+    public func replaceMusic(oldSegment: CompositionAudioSegment, for newSegment: CompositionAudioSegment) {
         if newSegment.timeRange.duration < oldSegment.rangeAtComposition.duration {
             newSegment.rangeAtComposition = CMTimeRange(start: oldSegment.rangeAtComposition.start, duration: newSegment.timeRange.duration)
         } else {
@@ -284,36 +287,36 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
     
-    public func removeMusic(_ segment: EditCompositionAudioSegment) {
+    public func removeMusic(_ segment: CompositionAudioSegment) {
         removeAudio(segment, in: &musicSegments)
         refreshComposition()
     }
     
-    public func updateMusic(_ segment: EditCompositionAudioSegment, volume: Float) {
+    public func updateMusic(_ segment: CompositionAudioSegment, volume: Float) {
         updateAudio(segment, in: musicSegments, volume: volume)
     }
     
-    public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeIn: Bool) {
+    public func updateMusic(_ segment: CompositionAudioSegment, isFadeIn: Bool) {
         updateAudio(segment, in: musicSegments, isFadeIn: isFadeIn)
     }
     
-    public func updateMusic(_ segment: EditCompositionAudioSegment, isFadeOut: Bool) {
+    public func updateMusic(_ segment: CompositionAudioSegment, isFadeOut: Bool) {
         updateAudio(segment, in: musicSegments, isFadeOut: isFadeOut)
     }
     
-    public func updateMusic(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
+    public func updateMusic(_ segment: CompositionAudioSegment, atNew start: CMTime) {
         updateAudio(segment, in: musicSegments, atNew: start)
     }
     
 }
 
 //MARK: RecordAudio
-extension EditVideoCompositionProject {
+extension CompositionProject {
     
-    public func addRecordAudio(_ asset: AVAsset, at time: CMTime) -> EditCompositionAudioSegment? {
+    public func addRecordAudio(_ asset: AVAsset, at time: CMTime) -> CompositionAudioSegment? {
         guard let composition = composition else { return nil }
-        let segment = EditCompositionAudioSegment(asset: asset)
-        var nextSegment: EditCompositionAudioSegment?
+        let segment = CompositionAudioSegment(asset: asset)
+        var nextSegment: CompositionAudioSegment?
         var index = 0
         var offset = composition.duration.seconds
         for i in 0..<recordAudioSegments.count {
@@ -356,7 +359,7 @@ extension EditVideoCompositionProject {
         return segment
     }
     
-    public func updateRecord(_ segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    public func updateRecord(_ segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         guard recordAudioSegments.count > 0 else { return }
         let tuple = findPreAndNextSegments(from: segment, in: recordAudioSegments)
         let preSegment = tuple.pre
@@ -367,24 +370,24 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
     
-    public func removeRecord(_ segment: EditCompositionAudioSegment) {
+    public func removeRecord(_ segment: CompositionAudioSegment) {
         removeAudio(segment, in: &recordAudioSegments)
         refreshComposition()
     }
     
-    public func updateRecord(_ segment: EditCompositionAudioSegment, volume: Float) {
+    public func updateRecord(_ segment: CompositionAudioSegment, volume: Float) {
         updateAudio(segment, in: recordAudioSegments, volume: volume)
     }
     
-    public func updateRecord(_ segment: EditCompositionAudioSegment, isFadeIn: Bool) {
+    public func updateRecord(_ segment: CompositionAudioSegment, isFadeIn: Bool) {
         updateAudio(segment, in: recordAudioSegments, isFadeIn: isFadeIn)
     }
     
-    public func updateRecord(_ segment: EditCompositionAudioSegment, isFadeOut: Bool) {
+    public func updateRecord(_ segment: CompositionAudioSegment, isFadeOut: Bool) {
         updateAudio(segment, in: recordAudioSegments, isFadeOut: isFadeOut)
     }
     
-    public func updateRecord(_ segment: EditCompositionAudioSegment, atNew start: CMTime) {
+    public func updateRecord(_ segment: CompositionAudioSegment, atNew start: CMTime) {
         updateAudio(segment, in: recordAudioSegments, atNew: start)
     }
     
@@ -392,10 +395,10 @@ extension EditVideoCompositionProject {
 
 //MARK: Caption
 
-extension EditVideoCompositionProject {
+extension CompositionProject {
     
     @discardableResult
-    public func addCaption(_ text: String, at range: CMTimeRange) -> EditCompositionCaptionSegment? {
+    public func addCaption(_ text: String, at range: CMTimeRange) -> CompositionCaptionSegment? {
         //1.检查数据有效性并找到合适的插入位置
         guard let composition = composition else { return nil }
         guard range.end <= composition.duration else {
@@ -411,19 +414,19 @@ extension EditVideoCompositionProject {
             }
         }
         //2.插入字幕
-        let segment = EditCompositionCaptionSegment(text: text, at: range)
+        let segment = CompositionCaptionSegment(text: text, at: range)
         captionSegments.insert(segment, at: i)
         return segment
     }
     
-    public func removeCaption(segment: EditCompositionCaptionSegment) {
+    public func removeCaption(segment: CompositionCaptionSegment) {
         captionSegments.removeAll { (s) -> Bool in
             return s == segment
         }
     }
     
     @discardableResult
-    public func updateCaption(segment: EditCompositionCaptionSegment) -> Bool {
+    public func updateCaption(segment: CompositionCaptionSegment) -> Bool {
         guard captionSegments.count > 0 else {
             return false
         }
@@ -445,7 +448,7 @@ extension EditVideoCompositionProject {
 }
 
 //MARK: Private
-extension EditVideoCompositionProject {
+extension CompositionProject {
     
     private func setupSingleVideoTrackComposition(_ composition: AVMutableComposition) {
         let segment = videoSegments.first!
@@ -520,11 +523,11 @@ extension EditVideoCompositionProject {
         
     }
     
-    private func setupTransition(_ transitions: [EditTransitionModel]) {
+    private func setupTransition(_ transitions: [CompositionTransitionModel]) {
         guard let videoComposition = videoComposition else {
             return
         }
-        let instructions = EditTransitionInstructionBulder.buildInstructions(videoComposition: videoComposition, transitions: transitions)
+        let instructions = CompositionTransitionInstructionBulder.buildInstructions(videoComposition: videoComposition, transitions: transitions)
         for instruction in instructions {
             let timeRange = instruction.compositionInstruction.timeRange
             let fromLayer = instruction.fromLayerInstruction
@@ -557,12 +560,12 @@ extension EditVideoCompositionProject {
     
     private func setupVideoComposition(from composition: AVMutableComposition) {
         videoComposition = AVMutableVideoComposition(propertiesOf: composition)
-        setupTransition(videoSegments.map({ (segment) -> EditTransitionModel in
+        setupTransition(videoSegments.map({ (segment) -> CompositionTransitionModel in
             return segment.transition
         }))
     }
     
-    private func setupInputParameters(_ param: AVMutableAudioMixInputParameters, for segments: [EditCompositionAudioSegment]) {
+    private func setupInputParameters(_ param: AVMutableAudioMixInputParameters, for segments: [CompositionAudioSegment]) {
         for segment in segments {
             var start = segment.rangeAtComposition.start
             if segment.isFadeIn {
@@ -582,8 +585,8 @@ extension EditVideoCompositionProject {
         }
     }
     
-    private func replaceVideoSegment(_ segment: EditCompositionVideoSegment, with asset: AVAsset) {
-        let newSegment = EditCompositionVideoSegment(asset: asset)
+    private func replaceVideoSegment(_ segment: CompositionVideoSegment, with asset: AVAsset) {
+        let newSegment = CompositionVideoSegment(asset: asset)
         var index = 0
         for i in 0..<videoSegments.count {
             if videoSegments[i].id == segment.id {
@@ -596,9 +599,9 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
     
-    private func findPreAndNextSegments(from segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment]) -> (pre: EditCompositionAudioSegment?, next: EditCompositionAudioSegment?, index: Int) {
-        var preSegment: EditCompositionAudioSegment?
-        var nextSegment: EditCompositionAudioSegment?
+    private func findPreAndNextSegments(from segment: CompositionAudioSegment, in segments: [CompositionAudioSegment]) -> (pre: CompositionAudioSegment?, next: CompositionAudioSegment?, index: Int) {
+        var preSegment: CompositionAudioSegment?
+        var nextSegment: CompositionAudioSegment?
         var index = 0
         for i in 0..<segments.count {
             let currentSegment = segments[i]
@@ -616,7 +619,7 @@ extension EditVideoCompositionProject {
         return (pre: preSegment, next: nextSegment, index: index)
     }
     
-    private func updateAudio(preSegment: EditCompositionAudioSegment?, nextSegment: EditCompositionAudioSegment?, segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    private func updateAudio(preSegment: CompositionAudioSegment?, nextSegment: CompositionAudioSegment?, segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         guard let composition = composition else { return }
         var timeRange = timeRange
         if preSegment != nil && timeRange.start < preSegment!.rangeAtComposition.end {
@@ -648,13 +651,13 @@ extension EditVideoCompositionProject {
         }
     }
     
-    private func removeAudio(_ segment: EditCompositionAudioSegment, in segments: inout [EditCompositionAudioSegment]) {
+    private func removeAudio(_ segment: CompositionAudioSegment, in segments: inout [CompositionAudioSegment]) {
         segments.removeAll {
             return $0 == segment
         }
     }
     
-    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], volume: Float) {
+    private func updateAudio(_ segment: CompositionAudioSegment, in segments: [CompositionAudioSegment], volume: Float) {
         for s in segments {
             if s == segment {
                 s.volume = volume
@@ -664,7 +667,7 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
 
-    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], isFadeIn: Bool) {
+    private func updateAudio(_ segment: CompositionAudioSegment, in segments: [CompositionAudioSegment], isFadeIn: Bool) {
         for s in segments {
             if s == segment {
                 s.isFadeIn = isFadeIn
@@ -674,7 +677,7 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
 
-    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], isFadeOut: Bool) {
+    private func updateAudio(_ segment: CompositionAudioSegment, in segments: [CompositionAudioSegment], isFadeOut: Bool) {
         for s in segments {
             if s == segment {
                 s.isFadeOut = isFadeOut
@@ -684,7 +687,7 @@ extension EditVideoCompositionProject {
         refreshComposition()
     }
 
-    private func updateAudio(_ segment: EditCompositionAudioSegment, in segments: [EditCompositionAudioSegment], atNew start: CMTime) {
+    private func updateAudio(_ segment: CompositionAudioSegment, in segments: [CompositionAudioSegment], atNew start: CMTime) {
         for s in segments {
             if s == segment {
                 if start + s.rangeAtComposition.duration <= s.asset.duration {

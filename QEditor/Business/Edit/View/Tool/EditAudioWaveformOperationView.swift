@@ -13,7 +13,7 @@ let EDIT_AUDIO_WAVEFORM_HEIGHT: CGFloat = 30
 
 class EditAudioWaveformOperationView: UIView {
     
-    public var segment: EditCompositionAudioSegment? {
+    public var segment: CompositionAudioSegment? {
         willSet {
             guard let segment = newValue else { return }
             let width = CGFloat(segment.duration) * EDIT_AUDIO_WAVEFORM_WIDTH

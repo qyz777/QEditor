@@ -1,5 +1,5 @@
 //
-//  EditCompositionCaptionSegment.swift
+//  CompositionCaptionSegment.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/3/7.
@@ -10,7 +10,7 @@ import Foundation
 import AVFoundation
 import UIKit
 
-public class EditCompositionCaptionSegment: EditCompositionSegment {
+public class CompositionCaptionSegment: CompositionSegment {
     
     public let id: Int
     

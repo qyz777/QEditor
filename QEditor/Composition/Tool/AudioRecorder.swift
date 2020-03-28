@@ -1,5 +1,5 @@
 //
-//  EditAudioRecorder.swift
+//  AudioRecorder.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/1/31.
@@ -11,7 +11,7 @@ import AVFoundation
 
 fileprivate let SAVE_PATH = String.qe.documentPath() + "/RecordAudio"
 
-class EditAudioRecorder {
+public class AudioRecorder {
     
     public let recorder: AVAudioRecorder
     

@@ -13,8 +13,8 @@ extension EditViewPresenter: EditViewOutput {
     
     func view(_ view: EditViewInput, didLoadSource urls: [URL]) {
         //交给Service处理成model
-        let segments = urls.map { (url) -> EditCompositionVideoSegment in
-            return EditCompositionVideoSegment(url: url)
+        let segments = urls.map { (url) -> CompositionVideoSegment in
+            return CompositionVideoSegment(url: url)
         }
         project.addVideos(from: segments)
         toolView?.updateDuration(project.composition!.duration.seconds)

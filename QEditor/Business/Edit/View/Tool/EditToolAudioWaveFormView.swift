@@ -23,7 +23,7 @@ class EditToolAudioWaveFormView: UICollectionView {
     
     private let queuePool = DispatchQueuePool(name: "AudioWaveFormView.LoadSamples", queueCount: 6, qos: .userInteractive)
     
-    private let sampleAnalyzer = EditAudioSampleAnalyzer()
+    private let sampleAnalyzer = AudioSampleAnalyzer()
     
     private var asset: AVAsset?
     

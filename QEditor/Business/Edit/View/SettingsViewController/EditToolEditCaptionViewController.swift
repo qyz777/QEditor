@@ -15,7 +15,7 @@ class EditToolEditCaptionViewController: EditToolBaseSettingsViewController {
     
     var presenter: EditCaptionViewOutput!
     
-    var segment: EditCompositionCaptionSegment? {
+    var segment: CompositionCaptionSegment? {
         willSet {
             guard let s = newValue else { return }
             for i in 0..<fontCellModels.count {

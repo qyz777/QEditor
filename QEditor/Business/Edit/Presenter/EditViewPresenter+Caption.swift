@@ -48,13 +48,13 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
         }
     }
     
-    func deleteCaption(segment: EditCompositionCaptionSegment) {
+    func deleteCaption(segment: CompositionCaptionSegment) {
         project.removeCaption(segment: segment)
         updateCaptionCellModels()
         updatePlayerAfterEdit()
     }
     
-    func editCaptionText(for segment: EditCompositionCaptionSegment) {
+    func editCaptionText(for segment: CompositionCaptionSegment) {
         playerView?.showEditCaptionView(text: segment.text)
         playerView?.okEditClosure = { [unowned self] (text) in
             segment.text = text
@@ -68,7 +68,7 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
         }
     }
     
-    func updateCaption(segment: EditCompositionCaptionSegment) {
+    func updateCaption(segment: CompositionCaptionSegment) {
         project.updateCaption(segment: segment)
         updatePlayerAfterEdit()
     }

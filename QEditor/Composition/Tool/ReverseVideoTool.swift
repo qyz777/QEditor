@@ -1,5 +1,5 @@
 //
-//  EditToolReverseTool.swift
+//  ReverseVideoTool.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2019/12/8.
@@ -20,13 +20,13 @@ fileprivate let MAX_READ_SAMPLE_COUNT = 50
 
 fileprivate let SAVE_PATH = String.qe.documentPath() + "/ReverseVideos"
 
-enum ReverseToolError: Error {
+public enum ReverseToolError: Error {
     case initWriterFailed
     case initInputFailed
     case initAdaptorFailed
 }
 
-class EditToolReverseTool {
+public class ReverseVideoTool {
     
     /// 此进度不是连续增长
     public var progress: Float = 0

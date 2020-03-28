@@ -10,15 +10,15 @@ import UIKit
 
 fileprivate struct EditToolTransitionCellModel {
     let text: String
-    let style: EditTransitionStyle
+    let style: CompositionTransitionStyle
     var selected = false
 }
 
 class EditToolTransformViewController: EditToolBaseSettingsViewController {
     
-    public var selectedClosure: ((_ model: EditTransitionModel) -> Void)?
+    public var selectedClosure: ((_ model: CompositionTransitionModel) -> Void)?
     
-    public var currentTransition: EditTransitionModel = EditTransitionModel(duration: 0, style: .none) {
+    public var currentTransition: CompositionTransitionModel = CompositionTransitionModel(duration: 0, style: .none) {
         willSet {
             guard newValue.duration > 0 else {
                 return
@@ -87,7 +87,7 @@ class EditToolTransformViewController: EditToolBaseSettingsViewController {
     override func operationDidFinish() {
         var duration: Double = timeIndexInfo[currentTimeIndex]!
         duration = currentTransitionIndex == 0 ? 0 : duration
-        let model = EditTransitionModel(duration: duration, style: cellModels[currentTransitionIndex].style)
+        let model = CompositionTransitionModel(duration: duration, style: cellModels[currentTransitionIndex].style)
         selectedClosure?(model)
         navigationController?.popViewController(animated: true)
     }

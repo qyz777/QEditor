@@ -1,5 +1,5 @@
 //
-//  EditCompositionMediaSegment.swift
+//  CompositionMediaSegment.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2020/3/7.
@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-public protocol EditCompositionMediaSegment: EditCompositionSegment {
+public protocol CompositionMediaSegment: CompositionSegment {
     
     /// 所在轨道的Id
     var trackId: CMPersistentTrackID { get set }

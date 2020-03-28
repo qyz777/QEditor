@@ -15,7 +15,7 @@ extension EditViewPresenter: EditToolViewOutput {
         return project.videoSegments.count > 1
     }
     
-    func toolView(_ toolView: EditToolViewInput, delete segment: EditCompositionVideoSegment) {
+    func toolView(_ toolView: EditToolViewInput, delete segment: CompositionVideoSegment) {
         project.removeVideo(for: segment)
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
@@ -30,14 +30,14 @@ extension EditViewPresenter: EditToolViewOutput {
         guard videos.count > 0 else {
             return
         }
-        project.addVideos(from: videos.map({ (model) -> EditCompositionVideoSegment in
-            return EditCompositionVideoSegment(url: model.url!)
+        project.addVideos(from: videos.map({ (model) -> CompositionVideoSegment in
+            return CompositionVideoSegment(url: model.url!)
         }))
         refreshView()
         MessageBanner.show(title: "任务", subTitle: "添加成功", style: .success)
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: EditCompositionVideoSegment, of scale: Float) {
+    func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: CompositionVideoSegment, of scale: Float) {
         beginTaskRunning()
         project.changeSpeed(at: segment, scale: scale)
         refreshView()
@@ -71,16 +71,16 @@ extension EditViewPresenter: EditToolViewOutput {
         shouldReverseVideo()
     }
     
-    func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: EditTransitionModel) {
+    func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: CompositionTransitionModel) {
         project.addTransition(model, at: index)
         refreshView()
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> EditTransitionModel {
+    func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> CompositionTransitionModel {
         guard index < project.videoSegments.count else {
             QELog("通过index获取transition失败")
-            return EditTransitionModel(duration: 0, style: .none)
+            return CompositionTransitionModel(duration: 0, style: .none)
         }
         return project.videoSegments[index].transition
     }
@@ -93,42 +93,42 @@ extension EditViewPresenter: EditToolViewOutput {
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.addMusicAudioWaveformView(for: segment)
     }
-    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         //view传来的timeRange是不可信的，在service里还需要校验
         project.updateMusic(segment, timeRange: timeRange)
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: EditCompositionAudioSegment, for newSegment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: CompositionAudioSegment, for newSegment: CompositionAudioSegment) {
         project.replaceMusic(oldSegment: oldSegment, for: newSegment)
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
         toolView.refreshMusicWaveformView(with: newSegment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, removeMusic segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, removeMusic segment: CompositionAudioSegment) {
         project.removeMusic(segment)
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: CompositionAudioSegment) {
         project.updateMusic(segment, volume: volume)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, changeMusicFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeIn isOn: Bool, of segment: CompositionAudioSegment) {
         project.updateMusic(segment, isFadeIn: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, changeMusicFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeMusicFadeOut isOn: Bool, of segment: CompositionAudioSegment) {
         project.updateMusic(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, updateMusic segment: EditCompositionAudioSegment, atNew start: Double) {
+    func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, atNew start: Double) {
         //todo:处理音乐的边界情况的选中问题
         project.updateMusic(segment, atNew: CMTime(seconds: start, preferredTimescale: 600))
         toolView.refreshMusicWaveformView(with: segment)
@@ -144,29 +144,29 @@ extension EditViewPresenter: EditToolViewOutput {
         toolView.addRecordAudioWaveformView(for: segment)
     }
     
-    func toolView(_ toolView: EditToolViewInput, updateRecord segment: EditCompositionAudioSegment, timeRange: CMTimeRange) {
+    func toolView(_ toolView: EditToolViewInput, updateRecord segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         project.updateRecord(segment, timeRange: timeRange)
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, removeRecord segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, removeRecord segment: CompositionAudioSegment) {
         project.removeRecord(segment)
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: toolView.currentCursorTime())
     }
 
-    func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: CompositionAudioSegment) {
         project.updateRecord(segment, volume: volume)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
 
-    func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeIn isOn: Bool, of segment: CompositionAudioSegment) {
         project.updateRecord(segment, isFadeIn: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
 
-    func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: EditCompositionAudioSegment) {
+    func toolView(_ toolView: EditToolViewInput, changeRecordFadeOut isOn: Bool, of segment: CompositionAudioSegment) {
         project.updateRecord(segment, isFadeOut: isOn)
         refreshPlayerViewAndPlay(withAudio: segment)
     }
@@ -192,7 +192,7 @@ extension EditViewPresenter {
         }
     }
     
-    func refreshPlayerViewAndPlay(withAudio segment: EditCompositionAudioSegment) {
+    func refreshPlayerViewAndPlay(withAudio segment: CompositionAudioSegment) {
         playerView?.loadComposition(project.composition!)
         playerView?.seek(to: segment.rangeAtComposition.start.seconds)
         playerView?.play()
