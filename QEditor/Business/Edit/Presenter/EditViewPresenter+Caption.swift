@@ -36,14 +36,14 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
             self.project.addCaption(text, at: range)
             self.updateCaptionCellModels()
             self.addCaptionView?.refreshCaptionContainerView()
-            self.updatePlayerAfterEditCaption()
+            self.updatePlayerAfterEdit()
             self.isEditingCaption = false
         }
         playerView?.cancelEditClosure = { [unowned self] in
             let range = CMTimeRange(start: start, end: end)
             self.project.addCaption("", at: range)
             self.updateCaptionCellModels()
-            self.updatePlayerAfterEditCaption()
+            self.updatePlayerAfterEdit()
             self.isEditingCaption = false
         }
     }
@@ -51,7 +51,7 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
     func deleteCaption(segment: EditCompositionCaptionSegment) {
         project.removeCaption(segment: segment)
         updateCaptionCellModels()
-        updatePlayerAfterEditCaption()
+        updatePlayerAfterEdit()
     }
     
     func editCaptionText(for segment: EditCompositionCaptionSegment) {
@@ -61,7 +61,7 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
             self.project.updateCaption(segment: segment)
             self.updateCaptionCellModels()
             self.addCaptionView?.refreshCaptionContainerView()
-            self.updatePlayerAfterEditCaption()
+            self.updatePlayerAfterEdit()
         }
         playerView?.cancelEditClosure = { [unowned self] in
             self.isEditingCaption = false
@@ -70,7 +70,7 @@ extension EditViewPresenter: EditCaptionInteractionProtocol {
     
     func updateCaption(segment: EditCompositionCaptionSegment) {
         project.updateCaption(segment: segment)
-        updatePlayerAfterEditCaption()
+        updatePlayerAfterEdit()
     }
     
 }
@@ -84,12 +84,6 @@ extension EditViewPresenter: EditCaptionViewOutput {
 }
 
 extension EditViewPresenter {
-    
-    func updatePlayerAfterEditCaption() {
-        let lastTime = self.playerView?.playbackTime ?? .zero
-        self.playerView?.loadComposition(self.project.composition!)
-        self.playerView?.seek(to: lastTime)
-    }
     
     func updateCaptionCellModels() {
         guard let captionContainerView = captionContainerView else { return }

@@ -16,6 +16,8 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
     
     var playbackTime: TimeInterval { get }
     
+    var playerView: EditPlayerView { get }
+    
     func seek(to percent: Float)
     
     func seek(to time: Double)

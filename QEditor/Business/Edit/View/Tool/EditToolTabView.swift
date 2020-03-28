@@ -13,6 +13,7 @@ enum EditToolTabSelectedType {
     case music
     case recordAudio
     case text
+    case adjust
 }
 
 struct EditToolTabCellModel {
@@ -25,6 +26,7 @@ class EditToolTabView: UICollectionView {
     
     private let datas: [EditToolTabCellModel] = [
         EditToolTabCellModel(text: "剪辑", imageName: "edit_clip", type: .edit),
+        EditToolTabCellModel(text: "调节", imageName: "edit_effect_adjust", type: .adjust),
         EditToolTabCellModel(text: "音乐", imageName: "edit_music", type: .music),
         EditToolTabCellModel(text: "录音", imageName: "edit_record_audio", type: .recordAudio),
         EditToolTabCellModel(text: "字幕", imageName: "edit_text", type: .text)
@@ -36,7 +38,9 @@ class EditToolTabView: UICollectionView {
         let frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: 40)
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 30
+        layout.minimumInteritemSpacing = 10
+        let width = (SCREEN_WIDTH - 10 * CGFloat(datas.count - 1)) / CGFloat(datas.count)
+        layout.itemSize = CGSize(width: width, height: 40)
         super.init(frame: frame, collectionViewLayout: layout)
         register(cellWithClass: EditToolTabItemCell.self)
         delegate = self
@@ -65,7 +69,7 @@ class EditToolTabView: UICollectionView {
     
 }
 
-extension EditToolTabView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension EditToolTabView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -84,11 +88,6 @@ extension EditToolTabView: UICollectionViewDelegate, UICollectionViewDataSource,
         UIView.animate(withDuration: 0.25) {
             self.sliderView.center.x = cell!.center.x
         }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (SCREEN_WIDTH - 30 * CGFloat(datas.count - 1)) / CGFloat(datas.count)
-        return CGSize(width: width, height: height)
     }
     
 }

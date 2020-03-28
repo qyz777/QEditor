@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import GPUImage
 
 class EditViewPresenter {
     
@@ -21,6 +22,8 @@ class EditViewPresenter {
     
     public weak var editCaptionView: (UIViewController & EditCaptionViewInput)?
     
+    public weak var adjustView: (UIViewController & EditAdjustInput)?
+    
     public internal(set) var isTaskRunning = false
     
     let project = EditVideoCompositionProject()
@@ -28,6 +31,8 @@ class EditViewPresenter {
     var thumbModels: [EditToolImageCellModel] = []
     
     var captionCellModels: [EditOperationCaptionCellModel] = []
+    
+    var filterCellModels: [EditToolFiltersCellModel] = []
     
     var captionContainerView: EditOperationContainerView?
     
@@ -71,6 +76,13 @@ class EditViewPresenter {
                 self.isTaskRunning = false
             }
         }
+    }
+    
+    func updatePlayerAfterEdit() {
+        guard let composition = project.composition else { return }
+        let lastTime = playerView?.playbackTime ?? .zero
+        playerView?.loadComposition(composition)
+        playerView?.seek(to: lastTime)
     }
     
 }

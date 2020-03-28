@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import GPUImage
 
 public class EditVideoCompositionProject {
     
@@ -29,6 +30,8 @@ public class EditVideoCompositionProject {
     public private(set) var recordAudioSegments: [EditCompositionAudioSegment] = []
     
     public private(set) var captionSegments: [EditCompositionCaptionSegment] = []
+    
+    public var selectedFilter: ImageProcessingOperation?
 
     public func splitTime() -> [CMTime] {
         guard let asset = composition else { return [] }
@@ -53,13 +56,11 @@ public class EditVideoCompositionProject {
         guard captionSegments.count > 0 else {
             return nil
         }
-        let titleLayer = CALayer()
-        titleLayer.frame = bounds
-        captionSegments.forEach {
-            titleLayer.addSublayer($0.buildLayer(for: titleLayer.bounds))
-        }
         let layer = CALayer()
-        layer.addSublayer(titleLayer)
+        layer.frame = bounds
+        captionSegments.forEach {
+            layer.addSublayer($0.buildLayer(for: layer.bounds))
+        }
         return layer
     }
     

@@ -65,6 +65,10 @@ class EditToolViewController: UIViewController {
         EditToolBarModel(action: .videoReverse, imageName: "edit_reverse", text: "倒放"),
     ]
     
+    private var adjustToolBarModels: [EditToolBarModel] = [
+        EditToolBarModel(action: .filters, imageName: "edit_effect_filters", text: "滤镜"),
+    ]
+    
     private var musicToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .replaceMusic, imageName: "edit_replace_music", text: "替换"),
         EditToolBarModel(action: .deleteMusic, imageName: "edit_delete", text: "删除"),
@@ -381,6 +385,12 @@ class EditToolViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    private func pushToApplyFilters() {
+        guard let presenter = presenter as? EditAdjustOutput else { return }
+        let vc = EditToolFiltersViewController(presenter: presenter)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func musicTrackBecomeOperation() {
         guard musicWaveformViews.count > 0 else {
             return
@@ -548,6 +558,8 @@ class EditToolViewController: UIViewController {
             pushToRecordAudio()
         case .text:
             pushToAddCaption()
+        case .adjust:
+            pushToApplyFilters()
         }
     }
     
@@ -614,7 +626,7 @@ class EditToolViewController: UIViewController {
     
     private lazy var verticalTimeLineView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor.qe.hex(0xFA3E54)
         view.layer.cornerRadius = 1
         return view
     }()
@@ -718,6 +730,8 @@ class EditToolViewController: UIViewController {
                 self.pushToEditCaption()
             case .editCaption:
                 self.pushToAddCaption()
+            case .filters:
+                self.pushToApplyFilters()
             }
         }
         return view
@@ -752,6 +766,8 @@ class EditToolViewController: UIViewController {
                 self.toolBarView.update(self.recordToolBarModels)
             case .text:
                 self.toolBarView.update(self.textToolBarModels)
+            case .adjust:
+                self.toolBarView.update(self.adjustToolBarModels)
             }
         }
         return view

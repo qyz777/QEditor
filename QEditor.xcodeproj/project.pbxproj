@@ -11,6 +11,9 @@
 		A015868B23C0281C0050F5B8 /* CMTimeRange+Edit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015868A23C0281C0050F5B8 /* CMTimeRange+Edit.swift */; };
 		A015868D23C029600050F5B8 /* CMTime+Edit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015868C23C029600050F5B8 /* CMTime+Edit.swift */; };
 		A015869623C03AE60050F5B8 /* EditToolRotateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A015869523C03AE60050F5B8 /* EditToolRotateSettingsView.swift */; };
+		A01DBD2C24273A2F00DED48F /* EditToolFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01DBD2B24273A2F00DED48F /* EditToolFiltersViewController.swift */; };
+		A01DBD302427420D00DED48F /* EditViewPresenter+Adjust.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01DBD2F2427420D00DED48F /* EditViewPresenter+Adjust.swift */; };
+		A01DBD322427423900DED48F /* EditAdjustProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01DBD312427423900DED48F /* EditAdjustProtocol.swift */; };
 		A02123302364019E0073A125 /* EditToolImageThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021232F2364019E0073A125 /* EditToolImageThumbView.swift */; };
 		A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0212331236404090073A125 /* EditViewPresenter+Tool.swift */; };
 		A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02123332364168E0073A125 /* UIImage+Utility.swift */; };
@@ -102,6 +105,9 @@
 		A015868A23C0281C0050F5B8 /* CMTimeRange+Edit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTimeRange+Edit.swift"; sourceTree = "<group>"; };
 		A015868C23C029600050F5B8 /* CMTime+Edit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CMTime+Edit.swift"; sourceTree = "<group>"; };
 		A015869523C03AE60050F5B8 /* EditToolRotateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolRotateSettingsView.swift; sourceTree = "<group>"; };
+		A01DBD2B24273A2F00DED48F /* EditToolFiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolFiltersViewController.swift; sourceTree = "<group>"; };
+		A01DBD2F2427420D00DED48F /* EditViewPresenter+Adjust.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Adjust.swift"; sourceTree = "<group>"; };
+		A01DBD312427423900DED48F /* EditAdjustProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAdjustProtocol.swift; sourceTree = "<group>"; };
 		A021232F2364019E0073A125 /* EditToolImageThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolImageThumbView.swift; sourceTree = "<group>"; };
 		A0212331236404090073A125 /* EditViewPresenter+Tool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+Tool.swift"; sourceTree = "<group>"; };
 		A02123332364168E0073A125 /* UIImage+Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Utility.swift"; sourceTree = "<group>"; };
@@ -497,6 +503,7 @@
 				A0ADD4C723E3C331006BF4F5 /* EditToolRecordAudioViewController.swift */,
 				A080D70424010C300089B10B /* EditToolAddCaptionViewController.swift */,
 				A07B6A47241664C2008170F5 /* EditToolEditCaptionViewController.swift */,
+				A01DBD2B24273A2F00DED48F /* EditToolFiltersViewController.swift */,
 			);
 			path = SettingsViewController;
 			sourceTree = "<group>";
@@ -511,6 +518,7 @@
 				A080D70824024D7F0089B10B /* EditDataSourceProtocol.swift */,
 				A080D70C2402503E0089B10B /* EditPlayerInteractionProtocol.swift */,
 				A080D70E240255A30089B10B /* EditCaptionProtocol.swift */,
+				A01DBD312427423900DED48F /* EditAdjustProtocol.swift */,
 			);
 			path = Protocol;
 			sourceTree = "<group>";
@@ -524,6 +532,7 @@
 				A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */,
 				A080D70A24024E6C0089B10B /* EditViewPresenter+DataSource.swift */,
 				A080D710240256C00089B10B /* EditViewPresenter+Caption.swift */,
+				A01DBD2F2427420D00DED48F /* EditViewPresenter+Adjust.swift */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -707,6 +716,7 @@
 				A0870A602352FB85006DC38D /* EditViewController.swift in Sources */,
 				A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */,
 				A080D70524010C300089B10B /* EditToolAddCaptionViewController.swift in Sources */,
+				A01DBD302427420D00DED48F /* EditViewPresenter+Adjust.swift in Sources */,
 				A09CF7DA2349E38400139461 /* MediaManager.swift in Sources */,
 				A09CF7C62349E15800139461 /* NavigationController.swift in Sources */,
 				A0DBD4E723D9788D00E26238 /* EditToolTabView.swift in Sources */,
@@ -718,6 +728,7 @@
 				A015868B23C0281C0050F5B8 /* CMTimeRange+Edit.swift in Sources */,
 				A02F7DD5239CE94E00398065 /* EditToolReverseTool.swift in Sources */,
 				A09CF7D82349E35D00139461 /* MediaPresenter.swift in Sources */,
+				A01DBD2C24273A2F00DED48F /* EditToolFiltersViewController.swift in Sources */,
 				A0875AB1238A244200061394 /* EditToolAudioWaveformView.swift in Sources */,
 				A0E03C03235AA3730012F226 /* EditViewPresenter.swift in Sources */,
 				A09CF7C32349E0F900139461 /* Define.swift in Sources */,
@@ -725,6 +736,7 @@
 				A0ADD4C823E3C331006BF4F5 /* EditToolRecordAudioViewController.swift in Sources */,
 				A0DBD4EC23D9BDF700E26238 /* EditToolBaseSettingsViewController.swift in Sources */,
 				A09CF7AF2349DFE500139461 /* AppDelegate.swift in Sources */,
+				A01DBD322427423900DED48F /* EditAdjustProtocol.swift in Sources */,
 				A0DBD4E923D9BD4D00E26238 /* EditToolChangeSpeedViewController.swift in Sources */,
 				A09CF7CC2349E25E00139461 /* HomeViewController.swift in Sources */,
 				A07B6A4624148A54008170F5 /* EditPlayerCaptionTextField.swift in Sources */,
@@ -792,6 +804,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = B9S5K8T3BY;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -852,6 +865,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = B9S5K8T3BY;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

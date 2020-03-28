@@ -21,6 +21,7 @@ enum EditToolBarAction {
     case deleteCaption
     case editCaptionStyle
     case editCaption
+    case filters
 }
 
 struct EditToolBarModel {
