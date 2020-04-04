@@ -45,20 +45,28 @@ extension EditViewPresenter: EditToolViewOutput {
         endTaskRunning()
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float) {
-        //todo:预留接口
+    func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float) {
+        project.brightness = value
+        playerView?.loadComposition(project.composition!)
+        playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float) {
-        //todo:预留接口
+    func toolView(_ toolView: EditToolViewInput, didChangeExposure value: Float) {
+        project.exposure = value
+        playerView?.loadComposition(project.composition!)
+        playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float) {
-        //todo:预留接口
+    func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float) {
+        project.contrast = value
+        playerView?.loadComposition(project.composition!)
+        playerView?.seek(to: toolView.currentCursorTime())
     }
     
-    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float) {
-        //todo:预留接口
+    func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float) {
+        project.saturation = value
+        playerView?.loadComposition(project.composition!)
+        playerView?.seek(to: toolView.currentCursorTime())
     }
     
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {

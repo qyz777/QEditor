@@ -23,14 +23,6 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     /// - Parameter segments: 视频segment
     func refreshVideoViews(_ segments: [CompositionVideoSegment])
     
-    func showChangeBrightnessView(_ info: AdjustProgressViewInfo)
-    
-    func showChangeSaturationView(_ info: AdjustProgressViewInfo)
-    
-    func showChangeContrastView(_ info: AdjustProgressViewInfo)
-    
-    func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo)
-    
     func selectedVideoSegment() -> CompositionVideoSegment?
     
     /// 当前标尺所指的视频位置
@@ -48,6 +40,14 @@ protocol EditToolViewInput: EditViewPlayProtocol {
 
 protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractionProtocol, EditCaptionInteractionProtocol {
     
+    var currentBrightness: Float { get }
+    
+    var currentExposure: Float { get }
+    
+    var currentContrast: Float { get }
+    
+    var currentSaturation: Float { get }
+    
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
     
     func toolView(_ toolView: EditToolViewInput, delete segment: CompositionVideoSegment)
@@ -58,13 +58,13 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     
     func toolView(_ toolView: EditToolViewInput, didChangeSpeedAt segment: CompositionVideoSegment, of scale: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeBrightnessFrom beginTime: Double, to endTime: Double, of value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeSaturationFrom beginTime: Double, to endTime: Double, of value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeExposure value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeContrastFrom beginTime: Double, to endTime: Double, of value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float)
     
-    func toolView(_ toolView: EditToolViewInput, didChangeGaussianBlurFrom beginTime: Double, to endTime: Double, of value: Float)
+    func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float)
     
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput)
     

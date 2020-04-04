@@ -32,6 +32,7 @@
 		A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */; };
 		A053206D242F37BA0009AD24 /* CompositionProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053206C242F37BA0009AD24 /* CompositionProject.swift */; };
 		A0532070242F383E0009AD24 /* CompositionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053206F242F383E0009AD24 /* CompositionExtension.swift */; };
+		A053207424381C830009AD24 /* EditProgressAdjustViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */; };
 		A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */; };
 		A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE72377A85F0096939A /* EditVideoEdtior.swift */; };
 		A07B6A3E24138E55008170F5 /* EditOperationCaptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */; };
@@ -127,6 +128,7 @@
 		A04647AD2388C3AF009FDDC2 /* UIViewController+Utillity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Utillity.swift"; sourceTree = "<group>"; };
 		A053206C242F37BA0009AD24 /* CompositionProject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositionProject.swift; sourceTree = "<group>"; };
 		A053206F242F383E0009AD24 /* CompositionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionExtension.swift; sourceTree = "<group>"; };
+		A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProgressAdjustViewController.swift; sourceTree = "<group>"; };
 		A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+View.swift"; sourceTree = "<group>"; };
 		A0753FE72377A85F0096939A /* EditVideoEdtior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVideoEdtior.swift; sourceTree = "<group>"; };
 		A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditOperationCaptionCell.swift; sourceTree = "<group>"; };
@@ -508,6 +510,7 @@
 				A080D70424010C300089B10B /* EditToolAddCaptionViewController.swift */,
 				A07B6A47241664C2008170F5 /* EditToolEditCaptionViewController.swift */,
 				A01DBD2B24273A2F00DED48F /* EditToolFiltersViewController.swift */,
+				A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */,
 			);
 			path = SettingsViewController;
 			sourceTree = "<group>";
@@ -715,6 +718,7 @@
 				A015869623C03AE60050F5B8 /* EditToolRotateSettingsView.swift in Sources */,
 				A02F7DCF239B3F8C00398065 /* EditToolViewProtocol.swift in Sources */,
 				A0ADD4BD23DFF9FF006BF4F5 /* AudioSampleAnalyzer.swift in Sources */,
+				A053207424381C830009AD24 /* EditProgressAdjustViewController.swift in Sources */,
 				A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */,
 				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,

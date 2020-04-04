@@ -45,6 +45,22 @@ class EditViewPresenter {
     
     var selectedFilter: CompositionFilter = .none
     
+    var currentBrightness: Float {
+        return project.brightness
+    }
+    
+    var currentExposure: Float {
+        return project.exposure
+    }
+    
+    var currentContrast: Float {
+        return project.contrast
+    }
+    
+    var currentSaturation: Float {
+        return project.saturation
+    }
+    
     func refreshView() {
         guard project.composition != nil else {
             QELog("composition为空")

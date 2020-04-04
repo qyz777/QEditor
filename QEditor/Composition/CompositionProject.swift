@@ -39,8 +39,72 @@ public class CompositionProject {
     /// Output player of project
     public let player = CompositionPlayer()
     
+    public var brightness: Float = 0 {
+        willSet {
+            guard -1.0 <= newValue && newValue <= 1.0 else {
+                QELog("Invalid brightness adjustment, set value must between -1.0 and 1.0.")
+                return
+            }
+            if newValue == 0 {
+                player.filters.removeAll {
+                    return $0 == .brightness(value: 0)
+                }
+                return
+            }
+            replaceFilter(.brightness(value: newValue))
+        }
+    }
+    
+    public var exposure: Float = 0 {
+        willSet {
+            guard -10.0 <= newValue && newValue <= 10.0 else {
+                QELog("Invalid exposure adjustment, set value must between -10.0 and 10.0.")
+                return
+            }
+            if newValue == 0 {
+                player.filters.removeAll {
+                    return $0 == .exposure(value: 0)
+                }
+                return
+            }
+            replaceFilter(.exposure(value: newValue))
+        }
+    }
+    
+    public var contrast: Float = 1.0 {
+        willSet {
+            guard -10.0 <= newValue && newValue <= 10.0 else {
+                QELog("Invalid contrast adjustment, set value must between 0.0 and 4.0.")
+                return
+            }
+            if newValue == 1.0 {
+                player.filters.removeAll {
+                    return $0 == .contrast(value: 0)
+                }
+                return
+            }
+            replaceFilter(.contrast(value: newValue))
+        }
+    }
+    
+    public var saturation: Float = 1.0 {
+        willSet {
+            guard 0.0 <= newValue && newValue <= 2.0 else {
+                QELog("Invalid saturation adjustment, set value must between 0.0 and 2.0.")
+                return
+            }
+            if newValue == 1.0 {
+                player.filters.removeAll {
+                    return $0 == .saturation(value: 0)
+                }
+                return
+            }
+            replaceFilter(.saturation(value: newValue))
+        }
+    }
+    
     //MARK: Composition
-    /// 刷新composition
+    
     public func refreshComposition() {
         guard videoSegments.count > 0 else {
             return
@@ -688,6 +752,23 @@ extension CompositionProject {
             layer.addSublayer($0.buildLayer(for: layer.bounds))
         }
         player.animationLayer = layer
+    }
+    
+    private func replaceFilter(_ filter: CompositionFilter) {
+        var index = -1
+        var i = 0
+        for f in player.filters {
+            if f == filter {
+                index = i
+                break
+            }
+            i += 1
+        }
+        if index >= 0 {
+            player.filters[index] = filter
+        } else {
+            player.filters.append(filter)
+        }
     }
     
 }

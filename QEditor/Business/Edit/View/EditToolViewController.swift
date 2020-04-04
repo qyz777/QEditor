@@ -67,7 +67,10 @@ class EditToolViewController: UIViewController {
     
     private var adjustToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .filters, imageName: "edit_effect_filters", text: "滤镜"),
-//        EditToolBarModel(action: .brightnessAdjust, imageName: "edit_brightness_adjust", text: "亮度"),
+        EditToolBarModel(action: .brightnessAdjust, imageName: "edit_brightness_adjust", text: "亮度"),
+        EditToolBarModel(action: .exposureAdjust, imageName: "edit_exposure_adjust", text: "曝光"),
+        EditToolBarModel(action: .contrastAdjust, imageName: "edit_contrast_adjust", text: "对比度"),
+        EditToolBarModel(action: .contrastAdjust, imageName: "edit_saturation_adjust", text: "饱和度")
     ]
     
     private var musicToolBarModels: [EditToolBarModel] = [
@@ -393,7 +396,59 @@ class EditToolViewController: UIViewController {
     }
     
     private func pushToBrightnessAdjust() {
-        
+        let vc = EditProgressAdjustViewController()
+        let currentBrightness = presenter.currentBrightness
+        let info = AdjustProgressViewInfo(startValue: -1.0, endValue: 1.0, currentValue: currentBrightness)
+        vc.info = info
+        vc.operationChangeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, didChangeBrightness: value)
+        }
+        vc.operationCancelClosure = { [unowned self] in
+            self.presenter.toolView(self, didChangeBrightness: currentBrightness)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToExposureAdjust() {
+        let vc = EditProgressAdjustViewController()
+        let currentExposure = presenter.currentExposure
+        let info = AdjustProgressViewInfo(startValue: -2.0, endValue: 2.0, currentValue: currentExposure)
+        vc.info = info
+        vc.operationChangeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, didChangeExposure: value)
+        }
+        vc.operationCancelClosure = { [unowned self] in
+            self.presenter.toolView(self, didChangeExposure: currentExposure)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToContrastAdjust() {
+        let vc = EditProgressAdjustViewController()
+        let currentContrast = presenter.currentContrast
+        let info = AdjustProgressViewInfo(startValue: 0, endValue: 4.0, currentValue: currentContrast)
+        vc.info = info
+        vc.operationChangeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, didChangeContrast: value)
+        }
+        vc.operationCancelClosure = { [unowned self] in
+            self.presenter.toolView(self, didChangeContrast: currentContrast)
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushToSaturationAdjust() {
+        let vc = EditProgressAdjustViewController()
+        let currentSaturation = presenter.currentSaturation
+        let info = AdjustProgressViewInfo(startValue: 0, endValue: 4.0, currentValue: currentSaturation)
+        vc.info = info
+        vc.operationChangeClosure = { [unowned self] (value) in
+            self.presenter.toolView(self, didChangeSaturation: value)
+        }
+        vc.operationCancelClosure = { [unowned self] in
+            self.presenter.toolView(self, didChangeSaturation: currentSaturation)
+        }
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     private func musicTrackBecomeOperation() {
@@ -564,7 +619,7 @@ class EditToolViewController: UIViewController {
         case .text:
             pushToAddCaption()
         case .adjust:
-            pushToApplyFilters()
+            break
         }
     }
     
@@ -739,6 +794,12 @@ class EditToolViewController: UIViewController {
                 self.pushToApplyFilters()
             case .brightnessAdjust:
                 self.pushToBrightnessAdjust()
+            case .exposureAdjust:
+                self.pushToExposureAdjust()
+            case .contrastAdjust:
+                self.pushToContrastAdjust()
+            case .saturationAdjust:
+                self.pushToSaturationAdjust()
             }
         }
         return view
@@ -762,6 +823,7 @@ class EditToolViewController: UIViewController {
         let view = EditToolTabView()
         view.selectedClosure = { [unowned self] (type) in
             self.tabSelectedType = type
+            self.addButton.isHidden = false
             switch type {
             case .edit:
                 self.musicTrackResignOperation()
@@ -775,6 +837,7 @@ class EditToolViewController: UIViewController {
                 self.toolBarView.update(self.textToolBarModels)
             case .adjust:
                 self.toolBarView.update(self.adjustToolBarModels)
+                self.addButton.isHidden = true
             }
         }
         return view
@@ -856,62 +919,6 @@ extension EditToolViewController: EditToolViewInput {
         }
         //3.抛给presenter删除
         presenter.toolView(self, delete: deleteSegment!)
-    }
-    
-    func showChangeBrightnessView(_ info: AdjustProgressViewInfo) {
-        if let progressView = showAdjustView(info) {
-            progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.selectedChooseView else {
-                    return
-                }
-                guard let segment = forceChooseView.segment else {
-                    return
-                }
-                self.presenter.toolView(self, didChangeBrightnessFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
-            }
-        }
-    }
-    
-    func showChangeSaturationView(_ info: AdjustProgressViewInfo) {
-        if let progressView = showAdjustView(info) {
-            progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.selectedChooseView else {
-                    return
-                }
-                guard let segment = forceChooseView.segment else {
-                    return
-                }
-                self.presenter.toolView(self, didChangeSaturationFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
-            }
-        }
-    }
-    
-    func showChangeContrastView(_ info: AdjustProgressViewInfo) {
-        if let progressView = showAdjustView(info) {
-            progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.selectedChooseView else {
-                    return
-                }
-                guard let segment = forceChooseView.segment else {
-                    return
-                }
-                self.presenter.toolView(self, didChangeContrastFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
-            }
-        }
-    }
-    
-    func showChangeGaussianBlurView(_ info: AdjustProgressViewInfo) {
-        if let progressView = showAdjustView(info) {
-            progressView.closure = { [unowned self] (progress) in
-                guard let forceChooseView = self.selectedChooseView else {
-                    return
-                }
-                guard let segment = forceChooseView.segment else {
-                    return
-                }
-                self.presenter.toolView(self, didChangeGaussianBlurFrom: segment.rangeAtComposition.start.seconds, to: segment.rangeAtComposition.end.seconds, of: progress)
-            }
-        }
     }
     
     func selectedVideoSegment() -> CompositionVideoSegment? {

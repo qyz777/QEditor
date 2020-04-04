@@ -15,8 +15,12 @@ struct AdjustProgressViewInfo {
 }
 
 class EditToolAdjustProgressView: UIView {
-
-    public var closure: ((_ progress: Float) -> Void)?
+    
+    public var progress: Float {
+        return sliderView.value
+    }
+    
+    public var progressChangeClosure: ((_ progress: Float) -> Void)?
     
     init(info: AdjustProgressViewInfo) {
         super.init(frame: .zero)
@@ -34,58 +38,40 @@ class EditToolAdjustProgressView: UIView {
     }
     
     private func setupSubviews() {
-        addSubview(okButton)
-        addSubview(cancelButton)
         addSubview(sliderView)
         addSubview(leftLabel)
         addSubview(rightLabel)
         addSubview(currentProgressLabel)
         
-        cancelButton.snp.makeConstraints { (make) in
-            make.centerY.equalTo(self)
-            make.left.equalTo(self).offset(SCREEN_PADDING_X)
-        }
-        
-        okButton.snp.makeConstraints { (make) in
-            make.centerY.equalTo(self)
-            make.right.equalTo(self).offset(-SCREEN_PADDING_X)
-        }
-        
         sliderView.snp.makeConstraints { (make) in
             make.center.equalTo(self)
-            make.width.equalTo(SCREEN_WIDTH / 2)
+            make.width.equalTo(SCREEN_WIDTH / 3 * 2)
         }
         
         leftLabel.snp.makeConstraints { (make) in
-            make.right.equalTo(self.sliderView.snp.left).offset(-5)
+            make.right.equalTo(self.sliderView.snp.left).offset(-15)
             make.centerY.equalTo(self.sliderView)
         }
         
         rightLabel.snp.makeConstraints { (make) in
-            make.left.equalTo(self.sliderView.snp.right).offset(5)
+            make.left.equalTo(self.sliderView.snp.right).offset(15)
             make.centerY.equalTo(self.sliderView)
         }
         
         currentProgressLabel.snp.makeConstraints { (make) in
             make.centerX.equalTo(self.sliderView)
-            make.bottom.equalTo(self.sliderView.snp.top).offset(-5)
+            make.bottom.equalTo(self.sliderView.snp.top).offset(-10)
         }
-    }
-    
-    @objc
-    func didClickOkButton() {
-        closure?(sliderView.value)
-        removeFromSuperview()
-    }
-    
-    @objc
-    func didClickCancelButton() {
-        removeFromSuperview()
     }
     
     @objc
     func sliderValueDidChange(_ sender: UISlider) {
         currentProgressLabel.text = String(format: "%.1f", sender.value)
+    }
+    
+    @objc
+    func sliderTouchUpInside(_ sender: UISlider) {
+        progressChangeClosure?(sender.value)
     }
     
     lazy var sliderView: UISlider = {
@@ -96,6 +82,7 @@ class EditToolAdjustProgressView: UIView {
         view.value = 1
         view.minimumTrackTintColor = UIColor.qe.hex(0xFA3E54)
         view.addTarget(self, action: #selector(sliderValueDidChange), for: .valueChanged)
+        view.addTarget(self, action: #selector(sliderTouchUpInside(_:)), for: .touchUpInside)
         return view
     }()
     
@@ -117,24 +104,6 @@ class EditToolAdjustProgressView: UIView {
         let view = UILabel()
         view.font = .systemFont(ofSize: 13, weight: .semibold)
         view.textColor = .white
-        return view
-    }()
-    
-    lazy var okButton: UIButton = {
-        let view = UIButton(type: .custom)
-        view.setTitle("完成", for: .normal)
-        view.titleLabel?.font = .systemFont(ofSize: 13)
-        view.setTitleColor(.white, for: .normal)
-        view.addTarget(self, action: #selector(didClickOkButton), for: .touchUpInside)
-        return view
-    }()
-    
-    lazy var cancelButton: UIButton = {
-        let view = UIButton(type: .custom)
-        view.setTitle("取消", for: .normal)
-        view.titleLabel?.font = .systemFont(ofSize: 13)
-        view.setTitleColor(.white, for: .normal)
-        view.addTarget(self, action: #selector(didClickCancelButton), for: .touchUpInside)
         return view
     }()
 

@@ -21,6 +21,14 @@ extension EditViewPresenter: EditAdjustOutput {
         filterCellModels.append(EditToolFiltersCellModel(image: outputImage, filter: .monochrome, selected: false))
         filterCellModels.append(EditToolFiltersCellModel(image: outputImage, filter: .blanchedAlmond, selected: false))
         
+        for i in 0..<filterCellModels.count {
+            let cm = filterCellModels[i]
+            if cm.filter == project.selectedFilter {
+                filterCellModels[i].selected = true
+                break;
+            }
+        }
+        
         adjustView?.refresh()
     }
     

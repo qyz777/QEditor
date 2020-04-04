@@ -23,6 +23,9 @@ enum EditToolBarAction {
     case editCaption
     case filters
     case brightnessAdjust
+    case exposureAdjust
+    case contrastAdjust
+    case saturationAdjust
 }
 
 struct EditToolBarModel {
