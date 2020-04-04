@@ -14,20 +14,14 @@ protocol EditPlayerViewInput: EditViewPlayProtocol {
     
     var cancelEditClosure: (() -> Void)? { get set }
     
-    func seek(to percent: Float)
-    
-    func seek(to time: Double)
-    
-    func play()
-    
-    func pause()
-    
     func showEditCaptionView(text: String?)
     
 }
 
 protocol EditPlayerViewOutput: class {
     
-    func getAttachPlayer() -> CompositionPlayer
+    var playerStatus: CompositionPlayerStatus { get }
+    
+    var player: CompositionPlayer { get }
     
 }

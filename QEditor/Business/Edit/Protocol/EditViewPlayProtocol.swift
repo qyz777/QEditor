@@ -11,21 +11,17 @@ import AVFoundation
 
 protocol EditViewPlayProtocol {
     
-    func loadComposition(_ composition: AVMutableComposition)
-    
     func updatePlayTime(_ time: Double)
     
     func updateDuration(_ duration: Double)
     
     func playToEndTime()
     
-    func updatePlayViewStatus(_ status: PlayerViewStatus)
+    func updatePlayViewStatus(_ status: CompositionPlayerStatus)
     
 }
 
 extension EditViewPlayProtocol {
-    
-    func loadComposition(_ composition: AVMutableComposition) {}
     
     func updatePlayTime(_ time: Double) {}
     
@@ -33,6 +29,6 @@ extension EditViewPlayProtocol {
     
     func playToEndTime() {}
     
-    func updatePlayViewStatus(_ status: PlayerViewStatus) {}
+    func updatePlayViewStatus(_ status: CompositionPlayerStatus) {}
     
 }

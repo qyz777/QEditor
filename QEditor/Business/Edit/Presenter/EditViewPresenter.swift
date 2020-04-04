@@ -35,11 +35,17 @@ class EditViewPresenter {
     
     var captionContainerView: EditOperationContainerView?
     
-    var playerStatus: PlayerViewStatus = .stop
+    var playerStatus: CompositionPlayerStatus = .unknow
+    
+    var player: CompositionPlayer {
+        return project.player
+    }
+    
+    var duration: TimeInterval {
+        return player.duration
+    }
     
     var isPlayingBeforeDragging = false
-    
-    var duration: Double = 0
     
     var isEditingCaption: Bool = false
     
@@ -61,6 +67,10 @@ class EditViewPresenter {
         return project.saturation
     }
     
+    init() {
+        setupPlayer()
+    }
+    
     func refreshView() {
         guard project.composition != nil else {
             QELog("composition为空")
@@ -72,14 +82,13 @@ class EditViewPresenter {
             m.time = time
             return m
         })
-        //2.对外发送加载成功的消息
-        playerView?.loadComposition(project.composition!)
-        toolView?.loadComposition(project.composition!)
-        toolView?.loadAsset(project.imageSourceComposition!)
+        //2.设置player
+        project.reloadPlayer()
         //3.刷新工具栏
+        toolView?.loadAsset(project.imageSourceComposition!)
         toolView?.reloadVideoViews(project.videoSegments)
         //4.恢复到刷新之前的seek
-        playerView?.seek(to: toolView?.currentCursorTime() ?? .zero)
+        project.seek(to: toolView?.currentCursorTime() ?? .zero)
     }
     
     func beginTaskRunning() {
@@ -96,10 +105,9 @@ class EditViewPresenter {
     }
     
     func updatePlayerAfterEdit() {
-        guard let composition = project.composition else { return }
         let lastTime = project.player.playbackTime
-        playerView?.loadComposition(composition)
-        playerView?.seek(to: lastTime)
+        project.reloadPlayer()
+        project.seek(to: lastTime)
     }
     
     func splitTime() -> [CMTime] {

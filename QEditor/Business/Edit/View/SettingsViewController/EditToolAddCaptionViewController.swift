@@ -18,7 +18,7 @@ struct EditToolAddCaptionUpdateModel {
 
 class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     
-    var playerStatus: PlayerViewStatus = .stop
+    var playerStatus: CompositionPlayerStatus = .stop
     
     var duration: Double = 0
     
@@ -353,7 +353,7 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
 
 extension EditToolAddCaptionViewController: EditAddCaptionViewInput {
     
-    func updatePlayViewStatus(_ status: PlayerViewStatus) {
+    func updatePlayViewStatus(_ status: CompositionPlayerStatus) {
         playerStatus = status
     }
     

@@ -16,8 +16,8 @@ public enum CompositionPlayerStatus {
     case stop
     case error
     
-    /// The status is indeterminate before asset is set
-    case indeterminate
+    /// The status is unknow before asset is set
+    case unknow
 }
 
 public class CompositionPlayer {
@@ -38,7 +38,7 @@ public class CompositionPlayer {
     
     public private(set) var playerView = CompositionPlayerView()
     
-    public private(set) var status: CompositionPlayerStatus = .indeterminate {
+    public private(set) var status: CompositionPlayerStatus = .unknow {
         willSet {
             statusChangeClosure?(newValue)
         }

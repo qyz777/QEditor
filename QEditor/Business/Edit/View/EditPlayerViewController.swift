@@ -12,13 +12,15 @@ import AVFoundation
 
 class EditPlayerViewController: UIViewController {
     
-    public var presenter: (EditPlayerViewOutput & PlayerViewDelegate & EditPlayerViewDelegate)!
+    public var presenter: (EditPlayerViewOutput)!
     
     public var okEditClosure: ((_ text: String) -> Void)?
     
     public var cancelEditClosure: (() -> Void)?
     
     private var duration: Double = 0
+    
+    var status: CompositionPlayerStatus = .unknow
 
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -62,24 +64,17 @@ class EditPlayerViewController: UIViewController {
     
     @objc
     func didClickPlayButton() {
-        if playerView.status == .playing {
+        if status == .playing {
             playButton.setImage(UIImage(named: "edit_play"), for: .normal)
-            playerView.pause()
+            presenter.player.pause()
         } else {
             playButton.setImage(UIImage(named: "edit_pause"), for: .normal)
-            playerView.play()
+            presenter.player.play()
         }
     }
     
-//    lazy var playerView: PlayerView = {
-//        let view = PlayerView()
-//        view.delegate = presenter
-//        return view
-//    }()
-    
     lazy var playerView: EditPlayerView = {
-        let view = EditPlayerView(player: presenter.getAttachPlayer())
-        view.delegate = presenter
+        let view = EditPlayerView(player: presenter.player)
         return view
     }()
     
@@ -124,32 +119,6 @@ class EditPlayerViewController: UIViewController {
 
 extension EditPlayerViewController: EditPlayerViewInput {
     
-    func seek(to percent: Float) {
-        let time = duration * Double(percent)
-        updatePlayTime(time)
-        playerView.seek(to: time)
-    }
-    
-    func seek(to time: Double) {
-        updatePlayTime(time)
-        playerView.seek(to: time)
-    }
-    
-    func play() {
-        playerView.play()
-        playButton.setImage(UIImage(named: "edit_pause"), for: .normal)
-    }
-    
-    func pause() {
-        playerView.pause()
-        playButton.setImage(UIImage(named: "edit_play"), for: .normal)
-    }
-    
-    func loadComposition(_ composition: AVMutableComposition) {
-        playerView.stop()
-        playerView.setup(asset: composition)
-    }
-    
     func updatePlayTime(_ time: Double) {
         let timeFormat = String.qe.formatTime(Int(time))
         timeLabel.text = "\(timeFormat)/" + String.qe.formatTime(Int(duration))
@@ -158,6 +127,10 @@ extension EditPlayerViewController: EditPlayerViewInput {
     func updateDuration(_ duration: Double) {
         self.duration = duration
         timeLabel.text = String.qe.formatTime(0) + "/" + String.qe.formatTime(Int(duration))
+    }
+    
+    func updatePlayViewStatus(_ status: CompositionPlayerStatus) {
+        self.status = status
     }
     
     func playToEndTime() {

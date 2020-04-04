@@ -42,7 +42,7 @@ class EditToolViewController: UIViewController {
     private var isEnableOptimize = false
     
     /// 播放器状态
-    private var playerStatus: PlayerViewStatus = .error
+    private var playerStatus: CompositionPlayerStatus = .error
     
     /// 视频最大宽度，每次新增、删除视频需要重新设置这个属性
     private var videoContentWidth: CGFloat = 0
@@ -957,7 +957,7 @@ extension EditToolViewController: EditToolViewInput {
         isEnableOptimize = duration > 60
     }
     
-    func updatePlayViewStatus(_ status: PlayerViewStatus) {
+    func updatePlayViewStatus(_ status: CompositionPlayerStatus) {
         playerStatus = status
     }
     

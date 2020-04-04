@@ -4,10 +4,7 @@
 //
 //  Created by Q YiZhong on 2020/1/21.
 //  Copyright © 2020 YiZhong Qi. All rights reserved.
-//  
-//  剪辑Service层，提供各个剪辑功能接口
-//  fps -> 帧率 每秒的帧数
-//  总帧数 = 总时间 * fps
+//
 
 import Foundation
 import AVFoundation
@@ -19,7 +16,7 @@ public class CompositionProject {
     
     public private(set) var videoComposition: AVMutableVideoComposition?
     
-    /// 供缩略图使用
+    /// Use of thumbnails
     public private(set) var imageSourceComposition: AVMutableComposition?
     
     public private(set) var audioMix: AVMutableAudioMix?

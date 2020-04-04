@@ -47,26 +47,26 @@ extension EditViewPresenter: EditToolViewOutput {
     
     func toolView(_ toolView: EditToolViewInput, didChangeBrightness value: Float) {
         project.brightness = value
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeExposure value: Float) {
         project.exposure = value
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeContrast value: Float) {
         project.contrast = value
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, didChangeSaturation value: Float) {
         project.saturation = value
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
@@ -82,7 +82,7 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolView(_ toolView: EditToolViewInput, didSelectedSplit index: Int, withTransition model: CompositionTransitionModel) {
         project.addTransition(model, at: index)
         refreshView()
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> CompositionTransitionModel {
@@ -97,28 +97,28 @@ extension EditViewPresenter: EditToolViewOutput {
         let currentTime = toolView.currentCursorTime()
         guard let segment = project.addMusic(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
         segment.title = title
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
         toolView.addMusicAudioWaveformView(for: segment)
     }
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         //view传来的timeRange是不可信的，在service里还需要校验
         project.updateMusic(segment, timeRange: timeRange)
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, replaceMusic oldSegment: CompositionAudioSegment, for newSegment: CompositionAudioSegment) {
         project.replaceMusic(oldSegment: oldSegment, for: newSegment)
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
         toolView.refreshMusicWaveformView(with: newSegment)
     }
     
     func toolView(_ toolView: EditToolViewInput, removeMusic segment: CompositionAudioSegment) {
         project.removeMusic(segment)
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, changeMusic volume: Float, of segment: CompositionAudioSegment) {
@@ -147,21 +147,21 @@ extension EditViewPresenter: EditToolViewOutput {
         let currentTime = toolView.currentCursorTime()
         guard let segment = project.addRecordAudio(asset, at: CMTime(seconds: currentTime, preferredTimescale: 600)) else { return }
         segment.title = "语音录制音频"
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
         toolView.addRecordAudioWaveformView(for: segment)
     }
     
     func toolView(_ toolView: EditToolViewInput, updateRecord segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         project.updateRecord(segment, timeRange: timeRange)
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
     
     func toolView(_ toolView: EditToolViewInput, removeRecord segment: CompositionAudioSegment) {
         project.removeRecord(segment)
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: toolView.currentCursorTime())
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
     }
 
     func toolView(_ toolView: EditToolViewInput, changeRecord volume: Float, of segment: CompositionAudioSegment) {
@@ -201,9 +201,9 @@ extension EditViewPresenter {
     }
     
     func refreshPlayerViewAndPlay(withAudio segment: CompositionAudioSegment) {
-        playerView?.loadComposition(project.composition!)
-        playerView?.seek(to: segment.rangeAtComposition.start.seconds)
-        playerView?.play()
+        project.reloadPlayer()
+        project.seek(to: segment.rangeAtComposition.start.seconds)
+        project.play()
     }
     
 }

@@ -33,8 +33,8 @@
 		A053206D242F37BA0009AD24 /* CompositionProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053206C242F37BA0009AD24 /* CompositionProject.swift */; };
 		A0532070242F383E0009AD24 /* CompositionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053206F242F383E0009AD24 /* CompositionExtension.swift */; };
 		A053207424381C830009AD24 /* EditProgressAdjustViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */; };
+		A05320762438429C0009AD24 /* CompositionProjectPlayerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */; };
 		A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */; };
-		A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0753FE72377A85F0096939A /* EditVideoEdtior.swift */; };
 		A07B6A3E24138E55008170F5 /* EditOperationCaptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */; };
 		A07B6A402413B19E008170F5 /* EditCaptionCellToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */; };
 		A07B6A422413BE52008170F5 /* CompositionMediaSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A412413BE52008170F5 /* CompositionMediaSegment.swift */; };
@@ -129,8 +129,8 @@
 		A053206C242F37BA0009AD24 /* CompositionProject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositionProject.swift; sourceTree = "<group>"; };
 		A053206F242F383E0009AD24 /* CompositionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionExtension.swift; sourceTree = "<group>"; };
 		A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProgressAdjustViewController.swift; sourceTree = "<group>"; };
+		A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionProjectPlayerExtension.swift; sourceTree = "<group>"; };
 		A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+View.swift"; sourceTree = "<group>"; };
-		A0753FE72377A85F0096939A /* EditVideoEdtior.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVideoEdtior.swift; sourceTree = "<group>"; };
 		A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditOperationCaptionCell.swift; sourceTree = "<group>"; };
 		A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCaptionCellToolView.swift; sourceTree = "<group>"; };
 		A07B6A412413BE52008170F5 /* CompositionMediaSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionMediaSegment.swift; sourceTree = "<group>"; };
@@ -229,6 +229,7 @@
 				A01C77C4242F32B900777695 /* Views */,
 				A01C77C1242F2DCE00777695 /* CompositionFiltersDefine.swift */,
 				A053206C242F37BA0009AD24 /* CompositionProject.swift */,
+				A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */,
 			);
 			path = Composition;
 			sourceTree = "<group>";
@@ -263,14 +264,6 @@
 				A02F7DD7239E8DB000398065 /* NotificationBannerExtension.swift */,
 			);
 			path = NotificationBanner;
-			sourceTree = "<group>";
-		};
-		A035480B2400FB940078E183 /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				A0753FE72377A85F0096939A /* EditVideoEdtior.swift */,
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		A053206E242F381E0009AD24 /* Extension */ = {
@@ -316,7 +309,6 @@
 			isa = PBXGroup;
 			children = (
 				A0870A612352FBCE006DC38D /* Player */,
-				A035480B2400FB940078E183 /* Service */,
 				A0E03BFF235AA2CF0012F226 /* Presenter */,
 				A0E03BFE235AA2C50012F226 /* Protocol */,
 				A0870A5E2352FB6E006DC38D /* View */,
@@ -721,6 +713,7 @@
 				A053207424381C830009AD24 /* EditProgressAdjustViewController.swift in Sources */,
 				A04647AE2388C3AF009FDDC2 /* UIViewController+Utillity.swift in Sources */,
 				A02123362364204D0073A125 /* EditViewPresenter+Player.swift in Sources */,
+				A05320762438429C0009AD24 /* CompositionProjectPlayerExtension.swift in Sources */,
 				A09CF7D62349E34100139461 /* MediaProtocol.swift in Sources */,
 				A07B6A402413B19E008170F5 /* EditCaptionCellToolView.swift in Sources */,
 				A02F7DD8239E8DB000398065 /* NotificationBannerExtension.swift in Sources */,
@@ -746,7 +739,6 @@
 				A0212332236404090073A125 /* EditViewPresenter+Tool.swift in Sources */,
 				A080D70D2402503E0089B10B /* EditPlayerInteractionProtocol.swift in Sources */,
 				A0870A602352FB85006DC38D /* EditViewController.swift in Sources */,
-				A0753FE82377A85F0096939A /* EditVideoEdtior.swift in Sources */,
 				A080D70524010C300089B10B /* EditToolAddCaptionViewController.swift in Sources */,
 				A01DBD302427420D00DED48F /* EditViewPresenter+Adjust.swift in Sources */,
 				A09CF7DA2349E38400139461 /* MediaManager.swift in Sources */,

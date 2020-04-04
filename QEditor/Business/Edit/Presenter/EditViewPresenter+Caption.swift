@@ -17,11 +17,11 @@ extension EditViewPresenter: EditAddCaptionViewOutput {
     
     func beginAddCaption() {
         addCaptionView?.updateDuration(duration)
-        playerView?.play()
+        project.play()
     }
     
     func endAddCaption() {
-        playerView?.pause()
+        project.pause()
     }
     
 }

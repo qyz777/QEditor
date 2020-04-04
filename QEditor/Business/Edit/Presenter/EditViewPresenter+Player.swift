@@ -9,100 +9,63 @@
 import UIKit
 import AVFoundation
 
-extension EditViewPresenter: PlayerViewDelegate {
-    
-    func player(_ player: PlayerView, playAt time: Double) {
-        toolView?.updatePlayTime(time)
-        playerView?.updatePlayTime(time)
-        addCaptionView?.updatePlayTime(time)
-    }
-    
-    public func player(_ player: PlayerView, didLoadVideoWith duration: Double) {
-        self.duration = duration
-        toolView?.updateDuration(duration)
-        playerView?.updateDuration(duration)
-        addCaptionView?.updateDuration(duration)
-    }
-    
-    func player(_ player: PlayerView, statusDidChange status: PlayerViewStatus) {
-        playerStatus = status
-        toolView?.updatePlayViewStatus(status)
-        addCaptionView?.updatePlayViewStatus(status)
-    }
-    
-    func playerDidPlayToEndTime(_ player: PlayerView) {
-        playerView?.playToEndTime()
-    }
-    
-    func playerVideoComposition(_ player: PlayerView) -> AVMutableVideoComposition? {
-        return project.videoComposition
-    }
-    
-    func playerAudioMix(_ player: PlayerView) -> AVAudioMix? {
-        return project.audioMix
-    }
-    
-}
-
-extension EditViewPresenter: EditPlayerViewDelegate {
-    
-    func player(_ player: EditPlayerView, playAt time: Double) {
-        toolView?.updatePlayTime(time)
-        playerView?.updatePlayTime(time)
-        addCaptionView?.updatePlayTime(time)
-    }
-    
-    func player(_ player: EditPlayerView, didLoadVideoWith duration: Double) {
-        self.duration = duration
-        toolView?.updateDuration(duration)
-        playerView?.updateDuration(duration)
-        addCaptionView?.updateDuration(duration)
-    }
-    
-    func player(_ player: EditPlayerView, statusDidChange status: PlayerViewStatus) {
-        playerStatus = status
-        toolView?.updatePlayViewStatus(status)
-        addCaptionView?.updatePlayViewStatus(status)
-    }
-    
-    func playerDidPlayToEndTime(_ player: EditPlayerView) {
-        playerView?.playToEndTime()
-    }
-    
-    func playerVideoComposition(_ player: EditPlayerView) -> AVMutableVideoComposition? {
-        return project.videoComposition
-    }
-    
-    func playerAudioMix(_ player: EditPlayerView) -> AVAudioMix? {
-        return project.audioMix
-    }
-    
-}
-
-extension EditViewPresenter: EditPlayerViewOutput {
-    
-    func getAttachPlayer() -> CompositionPlayer {
-        return project.player
-    }
-    
-}
+extension EditViewPresenter: EditPlayerViewOutput {}
 
 extension EditViewPresenter: EditPlayerInteractionProtocol {
     
     func viewIsDraggingWith(with percent: Float) {
-        playerView?.seek(to: percent)
+        seek(to: percent)
     }
     
     func viewWillBeginDragging() {
         isPlayingBeforeDragging = playerStatus == .playing
         //开始拖动时暂停播放器
-        playerView?.pause()
+        project.pause()
     }
     
     func viewDidEndDecelerating() {
         if isPlayingBeforeDragging {
             isPlayingBeforeDragging = false
-            playerView?.play()
+            project.play()
+        }
+    }
+    
+    func seek(to percent: Float) {
+        let time = duration * Double(percent)
+        project.seek(to: time)
+    }
+    
+}
+
+extension EditViewPresenter {
+    
+    func setupPlayer() {
+        project.player.assetLoadClosure = { [weak self] (isReadyToPlay) in
+            guard let strongSelf = self else { return }
+            if isReadyToPlay {
+                strongSelf.toolView?.updateDuration(strongSelf.duration)
+                strongSelf.playerView?.updateDuration(strongSelf.duration)
+                strongSelf.addCaptionView?.updateDuration(strongSelf.duration)
+            }
+        }
+        project.player.statusChangeClosure = { [weak self] (status) in
+            guard let strongSelf = self else { return }
+            strongSelf.playerStatus = status
+            strongSelf.playerView?.updatePlayViewStatus(strongSelf.playerStatus)
+            strongSelf.toolView?.updatePlayViewStatus(strongSelf.playerStatus)
+            strongSelf.addCaptionView?.updatePlayViewStatus(strongSelf.playerStatus)
+        }
+        project.player.playbackTimeChangeClosure = { [weak self] (time) in
+            guard let strongSelf = self else { return }
+            strongSelf.playerView?.updatePlayTime(time)
+            if strongSelf.project.player.status == .playing {
+                strongSelf.toolView?.updatePlayTime(time)
+                strongSelf.addCaptionView?.updatePlayTime(time)
+            }
+        }
+        project.player.finishedClosure = { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.playerView?.playToEndTime()
         }
     }
     
