@@ -16,4 +16,6 @@ protocol EditViewOutput: class {
     
     func view(_ view: EditViewInput, didLoadSource urls: [URL])
     
+    func viewShouldExportVideo(_ view: EditViewInput)
+    
 }

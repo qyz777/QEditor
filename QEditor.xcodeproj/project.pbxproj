@@ -34,6 +34,8 @@
 		A0532070242F383E0009AD24 /* CompositionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053206F242F383E0009AD24 /* CompositionExtension.swift */; };
 		A053207424381C830009AD24 /* EditProgressAdjustViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */; };
 		A05320762438429C0009AD24 /* CompositionProjectPlayerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */; };
+		A053207D2439A2430009AD24 /* CompositionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207C2439A2430009AD24 /* CompositionExporter.swift */; };
+		A05320802439AAF70009AD24 /* ExportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207F2439AAF70009AD24 /* ExportViewController.swift */; };
 		A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */; };
 		A07B6A3E24138E55008170F5 /* EditOperationCaptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */; };
 		A07B6A402413B19E008170F5 /* EditCaptionCellToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */; };
@@ -130,6 +132,8 @@
 		A053206F242F383E0009AD24 /* CompositionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionExtension.swift; sourceTree = "<group>"; };
 		A053207324381C830009AD24 /* EditProgressAdjustViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProgressAdjustViewController.swift; sourceTree = "<group>"; };
 		A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionProjectPlayerExtension.swift; sourceTree = "<group>"; };
+		A053207C2439A2430009AD24 /* CompositionExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionExporter.swift; sourceTree = "<group>"; };
+		A053207F2439AAF70009AD24 /* ExportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportViewController.swift; sourceTree = "<group>"; };
 		A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+View.swift"; sourceTree = "<group>"; };
 		A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditOperationCaptionCell.swift; sourceTree = "<group>"; };
 		A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCaptionCellToolView.swift; sourceTree = "<group>"; };
@@ -274,6 +278,14 @@
 			path = Extension;
 			sourceTree = "<group>";
 		};
+		A053207E2439AAE60009AD24 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				A053207F2439AAF70009AD24 /* ExportViewController.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
 		A0870A542351C7FA006DC38D /* QUIKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -388,6 +400,7 @@
 		A09CF7C92349E21100139461 /* Business */ = {
 			isa = PBXGroup;
 			children = (
+				A053207E2439AAE60009AD24 /* Export */,
 				A0870A5D2352FB57006DC38D /* Edit */,
 				A09CF7CD2349E2B700139461 /* Media */,
 				A09CF7CA2349E24C00139461 /* Home */,
@@ -555,6 +568,7 @@
 				A0ADD4BC23DFF9FF006BF4F5 /* AudioSampleAnalyzer.swift */,
 				A09B2E7923E3C9C900F6FC7A /* AudioRecorder.swift */,
 				A02F7DD4239CE94E00398065 /* ReverseVideoTool.swift */,
+				A053207C2439A2430009AD24 /* CompositionExporter.swift */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -707,6 +721,7 @@
 				A09CF7DC2349E69A00139461 /* MediaModel.swift in Sources */,
 				A0870A6B23532612006DC38D /* String+Video.swift in Sources */,
 				A0C6DFB823D9CCC800A48181 /* EditToolSplitButton.swift in Sources */,
+				A053207D2439A2430009AD24 /* CompositionExporter.swift in Sources */,
 				A015869623C03AE60050F5B8 /* EditToolRotateSettingsView.swift in Sources */,
 				A02F7DCF239B3F8C00398065 /* EditToolViewProtocol.swift in Sources */,
 				A0ADD4BD23DFF9FF006BF4F5 /* AudioSampleAnalyzer.swift in Sources */,
@@ -746,6 +761,7 @@
 				A0DBD4E723D9788D00E26238 /* EditToolTabView.swift in Sources */,
 				A0532070242F383E0009AD24 /* CompositionExtension.swift in Sources */,
 				A02123342364168E0073A125 /* UIImage+Utility.swift in Sources */,
+				A05320802439AAF70009AD24 /* ExportViewController.swift in Sources */,
 				A0C1A29D23ADC45C0075AD4F /* EditToolAdjustSettingsView.swift in Sources */,
 				A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */,
 				A09B2E7A23E3C9C900F6FC7A /* AudioRecorder.swift in Sources */,

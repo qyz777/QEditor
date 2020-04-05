@@ -6,7 +6,7 @@
 //  Copyright © 2019 YiZhong Qi. All rights reserved.
 //
 
-import Foundation
+import UIKit
 import AVFoundation
 
 extension EditViewPresenter: EditViewOutput {
@@ -21,6 +21,15 @@ extension EditViewPresenter: EditViewOutput {
         playerView?.updateDuration(project.composition!.duration.seconds)
         //刷新视图
         refreshView()
+    }
+    
+    func viewShouldExportVideo(_ view: EditViewInput) {
+        let url = URL(fileURLWithPath: String.qe.tmpPath() + String.qe.timestamp() + ".mp4")
+        let vc = ExportViewController()
+        vc.exporter = project.generateExporter(url: url)
+        let nav = NavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
 }

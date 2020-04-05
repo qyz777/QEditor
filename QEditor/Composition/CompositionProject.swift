@@ -100,6 +100,14 @@ public class CompositionProject {
         }
     }
     
+    public func generateExporter(url: URL) -> CompositionExporter? {
+        guard let composition = composition else { return nil }
+        let filters = player.filters.map { (f) -> ImageProcessingOperation in
+            return f.instance()!
+        }
+        return CompositionExporter(asset: composition, videoComposition: videoComposition, audioMix: audioMix, filters: filters, exportURL: url)
+    }
+    
     //MARK: Composition
     
     public func refreshComposition() {

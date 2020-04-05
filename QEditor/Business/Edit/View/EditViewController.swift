@@ -65,6 +65,8 @@ class EditViewController: UIViewController {
         closeItem.tintColor = .white
         navigationItem.leftBarButtonItem = closeItem
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: exportButton)
+        
         view.backgroundColor = .black
         addChild(editPlayer)
         view.addSubview(editPlayer.view)
@@ -93,6 +95,11 @@ class EditViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
+    @objc
+    func didClickExportButton() {
+        presenter.viewShouldExportVideo(self)
+    }
+    
     lazy var editPlayer: EditPlayerViewController = {
         let p = EditPlayerViewController()
         return p
@@ -101,6 +108,17 @@ class EditViewController: UIViewController {
     lazy var editTool: EditToolViewController = {
         let vc = EditToolViewController()
         return vc
+    }()
+    
+    private lazy var exportButton: UIButton = {
+        let view = UIButton(frame: CGRect(x: 0, y: 0, width: 50, height: 30))
+        view.setTitle("导出", for: .normal)
+        view.setTitleColor(.white, for: .normal)
+        view.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+        view.backgroundColor = UIColor.qe.hex(0xFA3E54)
+        view.layer.cornerRadius = 4
+        view.addTarget(self, action: #selector(didClickExportButton), for: .touchUpInside)
+        return view
     }()
 
 }
