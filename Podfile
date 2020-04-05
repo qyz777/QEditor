@@ -10,8 +10,8 @@ target 'QEditor' do
   pod 'AudioCollection', :path => './LocalLib/AudioCollection'
   pod 'DispatchQueuePool', :path => './LocalLib/DispatchQueuePool'
   
-#  pod 'GPUImage2-Pixel', :path => '/Users/qyizhong/Desktop/GPUImage2'
-  pod 'GPUImage2-Pixel', :git => 'https://github.com/qyz777/GPUImage2.git', :branch => 'qyz/dev'
+#  pod 'GPUImage2-YZ', :path => '/Users/qyizhong/Desktop/GPUImage2'
+  pod 'GPUImage2-YZ', '1.0.0'
   
   pod 'NotificationBannerSwift', '~> 3.0.0'
   pod 'NVActivityIndicatorView'

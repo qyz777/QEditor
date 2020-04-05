@@ -32,7 +32,7 @@ class NavigationController: UINavigationController {
     
     override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         #if DEBUG
-        FLEXManager.shared()?.showExplorer()
+        FLEXManager.shared.showExplorer()
         #endif
     }
 
