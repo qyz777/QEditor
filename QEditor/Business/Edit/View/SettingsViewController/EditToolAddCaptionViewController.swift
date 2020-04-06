@@ -298,7 +298,6 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
             segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
             self.presenter.updateCaption(segment: segment)
         }
-        presenter.captionContainerView = view
         return view
     }()
     

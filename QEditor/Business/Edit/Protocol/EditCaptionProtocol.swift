@@ -30,8 +30,6 @@ protocol EditAddCaptionViewOutput: class, EditCaptionInteractionProtocol {
 
 protocol EditCaptionInteractionProtocol {
     
-    var captionContainerView: EditOperationContainerView? { get set }
-    
     func addCaptionText(_ text: String?, start: Double, end: Double)
     
     func deleteCaption(segment: CompositionCaptionSegment)

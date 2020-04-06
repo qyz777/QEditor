@@ -82,20 +82,3 @@ extension EditViewPresenter: EditCaptionViewOutput {
     }
     
 }
-
-extension EditViewPresenter {
-    
-    func updateCaptionCellModels() {
-        guard let captionContainerView = captionContainerView else { return }
-        captionCellModels = project.captionSegments.map({ (segment) -> EditOperationCaptionCellModel in
-            let model = EditOperationCaptionCellModel()
-            model.width = captionContainerView.offset(for: segment.duration, in: duration)
-            model.start = captionContainerView.offset(for: segment.rangeAtComposition.start.seconds, in: duration)
-            model.maxWidth = captionContainerView.width
-            model.content = segment.text
-            model.segment = segment
-            return model
-        })
-    }
-    
-}

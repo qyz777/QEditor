@@ -33,8 +33,6 @@ class EditViewPresenter {
     
     var filterCellModels: [EditToolFiltersCellModel] = []
     
-    var captionContainerView: EditOperationContainerView?
-    
     var playerStatus: CompositionPlayerStatus = .unknow
     
     var player: CompositionPlayer {
@@ -65,6 +63,10 @@ class EditViewPresenter {
     
     var currentSaturation: Float {
         return project.saturation
+    }
+    
+    var containerContentWidth: CGFloat {
+        return CGFloat(frameCount()) * EDIT_THUMB_CELL_SIZE
     }
     
     init() {
@@ -124,6 +126,22 @@ class EditViewPresenter {
             times.append(time)
         }
         return times
+    }
+    
+    func segmentOffset(for time: Double, in duration: Double) -> CGFloat {
+        return CGFloat(Double(containerContentWidth) * time / duration)
+    }
+    
+    func updateCaptionCellModels() {
+        captionCellModels = project.captionSegments.map({ (segment) -> EditOperationCaptionCellModel in
+            let model = EditOperationCaptionCellModel()
+            model.width = segmentOffset(for: segment.duration, in: duration)
+            model.start = segmentOffset(for: segment.rangeAtComposition.start.seconds, in: duration)
+            model.maxWidth = containerContentWidth
+            model.content = segment.text
+            model.segment = segment
+            return model
+        })
     }
     
 }

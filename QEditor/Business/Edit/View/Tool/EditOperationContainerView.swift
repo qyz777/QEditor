@@ -133,10 +133,6 @@ class EditOperationContainerView: UIView {
         return nil
     }
     
-    public func offset(for time: Double, in duration: Double) -> CGFloat {
-        return CGFloat(Double(width) * time / duration)
-    }
-    
     //MARK: Private
     
     private func setupCell(_ cell: EditOperationCell) {
