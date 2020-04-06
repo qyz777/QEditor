@@ -9,13 +9,13 @@
 import Foundation
 import AVFoundation
 
-enum CompositionTransitionStyle {
-    case none
-    case fadeIn
-    case fadeOut
+public enum CompositionTransitionStyle: String, Codable {
+    case none = "none"
+    case fadeIn = "fadeIn"
+    case fadeOut = "fadeOut"
 }
 
-public struct CompositionTransitionModel {
+public struct CompositionTransitionModel: Codable {
     let duration: Double
     let style: CompositionTransitionStyle
 }

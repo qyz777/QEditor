@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-public protocol CompositionMediaSegment: CompositionSegment {
+public protocol CompositionMediaSegment: CompositionSegment, CompositionSegmentCodable {
     
     /// 所在轨道的Id
     var trackId: CMPersistentTrackID { get set }
@@ -20,7 +20,7 @@ public protocol CompositionMediaSegment: CompositionSegment {
     /// segment的数据源url
     var url: URL? { get }
     
-    /// 用来插入到composition的range
+    /// asset的range
     var timeRange: CMTimeRange { get }
     
     var isPrepare: Bool { get }

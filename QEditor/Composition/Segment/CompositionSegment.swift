@@ -28,6 +28,21 @@ public protocol CompositionSegment {
     
 }
 
-func == (lhs: CompositionSegment, rhs: CompositionSegment) -> Bool {
+public protocol CompositionSegmentCodable {
+    
+    func toJSON() -> [String: Any]
+    
+    init(json: [String: Any]) throws
+    
+}
+
+public func == (lhs: CompositionSegment, rhs: CompositionSegment) -> Bool {
     return lhs.id == rhs.id
+}
+
+public enum SegmentCodableError: Error {
+    case canNotFindURL
+    case canNotFindRange
+    case canNotFindTransition
+    case canNotFindText
 }

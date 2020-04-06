@@ -61,11 +61,49 @@ public class CompositionAudioSegment: CompositionMediaSegment {
     }
     
     required public init(asset: AVAsset) {
-        url = nil
+        if let urlAsset = asset as? AVURLAsset {
+            url = urlAsset.url
+        } else {
+            url = nil
+        }
         self.asset = asset
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = ("\(asset.duration.seconds)" + String.qe.timestamp()).hashValue
         prepare(nil)
+    }
+    
+    public func toJSON() -> [String : Any] {
+        var info: [String: Any] = [:]
+        if let url = url {
+            info["url"] = url.absoluteString
+        }
+        info["start"] = rangeAtComposition.start.seconds
+        info["end"] = rangeAtComposition.end.seconds
+        if let title = title {
+            info["title"] = title
+        }
+        info["fade_in"] = isFadeIn
+        info["fade_out"] = isFadeOut
+        info["volumn"] = volume
+        return info
+    }
+    
+    public required convenience init(json: [String : Any]) throws {
+        guard let url = json["url"] as? String else {
+            throw SegmentCodableError.canNotFindURL
+        }
+        self.init(url: URL(fileURLWithPath: url))
+        guard let start = json["start"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        guard let end = json["end"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        rangeAtComposition = CMTimeRange(start: start, end: end)
+        title = json["title"] as? String
+        isFadeIn = (json["fade_in"] as? Bool) ?? false
+        isFadeOut = (json["fade_out"] as? Bool) ?? true
+        volume = (json["volumn"] as? Float) ?? 1.0
     }
     
     public func prepare(_ closure: (() -> Void)?) {

@@ -10,7 +10,7 @@ import Foundation
 import AVFoundation
 import UIKit
 
-public class CompositionCaptionSegment: CompositionSegment {
+public class CompositionCaptionSegment: CompositionSegment, CompositionSegmentCodable {
     
     public let id: Int
     
@@ -39,6 +39,39 @@ public class CompositionCaptionSegment: CompositionSegment {
         self.text = text
         self.rangeAtComposition = range
         duration = rangeAtComposition.duration.seconds
+    }
+    
+    public func toJSON() -> [String : Any] {
+        var info: [String: Any] = [:]
+        info["text"] = text
+        info["start"] = rangeAtComposition.start.seconds
+        info["end"] = rangeAtComposition.end.seconds
+        info["font_name"] = fontName
+        if let data = try? JSONEncoder().encode(fontSize), let jsonString = String(data: data, encoding: .utf8) {
+            info["font_size"] = jsonString
+        }
+        info["text_color"] = textColor.hexString
+        return info
+    }
+    
+    public required convenience init(json: [String : Any]) throws {
+        guard let text = json["text"] as? String else {
+            throw SegmentCodableError.canNotFindText
+        }
+        guard let start = json["start"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        guard let end = json["end"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        self.init(text: text, at: CMTimeRange(start: start, end: end))
+        fontName = (json["font_name"] as? String) ?? CompositionCaptionFontName.PingFangSC.regular.rawValue
+        if let fontSizeString = json["font_size"] as? String, let data = fontSizeString.data(using: .utf8) {
+            fontSize = try JSONDecoder().decode(CompositionCaptionFontSize.self, from: data)
+        }
+        if let hexString = json["text_color"] as? String {
+            textColor = UIColor(hexString: hexString) ?? UIColor.qe.hex(0xEEEEEE)
+        }
     }
     
     /// 构建字幕layer
@@ -79,7 +112,7 @@ public class CompositionCaptionSegment: CompositionSegment {
     
 }
 
-public enum CompositionCaptionFontSize {
+public enum CompositionCaptionFontSize: String, Codable {
     case small
     case normal
     case large

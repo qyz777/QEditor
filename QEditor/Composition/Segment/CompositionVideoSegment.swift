@@ -41,11 +41,49 @@ public class CompositionVideoSegment: CompositionMediaSegment {
     }
     
     required public init(asset: AVAsset) {
-        url = nil
+        if let urlAsset = asset as? AVURLAsset {
+            url = urlAsset.url
+        } else {
+            url = nil
+        }
         self.asset = asset
         timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         id = ("\(asset.duration.seconds)" + String.qe.timestamp()).hashValue
         prepare(nil)
+    }
+    
+    public func toJSON() -> [String : Any] {
+        var info: [String: Any] = [:]
+        if let url = url {
+            info["url"] = url.absoluteString
+        }
+        info["start"] = rangeAtComposition.start.seconds
+        info["end"] = rangeAtComposition.end.seconds
+        if let data = try? JSONEncoder().encode(transition), let transitionInfo = String(data: data, encoding: .utf8) {
+            info["transition"] = transitionInfo
+        }
+        return info
+    }
+    
+    public required convenience init(json: [String : Any]) throws {
+        guard let url = json["url"] as? String else {
+            throw SegmentCodableError.canNotFindURL
+        }
+        self.init(url: URL(fileURLWithPath: url))
+        guard let start = json["start"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        guard let end = json["end"] as? Double else {
+            throw SegmentCodableError.canNotFindRange
+        }
+        rangeAtComposition = CMTimeRange(start: start, end: end)
+        guard let transitionInfo = json["transition"] as? String else {
+            throw SegmentCodableError.canNotFindTransition
+        }
+        guard let data = transitionInfo.data(using: .utf8) else {
+            throw SegmentCodableError.canNotFindTransition
+        }
+        transition = try JSONDecoder().decode(CompositionTransitionModel.self, from: data)
     }
     
     public func prepare(_ closure: (() -> Void)?) {

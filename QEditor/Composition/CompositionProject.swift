@@ -23,13 +23,13 @@ public class CompositionProject {
     
     private var reverseTool: ReverseVideoTool?
     
-    public private(set) var videoSegments: [CompositionVideoSegment] = []
+    public internal(set) var videoSegments: [CompositionVideoSegment] = []
     
-    public private(set) var musicSegments: [CompositionAudioSegment] = []
+    public internal(set) var musicSegments: [CompositionAudioSegment] = []
     
-    public private(set) var recordAudioSegments: [CompositionAudioSegment] = []
+    public internal(set) var recordAudioSegments: [CompositionAudioSegment] = []
     
-    public private(set) var captionSegments: [CompositionCaptionSegment] = []
+    public internal(set) var captionSegments: [CompositionCaptionSegment] = []
     
     public var selectedFilter: CompositionFilter = .none
     
@@ -123,8 +123,8 @@ public class CompositionProject {
             setupSingleVideoTrackComposition(composition)
         }
         
+        let musicAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
         if musicSegments.count > 0 {
-            let musicAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
             musicSegments.forEach {
                 let asset = $0.asset
                 guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }
@@ -137,8 +137,8 @@ public class CompositionProject {
             }
         }
         
+        let recordAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
         if recordAudioSegments.count > 0 {
-            let recordAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)!
             recordAudioSegments.forEach {
                 let asset = $0.asset
                 guard let audioTrack = asset.tracks(withMediaType: .audio).first else { return }

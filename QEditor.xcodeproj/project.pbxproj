@@ -36,6 +36,7 @@
 		A05320762438429C0009AD24 /* CompositionProjectPlayerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */; };
 		A053207D2439A2430009AD24 /* CompositionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207C2439A2430009AD24 /* CompositionExporter.swift */; };
 		A05320802439AAF70009AD24 /* ExportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A053207F2439AAF70009AD24 /* ExportViewController.swift */; };
+		A0532089243AC1730009AD24 /* CompositionProjectConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0532088243AC1730009AD24 /* CompositionProjectConfig.swift */; };
 		A06679C3239266F700C5EFC4 /* EditViewPresenter+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */; };
 		A07B6A3E24138E55008170F5 /* EditOperationCaptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */; };
 		A07B6A402413B19E008170F5 /* EditCaptionCellToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */; };
@@ -134,6 +135,7 @@
 		A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionProjectPlayerExtension.swift; sourceTree = "<group>"; };
 		A053207C2439A2430009AD24 /* CompositionExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionExporter.swift; sourceTree = "<group>"; };
 		A053207F2439AAF70009AD24 /* ExportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportViewController.swift; sourceTree = "<group>"; };
+		A0532088243AC1730009AD24 /* CompositionProjectConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionProjectConfig.swift; sourceTree = "<group>"; };
 		A06679C2239266F700C5EFC4 /* EditViewPresenter+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditViewPresenter+View.swift"; sourceTree = "<group>"; };
 		A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditOperationCaptionCell.swift; sourceTree = "<group>"; };
 		A07B6A3F2413B19E008170F5 /* EditCaptionCellToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCaptionCellToolView.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 				A01C77C1242F2DCE00777695 /* CompositionFiltersDefine.swift */,
 				A053206C242F37BA0009AD24 /* CompositionProject.swift */,
 				A05320752438429C0009AD24 /* CompositionProjectPlayerExtension.swift */,
+				A0532088243AC1730009AD24 /* CompositionProjectConfig.swift */,
 			);
 			path = Composition;
 			sourceTree = "<group>";
@@ -742,6 +745,7 @@
 				A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */,
 				A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */,
 				A0C6DFBC23DAD2B700A48181 /* CompositionTransition.swift in Sources */,
+				A0532089243AC1730009AD24 /* CompositionProjectConfig.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
 				A021233923652E0C0073A125 /* Debug.swift in Sources */,
 				A02F7DDA23A472E200398065 /* EditToolSettingLoadingView.swift in Sources */,

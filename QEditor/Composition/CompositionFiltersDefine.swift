@@ -53,12 +53,12 @@ public enum CompositionFilter: Equatable {
         }
     }
     
-    func description() -> String {
+    public func name() -> String {
         switch self {
         case .none:
             return "none"
         case .softElegance:
-            return "softElegance:"
+            return "softElegance"
         case .monochrome:
             return "monochrome"
         case .blanchedAlmond:
@@ -74,8 +74,23 @@ public enum CompositionFilter: Equatable {
         }
     }
     
+    public static func filter(name: String) -> CompositionFilter {
+        switch name {
+        case "none":
+            return .none
+        case "softElegance":
+            return .softElegance
+        case "monochrome":
+            return .monochrome
+        case "blanchedAlmond":
+            return .blanchedAlmond
+        default:
+            return .none
+        }
+    }
+    
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.description() == rhs.description()
+        return lhs.name() == rhs.name()
     }
     
 }
