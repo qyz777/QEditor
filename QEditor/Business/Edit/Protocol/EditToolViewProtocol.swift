@@ -30,9 +30,7 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func loadAsset(_ asset: AVAsset)
     
-    func addMusicAudioWaveformView(for segment: CompositionAudioSegment)
-    
-    func refreshMusicWaveformView(with segment: CompositionAudioSegment)
+    func refreshMusicContainer()
     
     func addRecordAudioWaveformView(for segment: CompositionAudioSegment)
     

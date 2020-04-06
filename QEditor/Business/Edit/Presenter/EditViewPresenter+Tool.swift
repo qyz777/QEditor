@@ -99,7 +99,11 @@ extension EditViewPresenter: EditToolViewOutput {
         segment.title = title
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
-        toolView.addMusicAudioWaveformView(for: segment)
+        musicCellModels = project.musicSegments.map({ (s) -> EditOperationAudioCellModel in
+            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: title ?? "")
+        })
+        toolView.refreshMusicContainer()
+        MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
     }
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, timeRange: CMTimeRange) {
         //view传来的timeRange是不可信的，在service里还需要校验
@@ -112,7 +116,7 @@ extension EditViewPresenter: EditToolViewOutput {
         project.replaceMusic(oldSegment: oldSegment, for: newSegment)
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
-        toolView.refreshMusicWaveformView(with: newSegment)
+        toolView.refreshMusicContainer()
     }
     
     func toolView(_ toolView: EditToolViewInput, removeMusic segment: CompositionAudioSegment) {
@@ -139,7 +143,7 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, atNew start: Double) {
         //todo:处理音乐的边界情况的选中问题
         project.updateMusic(segment, atNew: CMTime(seconds: start, preferredTimescale: 600))
-        toolView.refreshMusicWaveformView(with: segment)
+        toolView.refreshMusicContainer()
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     

@@ -31,6 +31,8 @@ class EditViewPresenter {
     
     var captionCellModels: [EditOperationCaptionCellModel] = []
     
+    var musicCellModels: [EditOperationAudioCellModel] = []
+    
     var filterCellModels: [EditToolFiltersCellModel] = []
     
     var playerStatus: CompositionPlayerStatus = .unknow
@@ -130,6 +132,10 @@ class EditViewPresenter {
     
     func segmentOffset(for time: Double, in duration: Double) -> CGFloat {
         return CGFloat(Double(containerContentWidth) * time / duration)
+    }
+    
+    func segmentMaxWidth(for duration: Double) -> CGFloat {
+        return min(containerContentWidth, CGFloat(Double(EDIT_THUMB_CELL_SIZE) * duration))
     }
     
     func updateCaptionCellModels() {

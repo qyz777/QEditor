@@ -12,6 +12,8 @@ protocol EditDataSourceProtocol {
     
     var captionCellModels: [EditOperationCaptionCellModel] { get }
     
+    var musicCellModels: [EditOperationAudioCellModel] { get }
+    
     var thumbModels: [EditToolImageCellModel] { get }
     
     /// 获取帧数

@@ -275,6 +275,15 @@ class EditOperationCell: UIView {
         model?.width = width
     }
     
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if leftPanView.frame.contains(point) {
+            return leftPanView
+        } else if rightPanView.frame.contains(point) {
+            return rightPanView
+        }
+        return super.hitTest(point, with: event)
+    }
+    
     public func update(_ model: EditOperationCellModel) {
         self.model = model
     }

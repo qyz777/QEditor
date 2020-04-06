@@ -50,8 +50,7 @@ class EditToolViewController: UIViewController {
     /// 当前锁定的视频选择框
     private weak var selectedChooseView: EditToolChooseBoxView?
     
-    /// 当前锁定的音乐操作视图
-    private weak var selectedMusicOperationView: EditAudioWaveformOperationView?
+    private weak var selectedMusicCell: EditOperationAudioCell?
     
     /// 当前锁定的录音操作视图
     private weak var selectedRecordOperationView: EditAudioWaveformOperationView?
@@ -133,6 +132,7 @@ class EditToolViewController: UIViewController {
         contentView.addSubview(musicLabel)
         contentView.addSubview(recordAudioLabel)
         contentView.addSubview(captionLabel)
+        contentView.addSubview(musicContainer)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -188,8 +188,15 @@ class EditToolViewController: UIViewController {
             make.top.equalTo(self.thumbView.snp.bottom).offset(5)
         }
         
+        musicContainer.snp.makeConstraints { (make) in
+            make.height.equalTo(EDIT_OPERATION_VIEW_HEIGHT)
+            make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
+            make.right.equalTo(self.contentView).offset(-CONTAINER_PADDING_LEFT)
+            make.top.equalTo(originAudioWaveformView.snp.bottom).offset(5)
+        }
+        
         captionContainerView.snp.makeConstraints { (make) in
-            make.height.equalTo(EDIT_OPERATION_VIEW_MIN_WIDTH)
+            make.height.equalTo(EDIT_OPERATION_VIEW_HEIGHT)
             make.left.equalTo(self.contentView).offset(CONTAINER_PADDING_LEFT)
             make.right.equalTo(self.contentView).offset(-CONTAINER_PADDING_LEFT)
             make.top.equalTo(originAudioWaveformView.snp.bottom).offset(15 + EDIT_AUDIO_WAVEFORM_HEIGHT * 2)
@@ -451,23 +458,8 @@ class EditToolViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    private func musicTrackBecomeOperation() {
-        guard musicWaveformViews.count > 0 else {
-            return
-        }
-        musicWaveformViews.first!.showOperationView()
-        selectedMusicOperationView = musicWaveformViews.first
-    }
-    
-    private func musicTrackResignOperation() {
-        musicWaveformViews.forEach {
-            $0.hiddenOperationView()
-        }
-        selectedMusicOperationView = nil
-    }
-    
     private func replaceSelectedMusic() {
-        guard let segment = selectedMusicOperationView?.segment else {
+        guard let segment = (selectedMusicCell?.model as? EditOperationAudioCellModel)?.segment else {
             MessageBanner.warning(content: "当前没有选中音乐")
             return
         }
@@ -482,11 +474,11 @@ class EditToolViewController: UIViewController {
     }
     
     private func removeSelectedMusic() {
-        guard let waveformView = selectedMusicOperationView else {
+        guard let model = selectedMusicCell?.model as? EditOperationAudioCellModel else {
             MessageBanner.warning(content: "当前没有选中音乐")
             return
         }
-        guard let segment = waveformView.segment else { return }
+        let segment = model.segment
         let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的音乐", preferredStyle: .actionSheet)
         let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
             self.presenter.toolView(self, removeMusic: segment)
@@ -497,7 +489,7 @@ class EditToolViewController: UIViewController {
                 }
                 return $0.segment! == segment
             }
-            waveformView.removeFromSuperview()
+            self.musicContainer.removeCell(for: model)
             MessageBanner.success(content: "删除成功")
         }
         let cancelAction = UIAlertAction(title: "取消", style: .cancel) { (action) in
@@ -553,8 +545,8 @@ class EditToolViewController: UIViewController {
     }
     
     private func pushToEditMusic() {
-        guard let segment = selectedMusicOperationView?.segment else {
-            MessageBanner.warning(content: "当前没有选中音乐片段")
+        guard let segment = (selectedMusicCell?.model as? EditOperationAudioCellModel)?.segment else {
+            MessageBanner.warning(content: "当前没有选中音乐")
             return
         }
         let vc = EditToolAudioDetailSettingsViewController()
@@ -825,10 +817,8 @@ class EditToolViewController: UIViewController {
             self.addButton.isHidden = false
             switch type {
             case .edit:
-                self.musicTrackResignOperation()
                 self.toolBarView.update(self.videoToolBarModels)
             case .music:
-                self.musicTrackBecomeOperation()
                 self.toolBarView.update(self.musicToolBarModels)
             case.recordAudio:
                 self.toolBarView.update(self.recordToolBarModels)
@@ -885,6 +875,23 @@ class EditToolViewController: UIViewController {
         view.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
         view.textColor = UIColor.qe.hex(0xEEEEEE)
         view.text = "字幕轨道"
+        return view
+    }()
+    
+    private lazy var musicContainer: EditOperationContainerView = {
+        let view = EditOperationContainerView()
+        view.selectedCellClosure = { [unowned self] (cell) in
+            if cell.isSelected {
+                self.selectedMusicCell = cell as? EditOperationAudioCell
+            } else {
+                self.selectedMusicCell = nil
+            }
+        }
+        view.operationFinishClosure = { [unowned self] (cell) in
+            guard let segment = (cell.model as? EditOperationAudioCellModel)?.segment else { return }
+            let range = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
+            self.presenter.toolView(self, updateMusic: segment, timeRange: range)
+        }
         return view
     }()
 
@@ -958,141 +965,6 @@ extension EditToolViewController: EditToolViewInput {
     
     func updatePlayViewStatus(_ status: CompositionPlayerStatus) {
         playerStatus = status
-    }
-    
-    func addMusicAudioWaveformView(for segment: CompositionAudioSegment) {
-        //唤起媒体资料库的时候检查过添加合法性了，这里就不再检查了
-        let cursorX = containerView.contentOffset.x + CONTAINER_PADDING_LEFT
-        var offsetRight = videoContentWidth
-        var offsetLeft = videoContentWidth
-        var nextWaveformView: EditAudioWaveformOperationView?
-        var preWaveformView: EditAudioWaveformOperationView?
-        musicWaveformViews.forEach {
-            if $0.x > cursorX {
-                let distance = $0.x - cursorX
-                if distance < offsetRight {
-                    nextWaveformView = $0
-                    offsetRight = distance
-                }
-            } else {
-                let distance = cursorX - $0.frame.maxX
-                if distance < offsetLeft {
-                    preWaveformView = $0
-                    offsetLeft = distance
-                }
-            }
-        }
-        var width: CGFloat = CGFloat(segment.timeRange.duration.seconds * Double(EDIT_AUDIO_WAVEFORM_WIDTH))
-        let cursorOffset = containerView.contentOffset.x + SCREEN_WIDTH / 2
-        if nextWaveformView != nil {
-            width = min(width, nextWaveformView!.x - cursorOffset)
-        } else {
-            width = min(width, videoContentWidth - cursorOffset + CONTAINER_PADDING_LEFT)
-        }
-        let waveformView = EditAudioWaveformOperationView(frame: CGRect(x: 0, y: 0, width: width, height: EDIT_AUDIO_WAVEFORM_WIDTH))
-        waveformView.segment = segment
-        waveformView.selectedClosure = { [unowned self, waveformView] (isSelected) in
-            if isSelected {
-                self.selectedMusicOperationView = waveformView
-            } else {
-                self.selectedMusicOperationView = nil
-            }
-            for view in self.musicWaveformViews {
-                if !view.isEqual(waveformView) {
-                    view.hiddenOperationView()
-                }
-            }
-        }
-        var currentX = waveformView.x
-        var currentWidth = waveformView.width
-        waveformView.handleLeftPanClosure = { [unowned self, waveformView] (pan) in
-            switch pan.state {
-            case .began:
-                currentX = waveformView.x
-                currentWidth = waveformView.width
-            case .changed:
-                //1.检查条件
-                let offsetX = pan.translation(in: waveformView).x
-                let newLeft: CGFloat
-                if offsetX < 0 {
-                    //向左
-                    newLeft = max(preWaveformView != nil ? preWaveformView!.frame.maxX : CONTAINER_PADDING_LEFT, currentX + offsetX)
-                } else {
-                    //向右
-                    newLeft = min(waveformView.frame.maxX - EDIT_AUDIO_WAVEFORM_WIDTH, currentX + offsetX)
-                }
-                var newWidth = currentWidth + currentX - newLeft
-                newWidth = min(newWidth, CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_WIDTH)
-                //2.开始移动
-                waveformView.snp.updateConstraints { (make) in
-                    make.left.equalTo(self.contentView).offset(newLeft)
-                    make.width.equalTo(newWidth)
-                }
-                waveformView.layoutIfNeeded()
-            case .ended:
-                let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
-            default:
-                break
-            }
-        }
-        waveformView.handleRightPanClosure = { [unowned self, waveformView] (pan) in
-            switch pan.state {
-            case .began:
-                currentX = waveformView.frame.maxX
-                currentWidth = waveformView.width
-            case .changed:
-                //1.检查条件
-                let offsetX = pan.translation(in: waveformView).x
-                let newRight: CGFloat
-                if offsetX < 0 {
-                    //向左
-                    newRight = max(waveformView.x + EDIT_AUDIO_WAVEFORM_WIDTH, currentX + offsetX)
-                } else {
-                    //向右
-                    newRight = min(nextWaveformView != nil ? nextWaveformView!.x : self.containerView.contentSize.width - CONTAINER_PADDING_LEFT, currentX + offsetX)
-                }
-                var newWidth = newRight - waveformView.x
-                newWidth = min(newWidth, CGFloat(segment.assetDuration) * EDIT_AUDIO_WAVEFORM_WIDTH)
-                //2.开始移动
-                waveformView.snp.updateConstraints { (make) in
-                    make.width.equalTo(newWidth)
-                }
-                waveformView.layoutIfNeeded()
-            case .ended:
-                let start = Double(waveformView.x - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                let end = Double(waveformView.frame.maxX - CONTAINER_PADDING_LEFT) / Double(self.videoContentWidth) * self.duration
-                self.presenter.toolView(self, updateMusic: segment, timeRange: CMTimeRange(start: start, end: end))
-            default:
-                break
-            }
-        }
-        contentView.addSubview(waveformView)
-        waveformView.snp.makeConstraints { (make) in
-            make.top.equalTo(originAudioWaveformView.snp.bottom).offset(5)
-            make.left.equalTo(self.contentView).offset(cursorOffset)
-            make.width.equalTo(width)
-            make.height.equalTo(EDIT_AUDIO_WAVEFORM_HEIGHT)
-        }
-        musicWaveformViews.append(waveformView)
-        MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
-    }
-    
-    func refreshMusicWaveformView(with segment: CompositionAudioSegment) {
-        guard let waveformView = selectedMusicOperationView else { return }
-        guard let asset = waveformView.segment?.asset else { return }
-        if asset.duration < segment.rangeAtComposition.duration {
-            //这个时候说明音乐view要变短，range则会取最大的range
-            //算一个百分比让他变短
-            let percent = asset.duration.seconds / segment.rangeAtComposition.duration.seconds
-            waveformView.snp.makeConstraints { (make) in
-                make.width.equalTo(waveformView.width * CGFloat(percent))
-            }
-            waveformView.layoutIfNeeded()
-        }
-        waveformView.segment = segment
-        MessageBanner.success(content: "替换成功")
     }
     
     func addRecordAudioWaveformView(for segment: CompositionAudioSegment) {
@@ -1212,6 +1084,10 @@ extension EditToolViewController: EditToolViewInput {
         }
         recordWaveformViews.append(waveformView)
         MessageBanner.show(title: "成功", subTitle: "添加录音成功", style: .success)
+    }
+    
+    func refreshMusicContainer() {
+        musicContainer.update(presenter.musicCellModels)
     }
     
 }
