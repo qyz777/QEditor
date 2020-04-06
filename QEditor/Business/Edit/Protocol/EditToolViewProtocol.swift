@@ -32,7 +32,7 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func refreshMusicContainer()
     
-    func addRecordAudioWaveformView(for segment: CompositionAudioSegment)
+    func refreshRecordContainer()
     
 }
 

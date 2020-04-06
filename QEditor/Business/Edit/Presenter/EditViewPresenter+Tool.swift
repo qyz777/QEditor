@@ -106,7 +106,6 @@ extension EditViewPresenter: EditToolViewOutput {
         MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
     }
     func toolView(_ toolView: EditToolViewInput, updateMusic segment: CompositionAudioSegment, timeRange: CMTimeRange) {
-        //view传来的timeRange是不可信的，在service里还需要校验
         project.updateMusic(segment, timeRange: timeRange)
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
@@ -153,7 +152,13 @@ extension EditViewPresenter: EditToolViewOutput {
         segment.title = "语音录制音频"
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
-        toolView.addRecordAudioWaveformView(for: segment)
+        
+        recordCellModels = project.recordAudioSegments.map({ (s) -> EditOperationAudioCellModel in
+            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: "语音录制音频")
+        })
+        
+        toolView.refreshRecordContainer()
+        MessageBanner.show(title: "成功", subTitle: "添加录音成功", style: .success)
     }
     
     func toolView(_ toolView: EditToolViewInput, updateRecord segment: CompositionAudioSegment, timeRange: CMTimeRange) {
