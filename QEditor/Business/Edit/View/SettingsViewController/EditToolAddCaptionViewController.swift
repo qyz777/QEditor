@@ -51,7 +51,9 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     private var beginLongPress = false
     private var startRecordX: CGFloat = 0
     
-    private weak var selectedCell: EditOperationCaptionCell?
+    private var selectedCell: EditOperationCaptionCell? {
+        return operationContainerView.selectedCell as? EditOperationCaptionCell
+    }
     
     private var cannotPop: Bool {
         return beginLongPress || presenter.isEditingCaption
@@ -159,7 +161,6 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
         cancelButton.removeFromSuperview()
         toolView.removeFromSuperview()
         self.selectedCell?.hiddenOperationView()
-        self.selectedCell = nil
     }
     
     //MARK: Private
@@ -272,16 +273,11 @@ class EditToolAddCaptionViewController: EditToolBaseSettingsViewController {
     
     private lazy var operationContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
-        view.selectedCellClosure = { [unowned self, view] (cell) in
+        view.selectedClosure = { [unowned self, view] (isSelected) in
             self.toolView.removeFromSuperview()
             self.cancelButton.removeFromSuperview()
-            if cell.isSelected {
-                self.selectedCell = cell as? EditOperationCaptionCell
-            } else {
-                self.selectedCell = nil
-                return
-            }
-            let center = view.convert(cell.center, to: self.contentView)
+            guard isSelected else { return }
+            let center = view.convert(self.selectedCell?.center ?? .zero, to: self.contentView)
             self.contentView.addSubview(self.toolView)
             self.contentView.addSubview(self.cancelButton)
             self.toolView.snp.makeConstraints { (make) in

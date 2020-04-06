@@ -29,9 +29,20 @@ class EditOperationContainerView: UIView {
     
     public var operationFinishClosure: ((_ cell: EditOperationCell) -> Void)?
     
-    public var selectedCellClosure: ((_ cell: EditOperationCell) -> Void)?
+    public var selectedClosure: ((_ isSelected: Bool) -> Void)?
+    
+    public var selectedCell: EditOperationCell?
     
     //MARK: Public
+    
+    public func canInsert(from start: CGPoint, to end: CGPoint) -> Bool {
+        for cell in cells {
+            if cell.frame.contains(start) || cell.frame.contains(end) {
+                return false
+            }
+        }
+        return true
+    }
     
     @discardableResult
     public func appendCell(from cellModel: EditOperationCellModel) -> Bool {
@@ -154,7 +165,12 @@ class EditOperationContainerView: UIView {
                     view.hiddenOperationView()
                 }
             }
-            self.selectedCellClosure?(cell)
+            if isSelected {
+                self.selectedCell = cell
+            } else {
+                self.selectedCell = nil
+            }
+            self.selectedClosure?(isSelected)
         }
         var currentX = cell.x
         var currentWidth = cell.width
@@ -337,7 +353,7 @@ class EditOperationCell: UIView {
         } else {
             showOperationView()
         }
-        selectedClosure?(!isSelected)
+        selectedClosure?(isSelected)
     }
     
     //MARK: Getter

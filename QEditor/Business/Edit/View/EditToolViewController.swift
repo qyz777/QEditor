@@ -50,11 +50,17 @@ class EditToolViewController: UIViewController {
     /// 当前锁定的视频选择框
     private weak var selectedChooseView: EditToolChooseBoxView?
     
-    private weak var selectedMusicCell: EditOperationAudioCell?
+    private var selectedMusicCell: EditOperationAudioCell? {
+        return musicContainer.selectedCell as? EditOperationAudioCell
+    }
     
-    private weak var selectedRecordCell: EditOperationAudioCell?
+    private var selectedRecordCell: EditOperationAudioCell? {
+        return recordContainer.selectedCell as? EditOperationAudioCell
+    }
     
-    private weak var selectedCaptionCell: EditOperationCaptionCell?
+    private var selectedCaptionCell: EditOperationCaptionCell? {
+        return captionContainerView.selectedCell as? EditOperationCaptionCell
+    }
     
     private var videoToolBarModels: [EditToolBarModel] = [
         EditToolBarModel(action: .splitVideo, imageName: "edit_split", text: "分割"),
@@ -89,10 +95,6 @@ class EditToolViewController: UIViewController {
     ]
     
     private var tabSelectedType: EditToolTabSelectedType = .edit
-    
-    private var musicWaveformViews: [EditAudioWaveformOperationView] = []
-    
-    private var recordWaveformViews: [EditAudioWaveformOperationView] = []
     
     //MARK: Override
 
@@ -356,12 +358,10 @@ class EditToolViewController: UIViewController {
         //只要有1s的间距就可以往里插
         let minPoint = CGPoint(x: cursorX, y: originAudioWaveformView.frame.maxY + 5)
         let maxPoint = CGPoint(x: cursorX + EDIT_THUMB_CELL_SIZE, y: originAudioWaveformView.frame.maxY + 5)
-        //遍历数组中的view是否包含这个point
-        for view in musicWaveformViews {
-            if view.frame.contains(maxPoint) || view.frame.contains(minPoint) {
-                MessageBanner.warning(content: "此位置无法添加音频")
-                return
-            }
+        //判断是否包含这两个point
+        guard musicContainer.canInsert(from: minPoint, to: maxPoint) else {
+            MessageBanner.warning(content: "此位置无法添加音频")
+            return
         }
         //2.唤起媒体资料库
         let vc = AudioCollectionViewController()
@@ -489,13 +489,6 @@ class EditToolViewController: UIViewController {
         let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的音乐", preferredStyle: .actionSheet)
         let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
             self.presenter.toolView(self, removeMusic: segment)
-            self.musicWaveformViews.removeAll {
-                if $0.segment == nil {
-                    $0.removeFromSuperview()
-                    return true
-                }
-                return $0.segment! == segment
-            }
             self.musicContainer.removeCell(for: model)
             MessageBanner.success(content: "删除成功")
         }
@@ -516,13 +509,6 @@ class EditToolViewController: UIViewController {
         let actionSheet = UIAlertController(title: "提示", message: "删除当前选定的录音", preferredStyle: .actionSheet)
         let okAction = UIAlertAction(title: "确定", style: .default) { (action) in
             self.presenter.toolView(self, removeRecord: segment)
-            self.recordWaveformViews.removeAll {
-                if $0.segment == nil {
-                    $0.removeFromSuperview()
-                    return true
-                }
-                return $0.segment! == segment
-            }
             self.recordContainer.removeCell(for: model)
             MessageBanner.success(content: "删除成功")
         }
@@ -738,14 +724,6 @@ class EditToolViewController: UIViewController {
     
     private lazy var captionContainerView: EditOperationContainerView = {
         let view = EditOperationContainerView()
-        view.selectedCellClosure = { [unowned self, view] (cell) in
-            guard let c = cell as? EditOperationCaptionCell else { return }
-            if c.isSelected {
-                self.selectedCaptionCell = c
-            } else {
-                self.selectedCaptionCell = nil
-            }
-        }
         view.operationFinishClosure = { [unowned self] (cell) in
             guard let segment = (cell.model as? EditOperationCaptionCellModel)?.segment else { return }
             segment.rangeAtComposition = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
@@ -887,13 +865,6 @@ class EditToolViewController: UIViewController {
     
     private lazy var musicContainer: EditOperationContainerView = {
         let view = EditOperationContainerView()
-        view.selectedCellClosure = { [unowned self] (cell) in
-            if cell.isSelected {
-                self.selectedMusicCell = cell as? EditOperationAudioCell
-            } else {
-                self.selectedMusicCell = nil
-            }
-        }
         view.operationFinishClosure = { [unowned self] (cell) in
             guard let segment = (cell.model as? EditOperationAudioCellModel)?.segment else { return }
             let range = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
@@ -904,13 +875,6 @@ class EditToolViewController: UIViewController {
     
     private lazy var recordContainer: EditOperationContainerView = {
         let view = EditOperationContainerView()
-        view.selectedCellClosure = { [unowned self] (cell) in
-            if cell.isSelected {
-                self.selectedRecordCell = cell as? EditOperationAudioCell
-            } else {
-                self.selectedRecordCell = nil
-            }
-        }
         view.operationFinishClosure = { [unowned self] (cell) in
             guard let segment = (cell.model as? EditOperationAudioCellModel)?.segment else { return }
             let range = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))

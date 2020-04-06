@@ -88,7 +88,6 @@
 		A0C6DFB823D9CCC800A48181 /* EditToolSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFB723D9CCC800A48181 /* EditToolSplitButton.swift */; };
 		A0C6DFBA23DAAE8200A48181 /* EditToolTransformViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFB923DAAE8200A48181 /* EditToolTransformViewController.swift */; };
 		A0C6DFBC23DAD2B700A48181 /* CompositionTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFBB23DAD2B700A48181 /* CompositionTransition.swift */; };
-		A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */; };
 		A0C6DFD023DD1C1D00A48181 /* CompositionVideoSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFCF23DD1C1C00A48181 /* CompositionVideoSegment.swift */; };
 		A0C6DFD223DD1E4900A48181 /* CompositionAudioSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0C6DFD123DD1E4900A48181 /* CompositionAudioSegment.swift */; };
 		A0DBD4E323D7360700E26238 /* CompositionSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DBD4E223D7360700E26238 /* CompositionSegment.swift */; };
@@ -98,7 +97,6 @@
 		A0E03BFD235AA2490012F226 /* EditToolViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03BFC235AA2490012F226 /* EditToolViewController.swift */; };
 		A0E03C01235AA35F0012F226 /* EditViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */; };
 		A0E03C03235AA3730012F226 /* EditViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E03C02235AA3730012F226 /* EditViewPresenter.swift */; };
-		A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */; };
 		A0EE9B45236D6182001CE0D8 /* EditToolChooseBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */; };
 /* End PBXBuildFile section */
 
@@ -188,7 +186,6 @@
 		A0C6DFB723D9CCC800A48181 /* EditToolSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolSplitButton.swift; sourceTree = "<group>"; };
 		A0C6DFB923DAAE8200A48181 /* EditToolTransformViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolTransformViewController.swift; sourceTree = "<group>"; };
 		A0C6DFBB23DAD2B700A48181 /* CompositionTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionTransition.swift; sourceTree = "<group>"; };
-		A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolAddMusicButton.swift; sourceTree = "<group>"; };
 		A0C6DFCF23DD1C1C00A48181 /* CompositionVideoSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionVideoSegment.swift; sourceTree = "<group>"; };
 		A0C6DFD123DD1E4900A48181 /* CompositionAudioSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionAudioSegment.swift; sourceTree = "<group>"; };
 		A0DBD4E223D7360700E26238 /* CompositionSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositionSegment.swift; sourceTree = "<group>"; };
@@ -198,7 +195,6 @@
 		A0E03BFC235AA2490012F226 /* EditToolViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolViewController.swift; sourceTree = "<group>"; };
 		A0E03C00235AA35F0012F226 /* EditViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewProtocol.swift; sourceTree = "<group>"; };
 		A0E03C02235AA3730012F226 /* EditViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewPresenter.swift; sourceTree = "<group>"; };
-		A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAudioWaveformOperationView.swift; sourceTree = "<group>"; };
 		A0EE9B44236D6182001CE0D8 /* EditToolChooseBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditToolChooseBoxView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -484,8 +480,6 @@
 				A0C1A2A923AE27530075AD4F /* EditToolAdjustProgressView.swift */,
 				A0DBD4E623D9788D00E26238 /* EditToolTabView.swift */,
 				A0C6DFB723D9CCC800A48181 /* EditToolSplitButton.swift */,
-				A0C6DFBD23DC15E500A48181 /* EditToolAddMusicButton.swift */,
-				A0E228C023DED58D00F685F9 /* EditAudioWaveformOperationView.swift */,
 				A09B2E7B23E3CF6600F6FC7A /* EditAudioWaverView.swift */,
 				A080D7122402607E0089B10B /* EditOperationContainerView.swift */,
 				A07B6A3D24138E55008170F5 /* EditOperationCaptionCell.swift */,
@@ -731,8 +725,6 @@
 				A0C1A2AA23AE27530075AD4F /* EditToolAdjustProgressView.swift in Sources */,
 				A0ADD4C623E2BBC4006BF4F5 /* EditToolAudioDetailSettingsViewController.swift in Sources */,
 				A080D7132402607E0089B10B /* EditOperationContainerView.swift in Sources */,
-				A0E228C123DED58E00F685F9 /* EditAudioWaveformOperationView.swift in Sources */,
-				A0C6DFBE23DC15E500A48181 /* EditToolAddMusicButton.swift in Sources */,
 				A0C6DFBC23DAD2B700A48181 /* CompositionTransition.swift in Sources */,
 				A0532089243AC1730009AD24 /* CompositionProjectConfig.swift in Sources */,
 				A09CF7C82349E17000139461 /* NavigationBar.swift in Sources */,
