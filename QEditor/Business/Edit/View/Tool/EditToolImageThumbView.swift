@@ -18,26 +18,26 @@ class EditToolImageCellModel {
 
 let EDIT_THUMB_CELL_SIZE: CGFloat = 40
 
-fileprivate let CELL_IDENTIFIER = "EditToolImageCell"
-
 fileprivate class EditToolImageCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        contentView.addSubview(imageView)
-        imageView.snp.makeConstraints { (make) in
-            make.edges.equalTo(self.contentView)
-        }
+        contentView.layer.addSublayer(imageLayer)
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
     
-    lazy var imageView: UIImageView = {
-        let view = UIImageView()
-        view.contentMode = .scaleAspectFill
-        return view
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageLayer.frame = contentView.frame
+    }
+    
+    lazy var imageLayer: CALayer = {
+        let layer = CALayer()
+        layer.contentsGravity = .resizeAspectFill
+        return layer
     }()
     
 }
@@ -49,7 +49,7 @@ class EditToolImageThumbView: UICollectionView {
     
     private var generator: AVAssetImageGenerator?
     
-    private let queuePool = DispatchQueuePool(name: "AudioWaveFormView.LoadSamples", queueCount: 6, qos: .userInteractive)
+    private let queuePool = DispatchQueuePool(name: "ImageThumbView.LoadImages", queueCount: 6, qos: .userInteractive)
     
     public var isNeedLoadImageAtDisplay = true
     
@@ -60,7 +60,7 @@ class EditToolImageThumbView: UICollectionView {
             if itemModelClosure != nil {
                 let model = itemModelClosure!($0.item)
                 loadImage(at: model.time) { (image) in
-                    c.imageView.image = image
+                    c.imageLayer.contents = image?.cgImage
                 }
             }
         }
@@ -85,7 +85,7 @@ class EditToolImageThumbView: UICollectionView {
         dataSource = self
         showsVerticalScrollIndicator = false
         showsHorizontalScrollIndicator = false
-        register(EditToolImageCell.self, forCellWithReuseIdentifier: CELL_IDENTIFIER)
+        register(cellWithClass: EditToolImageCell.self)
     }
     
     required init?(coder: NSCoder) {
@@ -108,7 +108,7 @@ class EditToolImageThumbView: UICollectionView {
                     }
                     image = convertImage!.qe.scaleToSize(.init(width: EDIT_THUMB_CELL_SIZE, height: EDIT_THUMB_CELL_SIZE))
                 } catch {
-                    print(error.localizedDescription)
+                    QELog(error.localizedDescription)
                 }
             }
             DispatchQueue.main.sync {
@@ -130,8 +130,7 @@ extension EditToolImageThumbView: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CELL_IDENTIFIER, for: indexPath)
-        return cell
+        return collectionView.dequeueReusableCell(withClass: EditToolImageCell.self, for: indexPath)
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -142,7 +141,7 @@ extension EditToolImageThumbView: UICollectionViewDelegate, UICollectionViewData
         if itemModelClosure != nil {
             let model = itemModelClosure!(indexPath.item)
             loadImage(at: model.time) { (image) in
-                c.imageView.image = image
+                c.imageLayer.contents = image?.cgImage
             }
         }
     }
