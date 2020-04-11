@@ -10,10 +10,8 @@ import UIKit
 import AVFoundation
 import DispatchQueuePool
 
-class EditToolImageCellModel {
-    
-    var time: CMTime = .zero
-    
+struct EditToolImageCellModel {
+    let time: CMTime
 }
 
 let EDIT_THUMB_CELL_SIZE: CGFloat = 40

@@ -11,17 +11,15 @@ import AVFoundation
 
 protocol EditToolViewInput: EditViewPlayProtocol {
     
+    /// 刷新原声
+    /// - Parameter asset: 视频资源
     func refreshWaveFormView(with asset: AVAsset)
     
     func deletePart()
     
-    /// 视频相关view的重新加载，会重新reload视频片段以及原声音频片段
+    /// 视频相关view的重新加载，会重新reload视频片段
     /// - Parameter segments: 视频segment
-    func reloadVideoViews(_ segments: [CompositionVideoSegment])
-    
-    /// 视频相关view的刷新，不会reload视频片段以及原声音频片段
-    /// - Parameter segments: 视频segment
-    func refreshVideoViews(_ segments: [CompositionVideoSegment])
+    func reloadVideoView(_ segments: [CompositionVideoSegment])
     
     func selectedVideoSegment() -> CompositionVideoSegment?
     
@@ -33,6 +31,10 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     func refreshMusicContainer()
     
     func refreshRecordContainer()
+    
+    func refreshVideoTransitionView(_ segments: [CompositionVideoSegment])
+    
+    func refreshOperationContainerView()
     
 }
 
@@ -49,8 +51,6 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
     
     func toolView(_ toolView: EditToolViewInput, delete segment: CompositionVideoSegment)
-    
-    func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize)
     
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel])
     

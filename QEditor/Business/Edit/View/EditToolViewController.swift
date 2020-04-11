@@ -44,8 +44,9 @@ class EditToolViewController: UIViewController {
     /// 播放器状态
     private var playerStatus: CompositionPlayerStatus = .error
     
-    /// 视频最大宽度，每次新增、删除视频需要重新设置这个属性
-    private var videoContentWidth: CGFloat = 0
+    private var videoContentWidth: CGFloat {
+        return presenter.containerContentWidth
+    }
     
     /// 当前锁定的视频选择框
     private weak var selectedChooseView: EditToolChooseBoxView?
@@ -247,61 +248,7 @@ class EditToolViewController: UIViewController {
         }
     }
     
-    private func refreshVideoViewsInContainer(_ segments: [CompositionVideoSegment]) {
-        //1.清除
-        clearViewsAndInfos()
-        loadingView.dismiss()
-        //2.更新容器view的contentSize
-        let itemCount = presenter.frameCount()
-        //视频最大滑动宽度
-        let contentWidth = CGFloat(itemCount) * EDIT_THUMB_CELL_SIZE
-        //容器最大滑动宽度
-        let containerContentWidth = max(contentWidth + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
-        containerView.contentSize = .init(width: containerContentWidth, height: 0)
-        contentView.snp.updateConstraints { (make) in
-            make.width.equalTo(containerContentWidth)
-        }
-        view.layoutIfNeeded()
-        //3.设置视频最大宽度
-        videoContentWidth = contentWidth
-        //4.刷新选择框
-        var left = SCREEN_WIDTH / 2
-        var i = 0
-        var resetVideoContentWidth = videoContentWidth
-        for segment in segments {
-            //处理一下边界case
-            var chooseWidth = CGFloat(segment.duration) * EDIT_THUMB_CELL_SIZE
-            chooseWidth = resetVideoContentWidth < chooseWidth ? resetVideoContentWidth : chooseWidth
-            resetVideoContentWidth -= chooseWidth
-            let view = EditToolChooseBoxView(with: chooseWidth)
-            view.segment = segment
-            selectedChooseView = view
-            contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
-            view.snp.makeConstraints { (make) in
-                make.left.equalTo(self.contentView).offset(left)
-                make.size.equalTo(CGSize(width: chooseWidth, height: EDIT_THUMB_CELL_SIZE))
-                make.centerY.equalTo(self.thumbView.snp.centerY)
-            }
-            if i + 1 < segments.count {
-                //添加分割button
-                let view = EditToolSplitButton()
-                view.addTarget(self, action: #selector(splitButtonDidClick(_:)), for: .touchUpInside)
-                view.index = i
-                contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
-                view.snp.makeConstraints { (make) in
-                    make.centerY.equalTo(self.thumbView.snp.centerY)
-                    make.centerX.equalTo(self.contentView.snp.left).offset(left + chooseWidth)
-                    make.size.equalTo(CGSize(width: 30, height: 30))
-                }
-            }
-            left += chooseWidth
-            i += 1
-        }
-        //5.准备波形图
-        presenter.toolView(self, needRefreshWaveformViewWith: .init(width: containerContentWidth, height: WAVEFORM_HEIGHT))
-    }
-    
-    private func clearViewsAndInfos() {
+    private func clearSplitViewsAndInfos() {
         contentView.subviews.forEach { (view) in
             if view.isKind(of: EditToolChooseBoxView.self) ||
                 view.isKind(of: EditToolSplitButton.self) {
@@ -919,14 +866,22 @@ extension EditToolViewController: EditToolViewInput {
         return selectedChooseView?.segment
     }
     
-    func reloadVideoViews(_ segments: [CompositionVideoSegment]) {
-        refreshVideoViewsInContainer(segments)
-        thumbView.reloadData()
-        timeScaleView.reloadData()
+    func refreshOperationContainerView() {
+        loadingView.dismiss()
+        //视频最大滑动宽度
+        let contentWidth = videoContentWidth
+        //容器最大滑动宽度
+        let containerContentWidth = max(contentWidth + SCREEN_WIDTH, MIN_SCROLL_WIDTH)
+        containerView.contentSize = .init(width: containerContentWidth, height: 0)
+        contentView.snp.updateConstraints { (make) in
+            make.width.equalTo(containerContentWidth)
+        }
+        view.layoutIfNeeded()
     }
     
-    func refreshVideoViews(_ segments: [CompositionVideoSegment]) {
-        refreshVideoViewsInContainer(segments)
+    func reloadVideoView(_ segments: [CompositionVideoSegment]) {
+        thumbView.reloadData()
+        timeScaleView.reloadData()
     }
     
     func loadAsset(_ asset: AVAsset) {
@@ -961,6 +916,42 @@ extension EditToolViewController: EditToolViewInput {
     
     func refreshRecordContainer() {
         recordContainer.update(presenter.recordCellModels)
+    }
+    
+    func refreshVideoTransitionView(_ segments: [CompositionVideoSegment]) {
+        clearSplitViewsAndInfos()
+        var left = SCREEN_WIDTH / 2
+        var i = 0
+        var resetVideoContentWidth = videoContentWidth
+        for segment in segments {
+            //处理一下边界case
+            var chooseWidth = CGFloat(Double(videoContentWidth) * segment.duration / duration)
+            chooseWidth = resetVideoContentWidth < chooseWidth ? resetVideoContentWidth : chooseWidth
+            resetVideoContentWidth -= chooseWidth
+            let view = EditToolChooseBoxView(with: chooseWidth)
+            view.segment = segment
+            selectedChooseView = view
+            contentView.insertSubview(view, at: InsertViewLevel.choose.rawValue)
+            view.snp.makeConstraints { (make) in
+                make.left.equalTo(self.contentView).offset(left)
+                make.size.equalTo(CGSize(width: chooseWidth, height: EDIT_THUMB_CELL_SIZE))
+                make.centerY.equalTo(self.thumbView.snp.centerY)
+            }
+            if i + 1 < segments.count {
+                //添加分割button
+                let view = EditToolSplitButton()
+                view.addTarget(self, action: #selector(splitButtonDidClick(_:)), for: .touchUpInside)
+                view.index = i
+                contentView.insertSubview(view, at: InsertViewLevel.splitFlag.rawValue)
+                view.snp.makeConstraints { (make) in
+                    make.centerY.equalTo(self.thumbView.snp.centerY)
+                    make.centerX.equalTo(self.contentView.snp.left).offset(left + chooseWidth)
+                    make.size.equalTo(CGSize(width: 30, height: 30))
+                }
+            }
+            left += chooseWidth
+            i += 1
+        }
     }
     
 }

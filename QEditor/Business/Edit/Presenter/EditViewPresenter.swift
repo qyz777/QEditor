@@ -78,21 +78,20 @@ class EditViewPresenter {
     }
     
     func refreshView() {
-        guard project.composition != nil else {
-            QELog("composition为空")
-            return
-        }
+        guard let composition = project.composition else { return }
+        guard let imageSourceComposition = project.imageSourceComposition else { return }
         //1.处理工具栏数据源
         thumbModels = splitTime().map({ (time) -> EditToolImageCellModel in
-            let m = EditToolImageCellModel()
-            m.time = time
-            return m
+            return EditToolImageCellModel(time: time)
         })
         //2.设置player
         project.reloadPlayer()
-        //3.刷新工具栏
-        toolView?.loadAsset(project.imageSourceComposition!)
-        toolView?.reloadVideoViews(project.videoSegments)
+        //3.刷新工具栏，下面刷新顺序不能乱
+        toolView?.refreshOperationContainerView()
+        toolView?.loadAsset(imageSourceComposition)
+        toolView?.reloadVideoView(project.videoSegments)
+        toolView?.refreshVideoTransitionView(project.videoSegments)
+        toolView?.refreshWaveFormView(with: composition)
         //4.恢复到刷新之前的seek
         project.seek(to: toolView?.currentCursorTime() ?? .zero)
     }

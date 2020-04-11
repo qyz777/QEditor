@@ -18,6 +18,8 @@ protocol EditDataSourceProtocol {
     
     var thumbModels: [EditToolImageCellModel] { get }
     
+    var containerContentWidth: CGFloat { get }
+    
     /// 获取帧数
     func frameCount() -> Int
     

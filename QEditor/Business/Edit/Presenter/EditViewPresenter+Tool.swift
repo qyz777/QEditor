@@ -21,10 +21,6 @@ extension EditViewPresenter: EditToolViewOutput {
         MessageBanner.show(title: "任务", subTitle: "删除成功", style: .success)
     }
     
-    func toolView(_ toolView: EditToolViewInput, needRefreshWaveformViewWith size: CGSize) {
-        toolView.refreshWaveFormView(with: project.composition!)
-    }
-    
     func toolView(_ toolView: EditToolViewInput, didSelected videos: [MediaVideoModel], images: [MediaImageModel]) {
         //todo:先只能处理视频了
         guard videos.count > 0 else {
@@ -72,7 +68,9 @@ extension EditViewPresenter: EditToolViewOutput {
     func toolViewShouldSplitVideo(_ toolView: EditToolViewInput) {
         let time = toolView.currentCursorTime()
         project.splitVideoAt(time: time)
-        toolView.refreshVideoViews(project.videoSegments)
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
+        toolView.refreshVideoTransitionView(project.videoSegments)
     }
     
     func toolViewShouldReverseVideo(_ toolView: EditToolViewInput) {
