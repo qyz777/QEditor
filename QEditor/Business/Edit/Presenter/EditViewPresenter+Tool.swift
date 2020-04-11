@@ -186,6 +186,18 @@ extension EditViewPresenter: EditToolViewOutput {
         refreshPlayerViewAndPlay(withAudio: segment)
     }
     
+    func toolViewOriginalAudioEnableMute(_ toolView: EditToolViewInput) {
+        project.originVolumn = 0
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
+    }
+    
+    func toolViewOriginalAudioDisableMute(_ toolView: EditToolViewInput) {
+        project.originVolumn = 1.0
+        project.reloadPlayer()
+        project.seek(to: toolView.currentCursorTime())
+    }
+    
 }
 
 extension EditViewPresenter {

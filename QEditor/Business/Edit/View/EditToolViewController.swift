@@ -136,6 +136,7 @@ class EditToolViewController: UIViewController {
         contentView.addSubview(captionLabel)
         contentView.addSubview(musicContainer)
         contentView.addSubview(recordContainer)
+        contentView.addSubview(muteButton)
         
         containerView.snp.makeConstraints { (make) in
             make.top.left.right.equalTo(self.view)
@@ -245,6 +246,12 @@ class EditToolViewController: UIViewController {
         
         loadingView.snp.makeConstraints { (make) in
             make.edges.equalTo(self.view)
+        }
+        
+        muteButton.snp.makeConstraints { (make) in
+            make.right.equalTo(self.originAudioLabel.snp.left).offset(-15)
+            make.centerY.equalTo(self.originAudioLabel)
+            make.size.equalTo(CGSize(width: 30, height: 30))
         }
     }
     
@@ -565,6 +572,16 @@ class EditToolViewController: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    @objc
+    func muteButtonDidClick() {
+        muteButton.isSelected = !muteButton.isSelected
+        if muteButton.isSelected {
+            presenter.toolViewOriginalAudioEnableMute(self)
+        } else {
+            presenter.toolViewOriginalAudioDisableMute(self)
+        }
+    }
+    
     //MARK: Notification
     @objc
     func shouldHiddenSplitViews(_ notification: Notification) {
@@ -827,6 +844,14 @@ class EditToolViewController: UIViewController {
             let range = CMTimeRange(start: cell.startValue(for: self.duration), end: cell.endValue(for: self.duration))
             self.presenter.toolView(self, updateRecord: segment, timeRange: range)
         }
+        return view
+    }()
+    
+    private lazy var muteButton: UIButton = {
+        let view = UIButton(type: .custom)
+        view.setImage(UIImage(named: "edit_mute_enable"), for: .selected)
+        view.setImage(UIImage(named: "edit_mute_disable"), for: .normal)
+        view.addTarget(self, action: #selector(muteButtonDidClick), for: .touchUpInside)
         return view
     }()
 

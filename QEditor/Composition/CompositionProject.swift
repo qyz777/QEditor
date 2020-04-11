@@ -100,6 +100,13 @@ public class CompositionProject {
         }
     }
     
+    /// Volumn of original sounds in AVAsset
+    public var originVolumn: Float = 1.0 {
+        didSet {
+            setupAudioMix()
+        }
+    }
+    
     public func generateExporter(url: URL) -> CompositionExporter? {
         guard let composition = composition else { return nil }
         let filters = player.filters.map { (f) -> ImageProcessingOperation in
@@ -591,15 +598,19 @@ extension CompositionProject {
     private func setupAudioMix() {
         audioMix = AVMutableAudioMix()
         guard let composition = composition else { return }
+        
+        let originAudioTrack = composition.tracks(withMediaType: .audio
+        )[0]
         let mixAudioTrack = composition.tracks(withMediaType: .audio)[1]
         let recordTrack = composition.tracks(withMediaType: .audio)[2]
-        //设置混音
-        //todo:原声的设置
+        
+        let originParam = AVMutableAudioMixInputParameters(track: originAudioTrack)
+        originParam.setVolume(originVolumn, at: .zero)
         let mixParam = AVMutableAudioMixInputParameters(track: mixAudioTrack)
         setupInputParameters(mixParam, for: musicSegments)
         let recordParam = AVMutableAudioMixInputParameters(track: recordTrack)
         setupInputParameters(recordParam, for: recordAudioSegments)
-        audioMix!.inputParameters = [mixParam, recordParam]
+        audioMix!.inputParameters = [originParam, mixParam, recordParam]
     }
     
     private func setupVideoComposition(from composition: AVMutableComposition) {

@@ -72,6 +72,12 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     
     func toolView(_ toolView: EditToolViewInput, transitionAt index: Int) -> CompositionTransitionModel
     
+    //MARK: Original Video
+    
+    func toolViewOriginalAudioEnableMute(_ toolView: EditToolViewInput)
+    
+    func toolViewOriginalAudioDisableMute(_ toolView: EditToolViewInput)
+    
     //MARK: Music
     
     func toolView(_ toolView: EditToolViewInput, addMusicFrom asset: AVAsset, title: String?)
