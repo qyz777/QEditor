@@ -35,8 +35,8 @@ public class TableViewAdapter: NSObject {
     
     private var bundleName: String?
     
-    private var _delegateProxy: TableViewDelegateProxy?
-    private var _dataSourceProxy: TableViewDataSourceProxy?
+    private var _delegateProxy: ProtocolProxy?
+    private var _dataSourceProxy: ProtocolProxy?
     
     private weak var _tableViewDelegate: UITableViewDelegate?
     public weak var tableViewDelegate: UITableViewDelegate? {
@@ -153,7 +153,7 @@ public class TableViewAdapter: NSObject {
     private func updateDelegate() {
         tableView?.delegate = nil
         if _tableViewDelegate != nil {
-            _delegateProxy = TableViewDelegateProxy.init(with: _tableViewDelegate, for: self)
+            _delegateProxy = ProtocolProxy(with: _tableViewDelegate, for: self)
         }
         tableView?.delegate = _delegateProxy == nil ? self : _delegateProxy
     }
@@ -161,7 +161,7 @@ public class TableViewAdapter: NSObject {
     private func updateDataSource() {
         tableView?.dataSource = nil
         if _tableViewDataSource != nil {
-            _dataSourceProxy = TableViewDataSourceProxy.init(with: _tableViewDataSource, for: self)
+            _dataSourceProxy = ProtocolProxy(with: _tableViewDataSource, for: self)
         }
         tableView?.dataSource = _dataSourceProxy == nil ? self : _dataSourceProxy
     }

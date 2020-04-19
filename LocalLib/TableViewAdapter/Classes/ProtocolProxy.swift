@@ -1,5 +1,5 @@
 //
-//  BaseProxy.swift
+//  ProtocolProxy.swift
 //  QEditor
 //
 //  Created by Q YiZhong on 2019/2/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BaseProxy: NSObject {
+class ProtocolProxy: NSObject, UITableViewDataSource, UITableViewDelegate {
     
     private weak var _target: AnyObject?
     private weak var _interceptor: AnyObject?
@@ -30,6 +30,14 @@ class BaseProxy: NSObject {
         super.init()
         _target = target
         _interceptor = interceptor
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return (_interceptor as! UITableViewDataSource).tableView(tableView, numberOfRowsInSection: section)
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return (_interceptor as! UITableViewDataSource).tableView(tableView, cellForRowAt: indexPath)
     }
 
 }
