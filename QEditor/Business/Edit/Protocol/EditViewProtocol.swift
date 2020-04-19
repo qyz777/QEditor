@@ -18,4 +18,8 @@ protocol EditViewOutput: class {
     
     func viewShouldExportVideo(_ view: EditViewInput)
     
+    func exportProject() -> CompositionProjectConfig
+    
+    func importProject(_ config: CompositionProjectConfig)
+    
 }

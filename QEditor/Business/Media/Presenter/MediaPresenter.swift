@@ -53,6 +53,10 @@ extension MediaPresenter: MediaPresenterInput {
         }
     }
     
+    func load(model: MediaVideoModel, _ closure: @escaping () -> Void) {
+        manager.requestAVAsset(for: model, closure)
+    }
+    
     func requestAuthorizationIfNeed() {
         guard PHPhotoLibrary.authorizationStatus() != .authorized else {
             return

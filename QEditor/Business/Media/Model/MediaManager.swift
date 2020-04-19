@@ -54,29 +54,6 @@ class MediaManager {
             fetchResult.enumerateObjects { (asset, _, _) in
                 let m = MediaVideoModel()
                 m.asset = asset
-                let option = PHVideoRequestOptions()
-                option.version = .current
-                option.deliveryMode = .automatic
-                option.isNetworkAccessAllowed = true
-                let sema = DispatchSemaphore(value: 0)
-                PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: option) { (avasset, mix, info) in
-                    guard info != nil && avasset != nil && avasset!.isKind(of: AVURLAsset.self) else {
-                        sema.signal()
-                        return
-                    }
-                    m.videoTime = avasset!.duration
-                    m.url = (avasset as! AVURLAsset).url
-                    let second = Int(ceil(Double(m.videoTime.value / Int64(m.videoTime.timescale))))
-                    if second >= 3600 {
-                        m.formatTime = "\(second % 3600)" + ":" + String(format: "%.2d", second / 60) + ":" + String(format: "%.2d", second % 60)
-                    } else if second >= 60 {
-                        m.formatTime = "\(second / 60)" + ":" + String(format: "%.2d", second % 60)
-                    } else {
-                        m.formatTime = "00" + ":" + String(format: "%.2d", second % 60)
-                    }
-                    sema.signal()
-                }
-                sema.wait()
                 self.videoArray.append(m)
             }
             DispatchQueue.main.sync {
@@ -101,6 +78,22 @@ class MediaManager {
             PHImageManager.default().requestImage(for: asset, targetSize: size, contentMode: .aspectFit, options: opt) { (image, info) in
                 closure(image)
             }
+        }
+    }
+    
+    public func requestAVAsset(for model: MediaVideoModel, _ closure: @escaping () -> Void) {
+        guard let asset = model.asset else { return }
+        let option = PHVideoRequestOptions()
+        option.version = .current
+        option.deliveryMode = .automatic
+        option.isNetworkAccessAllowed = true
+        PHCachingImageManager.default().requestAVAsset(forVideo: asset, options: option) { (avasset, mix, info) in
+            guard info != nil && avasset != nil && avasset!.isKind(of: AVURLAsset.self) else { return }
+            model.videoTime = avasset!.duration
+            model.url = (avasset as! AVURLAsset).url
+            let second = Int(ceil(Double(model.videoTime.value / Int64(model.videoTime.timescale))))
+            model.formatTime = String.qe.formatTime(second)
+            closure()
         }
     }
     

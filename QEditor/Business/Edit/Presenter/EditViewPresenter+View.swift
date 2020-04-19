@@ -32,4 +32,13 @@ extension EditViewPresenter: EditViewOutput {
         UIViewController.qe.current()?.present(nav, animated: true, completion: nil)
     }
     
+    func exportProject() -> CompositionProjectConfig {
+        return project.exportProject()
+    }
+    
+    func importProject(_ config: CompositionProjectConfig) {
+        project.importProject(config: config)
+        refreshView()
+    }
+    
 }

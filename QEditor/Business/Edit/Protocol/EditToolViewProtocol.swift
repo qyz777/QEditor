@@ -32,6 +32,8 @@ protocol EditToolViewInput: EditViewPlayProtocol {
     
     func refreshRecordContainer()
     
+    func refreshCaptionContainer()
+    
     func refreshVideoTransitionView(_ segments: [CompositionVideoSegment])
     
     func refreshOperationContainerView()
@@ -47,6 +49,8 @@ protocol EditToolViewOutput: class, EditDataSourceProtocol, EditPlayerInteractio
     var currentContrast: Float { get }
     
     var currentSaturation: Float { get }
+    
+    var isMute: Bool { get }
     
     func toolViewCanDeleteAtComposition(_ toolView: EditToolViewInput) -> Bool
     

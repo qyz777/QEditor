@@ -75,7 +75,7 @@ public class CompositionAudioSegment: CompositionMediaSegment {
     public func toJSON() -> [String : Any] {
         var info: [String: Any] = [:]
         if let url = url {
-            info["url"] = url.absoluteString
+            info["url"] = url.path
         }
         info["start"] = rangeAtComposition.start.seconds
         info["end"] = rangeAtComposition.end.seconds

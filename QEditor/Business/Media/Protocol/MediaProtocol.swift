@@ -58,6 +58,8 @@ protocol MediaPresenterInput {
     
     func requestAuthorizationIfNeed()
     
+    func load(model: MediaVideoModel, _ closure: @escaping () -> Void)
+    
 }
 
 protocol MediaPresenterOutput {

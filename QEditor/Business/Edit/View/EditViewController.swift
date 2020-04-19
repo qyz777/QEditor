@@ -16,7 +16,13 @@ enum EditSettingType {
     case direction
 }
 
-class EditViewController: UIViewController {
+public protocol EditViewControllerDelegate: class {
+    
+    func edit(viewController: EditViewController, stash config: CompositionProjectConfig)
+    
+}
+
+public class EditViewController: UIViewController {
     
     static func buildView(with urls: [URL]) -> EditViewController {
         let vc = EditViewController(with: urls)
@@ -30,9 +36,25 @@ class EditViewController: UIViewController {
         return vc
     }
     
-    public var presenter: EditViewOutput!
+    static func buildView(with config: CompositionProjectConfig) -> EditViewController {
+        let vc = EditViewController(with: config)
+        let p = EditViewPresenter()
+        vc.presenter = p
+        vc.editPlayer.presenter = p
+        vc.editTool.presenter = p
+        p.view = vc
+        p.playerView = vc.editPlayer
+        p.toolView = vc.editTool
+        return vc
+    }
+    
+    public weak var delegate: EditViewControllerDelegate?
+    
+    var presenter: EditViewOutput!
     
     private var sourceUrls: [URL] = []
+    
+    private var config: CompositionProjectConfig?
     
     private var isShowSettings = false
     
@@ -41,18 +63,28 @@ class EditViewController: UIViewController {
         sourceUrls = urls
     }
     
+    init(with config: CompositionProjectConfig) {
+        super.init(nibName: nil, bundle: nil)
+        self.config = config
+    }
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         initView()
         
-        presenter.view(self, didLoadSource: sourceUrls)
+        if config != nil {
+            view.layoutIfNeeded()
+            presenter.importProject(config!)
+        } else {
+            presenter.view(self, didLoadSource: sourceUrls)
+        }
     }
     
-    override var prefersStatusBarHidden: Bool {
+    public override var prefersStatusBarHidden: Bool {
         return true
     }
     
@@ -92,7 +124,9 @@ class EditViewController: UIViewController {
     
     @objc
     func didClickCloseButton() {
-        dismiss(animated: true, completion: nil)
+        dismiss(animated: true) {
+            self.delegate?.edit(viewController: self, stash: self.presenter.exportProject())
+        }
     }
     
     @objc

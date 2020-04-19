@@ -73,27 +73,44 @@ class EditViewPresenter {
         return CGFloat(frameCount()) * EDIT_THUMB_CELL_SIZE
     }
     
+    var isMute: Bool {
+        return project.originVolumn == 0
+    }
+    
     init() {
         setupPlayer()
     }
     
+    /// 全体数据与以及视图的大刷新
     func refreshView() {
+        //1.刷新Composition
+        project.refreshComposition()
         guard let composition = project.composition else { return }
         guard let imageSourceComposition = project.imageSourceComposition else { return }
-        //1.处理工具栏数据源
-        thumbModels = splitTime().map({ (time) -> EditToolImageCellModel in
-            return EditToolImageCellModel(time: time)
-        })
         //2.设置player
         project.reloadPlayer()
-        //3.刷新工具栏，下面刷新顺序不能乱
+        //3.刷新数据源
+        loadData()
+        //4.刷新工具栏，下面刷新顺序不能乱
         toolView?.refreshOperationContainerView()
         toolView?.loadAsset(imageSourceComposition)
         toolView?.reloadVideoView(project.videoSegments)
         toolView?.refreshVideoTransitionView(project.videoSegments)
         toolView?.refreshWaveFormView(with: composition)
-        //4.恢复到刷新之前的seek
+        toolView?.refreshMusicContainer()
+        toolView?.refreshRecordContainer()
+        toolView?.refreshCaptionContainer()
+        //5.恢复到刷新之前的seek
         project.seek(to: toolView?.currentCursorTime() ?? .zero)
+    }
+    
+    public func loadData() {
+        thumbModels = splitTime().map({ (time) -> EditToolImageCellModel in
+            return EditToolImageCellModel(time: time)
+        })
+        updateMusicCellModels()
+        updateMusicCellModels()
+        updateCaptionCellModels()
     }
     
     func beginTaskRunning() {
@@ -148,6 +165,18 @@ class EditViewPresenter {
             model.content = segment.text
             model.segment = segment
             return model
+        })
+    }
+    
+    func updateMusicCellModels() {
+        musicCellModels = project.musicSegments.map({ (s) -> EditOperationAudioCellModel in
+            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: s.title ?? "")
+        })
+    }
+    
+    func updateRecordCellModels() {
+        recordCellModels = project.recordAudioSegments.map({ (s) -> EditOperationAudioCellModel in
+            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: "语音录制音频")
         })
     }
     

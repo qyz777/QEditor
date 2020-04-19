@@ -2,6 +2,7 @@ PODS:
   - AudioCollection (0.0.1):
     - SnapKit
     - TableViewAdapter
+  - DeviceKit (2.3.0)
   - DispatchQueuePool (0.0.1)
   - EFColorPicker (5.2.0)
   - FLEX (4.0.0)
@@ -22,6 +23,7 @@ PODS:
 
 DEPENDENCIES:
   - AudioCollection (from `./LocalLib/AudioCollection`)
+  - DeviceKit (~> 2.0)
   - DispatchQueuePool (from `./LocalLib/DispatchQueuePool`)
   - EFColorPicker (~> 5.2.0)
   - FLEX
@@ -36,6 +38,8 @@ DEPENDENCIES:
   - TableViewAdapter (from `./LocalLib/TableViewAdapter`)
 
 SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - DeviceKit
   trunk:
     - EFColorPicker
     - FLEX
@@ -57,6 +61,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AudioCollection: aa3168fd373c56a1caa119ed7fc974208b583efa
+  DeviceKit: da103891aa928d89f64ea8dd8aca738c5f3d8ac0
   DispatchQueuePool: 3f8efa6ee482e88b701498dce385c13fd6d8be60
   EFColorPicker: ac692380016b47ad0e61706a910fc1414214a760
   FLEX: 3fb1e8096b230a08a5d4d5f3c2992b84399a6abf
@@ -69,6 +74,6 @@ SPEC CHECKSUMS:
   SwifterSwift: a9e8e144832638c2850b43da5feaf9598c6ad65b
   TableViewAdapter: c2b204aae9927d66ae67d8c72c1df2118d309a00
 
-PODFILE CHECKSUM: d69de9f8815aa85851d6558d452e7f37dd02b966
+PODFILE CHECKSUM: ce71fb3292a09f2a3417dfd735a068598dfcf71c
 
 COCOAPODS: 1.8.4

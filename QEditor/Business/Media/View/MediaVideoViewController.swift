@@ -68,9 +68,12 @@ extension MediaVideoViewController: UICollectionViewDelegate, UICollectionViewDa
         if model.videoModel?.thumbnail != nil {
             cell.updateCell(with: model)
         } else {
-            presenter.loadImage(in: model.videoModel!.asset!) { (image) in
-                model.videoModel!.thumbnail = image
-                cell.updateCell(with: model)
+            presenter.load(model: model.videoModel!) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.presenter.loadImage(in: model.videoModel!.asset!) { (image) in
+                    model.videoModel!.thumbnail = image
+                    cell.updateCell(with: model)
+                }
             }
         }
         return cell

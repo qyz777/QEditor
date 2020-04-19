@@ -12,6 +12,8 @@ import GPUImage
 
 public class CompositionProject {
     
+    public var id: String = String.timestamp()
+    
     public private(set) var composition: AVMutableComposition?
     
     public private(set) var videoComposition: AVMutableVideoComposition?
@@ -31,7 +33,14 @@ public class CompositionProject {
     
     public internal(set) var captionSegments: [CompositionCaptionSegment] = []
     
-    public var selectedFilter: CompositionFilter = .none
+    public var selectedFilter: CompositionFilter = .none {
+        willSet {
+            guard newValue != .none else {
+                return
+            }
+            replaceFilter(newValue)
+        }
+    }
     
     /// Output player of project
     public let player = CompositionPlayer()
@@ -164,6 +173,8 @@ public class CompositionProject {
         if composition.tracks(withMediaType: .audio).count > 1 {
             setupAudioMix()
         }
+        
+        generateSyncLayer()
         
         self.composition = composition
     }

@@ -862,6 +862,7 @@ extension EditToolViewController: EditToolViewInput {
     
     func refreshWaveFormView(with asset: AVAsset) {
         originAudioWaveformView.update(asset)
+        muteButton.isSelected = presenter.isMute
     }
     
     func currentCursorTime() -> Double {
@@ -941,6 +942,10 @@ extension EditToolViewController: EditToolViewInput {
     
     func refreshRecordContainer() {
         recordContainer.update(presenter.recordCellModels)
+    }
+    
+    func refreshCaptionContainer() {
+        captionContainerView.update(presenter.captionCellModels)
     }
     
     func refreshVideoTransitionView(_ segments: [CompositionVideoSegment]) {

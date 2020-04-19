@@ -97,9 +97,7 @@ extension EditViewPresenter: EditToolViewOutput {
         segment.title = title
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
-        musicCellModels = project.musicSegments.map({ (s) -> EditOperationAudioCellModel in
-            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: title ?? "")
-        })
+        updateMusicCellModels()
         toolView.refreshMusicContainer()
         MessageBanner.show(title: "成功", subTitle: "添加音乐成功", style: .success)
     }
@@ -151,9 +149,7 @@ extension EditViewPresenter: EditToolViewOutput {
         project.reloadPlayer()
         project.seek(to: toolView.currentCursorTime())
         
-        recordCellModels = project.recordAudioSegments.map({ (s) -> EditOperationAudioCellModel in
-            return EditOperationAudioCellModel(width: segmentOffset(for: s.duration, in: duration), cellClass: EditOperationAudioCell.self, start: segmentOffset(for: s.rangeAtComposition.start.seconds, in: duration), maxWidth: segmentMaxWidth(for: s.duration), segment: s, title: "语音录制音频")
-        })
+        updateRecordCellModels()
         
         toolView.refreshRecordContainer()
         MessageBanner.show(title: "成功", subTitle: "添加录音成功", style: .success)

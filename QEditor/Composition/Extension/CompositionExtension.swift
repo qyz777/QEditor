@@ -48,3 +48,12 @@ extension CMTime {
     }
     
 }
+
+extension String {
+    
+    static func timestamp() -> String {
+        let timeInterval: TimeInterval = Date().timeIntervalSince1970
+        return "\(Int(timeInterval))"
+    }
+    
+}
