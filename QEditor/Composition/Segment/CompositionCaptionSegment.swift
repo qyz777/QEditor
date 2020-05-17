@@ -28,10 +28,6 @@ public class CompositionCaptionSegment: CompositionSegment, CompositionSegmentCo
     
     public var fontName: String = CompositionCaptionFontName.PingFangSC.regular.rawValue
     
-    public var font: UIFont {
-        return UIFont(name: fontName, size: fontSize.size()) ?? .systemFont(ofSize: 13)
-    }
-    
     public var textColor: UIColor = UIColor.qe.hex(0xEEEEEE)
     
     public init(text: String, at range: CMTimeRange) {
@@ -78,17 +74,18 @@ public class CompositionCaptionSegment: CompositionSegment, CompositionSegmentCo
     /// 注意：视频播放的尺寸与视频实际尺寸不同
     /// 导出视频时需要根据视频实际尺寸重新build一个新layer使用
     /// - Parameter bounds: layer尺寸
-    public func buildLayer(for bounds: CGRect) -> CALayer {
+    /// - Parameter isExport: 是否是导出模式
+    public func buildLayer(for bounds: CGRect, isExport: Bool = false) -> CALayer {
         let layer = CALayer()
         layer.frame = bounds
         layer.opacity = 0
-        layer.addSublayer(buildTextLayer(for: bounds))
+        layer.addSublayer(buildTextLayer(for: bounds, isExport: isExport))
         layer.add(buildFadeInFadeOutAnimation(), forKey: nil)
         return layer
     }
     
-    private func buildTextLayer(for bounds: CGRect) -> CATextLayer {
-        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: textColor]
+    private func buildTextLayer(for bounds: CGRect, isExport: Bool) -> CATextLayer {
+        let attributes = [NSAttributedString.Key.font: UIFont(name: fontName, size: isExport ? fontSize.exportSize() : fontSize.size())!, NSAttributedString.Key.foregroundColor: textColor]
         let attrString = NSAttributedString(string: text, attributes: attributes)
         let textSize = text.size(withAttributes: attributes)
         let layer = CATextLayer()
@@ -104,7 +101,7 @@ public class CompositionCaptionSegment: CompositionSegment, CompositionSegmentCo
         let animation = CAKeyframeAnimation(keyPath: "opacity")
         animation.values = [NSNumber(value: 0), NSNumber(value: 1.0), NSNumber(value: 1.0), NSNumber(value: 0)]
         animation.keyTimes = [NSNumber(value: 0), NSNumber(value: 0.1), NSNumber(value: 0.9), NSNumber(value: 1)]
-        animation.beginTime = rangeAtComposition.start.seconds
+        animation.beginTime = AVCoreAnimationBeginTimeAtZero + rangeAtComposition.start.seconds
         animation.duration = rangeAtComposition.duration.seconds
         animation.isRemovedOnCompletion = false
         return animation
@@ -129,6 +126,10 @@ public enum CompositionCaptionFontSize: String, Codable {
         case .superLarge:
             return 19
         }
+    }
+    
+    public func exportSize() -> CGFloat {
+        return size() * 2
     }
 }
 

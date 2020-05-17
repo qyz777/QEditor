@@ -20,17 +20,26 @@ public class CompositionExporter {
     let videoComposition: AVVideoComposition?
     let audioMix: AVAudioMix?
     let filters: [ImageProcessingOperation]
+    let animationTool: AVVideoCompositionCoreAnimationTool?
     let exportURL: URL
     
     var input: MovieInput?
     var output: MovieOutput?
     
-    public init(asset: AVAsset, videoComposition: AVVideoComposition? = nil, audioMix: AVAudioMix? = nil, filters: [ImageProcessingOperation], exportURL: URL) {
+    let tmpExportURL: URL?
+    
+    public init(asset: AVAsset, videoComposition: AVVideoComposition? = nil, audioMix: AVAudioMix? = nil, filters: [ImageProcessingOperation], animationTool: AVVideoCompositionCoreAnimationTool? = nil,  exportURL: URL) {
         self.asset = asset
         self.videoComposition = videoComposition
         self.audioMix = audioMix
         self.filters = filters
+        self.animationTool = animationTool
         self.exportURL = exportURL
+        if self.animationTool != nil {
+            tmpExportURL = URL(fileURLWithPath: String.qe.tmpPath() + String.qe.timestamp() + "_tmp.mp4")
+        } else {
+            tmpExportURL = nil
+        }
     }
     
     public func prepare() -> Bool {
@@ -68,7 +77,7 @@ public class CompositionExporter {
             AVVideoCodecKey: AVVideoCodecType.h264]
         
         do {
-            try output = MovieOutput(URL: exportURL, size: Size(width: Float(videoTrack.naturalSize.width), height: Float(videoTrack.naturalSize.height)), fileType:.mp4, liveVideo: false, videoSettings: videoEncodingSettings, videoNaturalTimeScale: videoTrack.naturalTimeScale, audioSettings: audioEncodingSettings, audioSourceFormatHint: nil)
+            try output = MovieOutput(URL: tmpExportURL ?? exportURL, size: Size(width: Float(videoTrack.naturalSize.width), height: Float(videoTrack.naturalSize.height)), fileType:.mp4, liveVideo: false, videoSettings: videoEncodingSettings, videoNaturalTimeScale: videoTrack.naturalTimeScale, audioSettings: audioEncodingSettings, audioSourceFormatHint: nil)
         } catch {
             return false
         }
@@ -89,32 +98,73 @@ public class CompositionExporter {
     }
     
     public func start() {
-        guard let input = input else { return }
-        guard let output = output else { return }
-        
-        input.completion = {
-            output.finishRecording {
-                input.audioEncodingTarget = nil
-                input.synchronizedMovieOutput = nil
-                
+        input?.completion = { [unowned self] in
+            self.output?.finishRecording { [unowned self] in
                 DispatchQueue.main.async {
-                    self.completion?(self.exportURL)
+                    if let url = self.tmpExportURL {
+                        self.handleCaption(for: AVURLAsset(url: url, options: [AVURLAssetPreferPreciseDurationAndTimingKey: NSNumber(value: true)]))
+                    } else {
+                        self.progressClosure?(1)
+                        self.completion?(self.exportURL)
+                    }
                 }
             }
         }
-        
-        input.progress = { [unowned self] (value) in
+
+        input?.progress = { [unowned self] (value) in
             DispatchQueue.main.async {
                 self.progressClosure?(Float(value))
             }
         }
-        
-        output.startRecording{ (started, error) in
+
+        output?.startRecording{ [unowned self] (started, error) in
             guard started else {
                 QELog("MovieOutput unable to start writing with error: \(String(describing: error))")
                 return
             }
-            input.start()
+            self.input?.start()
+        }
+    }
+    
+    private func handleCaption(for asset: AVAsset) {
+        guard let animationTool = animationTool else { return }
+        guard let assetVideoTrack = asset.tracks(withMediaType: .video).first else { return }
+        guard let assetAudioTrack = asset.tracks(withMediaType: .audio).first else { return }
+        let mixComposition = AVMutableComposition()
+        guard let videoTrack = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+        guard let audioTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else { return }
+        do {
+            try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: assetVideoTrack, at: .zero)
+            try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: asset.duration), of: assetAudioTrack, at: .zero)
+        } catch {
+            QELog(error)
+        }
+        
+        videoTrack.preferredTransform = assetVideoTrack.preferredTransform
+        
+        let size = videoTrack.naturalSize
+        
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderSize = size
+        videoComposition.animationTool = animationTool
+        videoComposition.frameDuration = CMTime(value: 1, timescale: 60)
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        instruction.layerInstructions = [layerInstruction]
+        videoComposition.instructions = [instruction]
+        
+        let exporter = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetHighestQuality)
+        exporter?.outputURL = exportURL
+        exporter?.outputFileType = .mp4
+        exporter?.shouldOptimizeForNetworkUse = true
+        exporter?.videoComposition = videoComposition
+        exporter?.exportAsynchronously { [weak self] in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.async {
+                strongSelf.progressClosure?(1)
+                strongSelf.completion?(strongSelf.exportURL)
+            }
         }
     }
     

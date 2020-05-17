@@ -121,7 +121,17 @@ public class CompositionProject {
         let filters = player.filters.map { (f) -> ImageProcessingOperation in
             return f.instance()!
         }
-        return CompositionExporter(asset: composition, videoComposition: videoComposition, audioMix: audioMix, filters: filters, exportURL: url)
+        let parentLayer = CALayer()
+        parentLayer.isGeometryFlipped = true
+        let videoLayer = CALayer()
+        videoLayer.frame = CGRect(origin: .zero, size: composition.tracks(withMediaType: .video).first!.naturalSize)
+        parentLayer.frame = videoLayer.frame
+        parentLayer.addSublayer(videoLayer)
+        captionSegments.forEach {
+            parentLayer.addSublayer($0.buildLayer(for: parentLayer.bounds, isExport: true))
+        }
+        let animtaionTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: parentLayer)
+        return CompositionExporter(asset: composition, videoComposition: videoComposition, audioMix: audioMix, filters: filters, animationTool: animtaionTool, exportURL: url)
     }
     
     //MARK: Composition
